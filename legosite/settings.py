@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'App.apps.AppConfig',
-    'legosite'
+    'legosite',
+    'legosite_DB',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +89,7 @@ WSGI_APPLICATION = 'legosite.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'legosite_DB',
         'USER':'postgres',
         'PASSWORD':'#Legomario1',
