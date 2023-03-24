@@ -1,0 +1,77 @@
+{% extends 'App/template_blocks/base.html' %}
+
+{% block content %}
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'App/search.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+    {% load tags %}
+
+    <p id="important-info">Only theme with data <a href="http://127.0.0.1:8000/search/all/Star_Wars/">Star Wars</a></p>
+    {% if sub_themes|length > 0 %}
+
+    <section id="search-themes-container">
+
+    <section id="all-themes-container">
+        {% for theme in sub_themes %}
+        <a class="theme-container" href="{% url 'search' theme_path %}{{theme.sub_theme}}/">
+            <h3>{{theme.sub_theme|replace_underscore}}</h3>
+            <img src="{% static theme.img_path %}" alt="{{theme.img_path}}" loading="lazy">
+        </a>
+        {% endfor %}
+    </section>
+
+    </section>
+    
+    {% endif %}
+
+    {% if theme_items|length > 0 %}
+
+    <section id="theme-items-container">
+        <!-- item sorting, graph data, page buttons -->
+        <div id="sort-options-container">
+            {% include 'App/template_blocks/item_filters_and_sorts.html' with action_view="search" view="search" sub_view=theme_path %}
+        </div>
+
+        <div id="theme-items">
+        {% for item in theme_items %}
+            <div class="main-item-container">
+            {% include 'App/template_blocks/item_container.html' %}
+            </div>
+        {% endfor %}
+        </div>
+    </section>
+
+    {% else %}
+    <section id="info">
+        <div id="trending-themes">
+            <div id="biggest-winners" class="trending-themes-container">
+                <h3>Biggest Winners</h3>
+                <table>
+                    {% for theme in biggest_theme_trends.biggest_winners %}
+                    <tr>
+                        <td class="theme-path">{{theme.theme_path|replace_space_substitute}}</td>
+                        <td class="change">%{{theme.change|absolute_value}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div id="biggest-losers" class="trending-themes-container">
+                <h3>Biggest Losers</h3>
+                <table>
+                {% for theme in biggest_theme_trends.biggest_losers %}
+                <tr>
+                    <td class="theme-path">{{theme.theme_path|replace_space_substitute}}</td>
+                    <td class="change">%{{theme.change|absolute_value}}</td>
+                </tr>
+                {% endfor %}
+                </table>
+            </div>             
+        </div>
+    </section>
+    {% endif %}
+
+{% endblock %}
+

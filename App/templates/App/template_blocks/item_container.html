@@ -1,0 +1,53 @@
+{% load static %}
+{% load tags %}
+
+{% if view == "portfolio" %}
+<div style="border-top-left-radius: 0;" class="item-container">
+{% else %}
+<div class="item-container">
+{% endif %}
+    <div class="item-img-and-title">
+        <h3>{{item.item_name}}</h3>
+
+        {% if scroll_to_top %}
+            <h4><a onclick="window.scrollTo({top:0})" href="{% url 'item' item.item_id %}">{{item.item_id}}</a></h4>
+        {% else %}
+            <h4><a href="{% url 'item' item.item_id %}">{{item.item_id}}</a></h4>
+        {% endif %}
+        <img src="{% static item.img_path  %}" alt="{{item.item_id}}">
+
+        {% if show_graph %}
+        <div class="price-info">
+            <table>
+                <tr>
+                    <th>Avg</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Qty</th>
+                </tr>
+
+                <tr>
+                    <td>£{{item.avg_price|shorten_long_number|two_decimals}}</td>
+                    <td>£{{item.min_price|shorten_long_number}}</td>
+                    <td>£{{item.max_price|shorten_long_number}}</td>
+                    <td>{{item.total_quantity|shorten_long_number}}</td>
+                </tr>
+            </table>
+        </div> 
+        {% endif %}
+
+        {% if show_year_released_availability %}
+            <p class="year-released">Year Released : {{item.year_released}}</p>
+            <p class="availablilty">Availablilty : -</p>
+        {% endif %}
+    </div>
+
+
+
+
+    {% if show_graph %}
+
+    {% include 'App/template_blocks/item_chart.html' %}
+
+    {% endif %}
+</div>

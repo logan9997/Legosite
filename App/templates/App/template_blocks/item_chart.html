@@ -1,0 +1,104 @@
+<div class="price-trend">
+    <canvas class="item_canvas" id="{{item.chart_id}}"></canvas>
+
+    {% with item.avg_price_id as avg_price %}
+        {{ item.avg_price_graph|json_script:avg_price }}
+    {% endwith %}
+
+    {% with item.min_price_id as min_price %}
+        {{ item.min_price_graph|json_script:min_price }}
+    {% endwith %}
+
+    {% with item.max_price_id as max_price %}
+        {{ item.max_price_graph|json_script:max_price }}
+    {% endwith %}
+
+    {% with item.total_quantity_id as quantity %}
+        {{ item.total_quantity_graph|json_script:quantity }}
+    {% endwith %}
+
+    {% with item.dates_id as dates %}
+        {{ item.dates|json_script:dates }}
+    {% endwith %}
+
+
+    <script>
+        var dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
+        var metric_data = [
+            {
+                id:'{{item.avg_price_id}}',
+                backgroundColor:"red",
+                label:"Average Price",
+                borderColor:"red",
+                fill:false,
+            }, 
+            {
+                id:'{{item.min_price_id}}',
+                backgroundColor:"#00CC00",
+                label:"Minimum Price",
+                borderColor:"#00CC00",
+                fill:false
+            }, 
+            {
+                id:'{{item.max_price_id}}',
+                backgroundColor:"#3399FF",
+                label:"Maximum Price",
+                borderColor:"#3399FF",
+                fill:false
+            }, 
+            {
+                id:'{{item.total_quantity_id}}',
+                backgroundColor:"#FF00FF",
+                label:"Quantity",
+                borderColor:"#FF00FF",
+                fill:false,
+            }
+        ]
+
+        var new_data = []
+        for (let i = 0; i < metric_data.length; i++) {
+            if (metric_data[i].id != '') {
+                metric_data[i].data = JSON.parse(document.getElementById(metric_data[i].id).textContent)
+                new_data.push(metric_data[i])
+            } 
+        }
+
+        
+        var graph_data = {
+            labels:dates,
+            datasets: new_data,
+            
+        }
+
+        var chart_options = {
+            legend: {
+                display:false,
+                labels: {
+                    fontColor: 'black'
+                }
+            },
+            scales: {
+                yAxes : [{
+                    ticks : {
+                        maxTicksLimit: 8,
+                    }
+                }],
+                xAxes : [{
+                    ticks : {
+                        maxTicksLimit: 8,
+                    }
+                }],
+                x: {
+                    type:"time",
+                    time: {unit:"day"}
+                }
+            }
+        };
+
+        var mychart = new Chart(`{{item.chart_id}}`, {
+            type: 'line',
+            data: graph_data,
+            options: chart_options
+        });
+    </script>
+</div>

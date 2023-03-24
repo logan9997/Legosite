@@ -1,0 +1,121 @@
+.entry-item-container {
+    background-color: rgb(180, 180, 180);
+    width: 90%;
+    margin:1rem 5% 0;
+    display: flex;
+    height: 8rem;
+    border-bottom: 0.1rem rgb(228, 220, 220) solid;
+}
+
+
+.entry-item-container .entry-counter {
+    height: 100%;
+    width: 4rem;
+    border-left: 0.1rem black solid;
+    border-right: 0.1rem black solid;
+    border-bottom: 0.1rem black solid;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.entry-counter button {
+    background-color: red;
+    border-right: none;
+    border-left: none;
+    position: relative;
+    bottom:0.21rem
+}
+
+.entry-item-container .main-input-set {
+    margin: 2rem 1rem 0;
+}
+
+.entry-item-container .label-input-container {
+    display: flex;
+}
+
+.entry-item-container label {
+    height: 1.6rem;
+    margin: 0.5rem 0.5rem 0;
+    float: left;
+    width: 6.8rem;
+}
+
+.entry-item-container input {
+    height: 1.6rem;
+    border: none;
+    border-bottom: 0.1rem black solid;
+    margin: 0.2rem;
+    background-color: transparent;
+    width: 7rem;
+    float: right;
+    padding: 0;
+}
+
+.entry-item-container input:focus {
+    outline: none;
+}
+
+.clear-button {
+    height: 1.1rem;
+    background-color: red;
+    margin: 0.9rem 0.3rem 0;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.entry-item-container .notes {
+    display: flex;
+    flex-direction: column;
+    justify-content: center ;
+    height: 7rem;  
+    margin: 0 1rem 0;
+}
+
+.notes label {
+    position: relative;
+    right: 0.3rem;
+}
+
+#condition-container-and-submit {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#condition-container select {
+    width: 4rem;
+    margin-left: 1rem;
+}
+
+#submit {
+    height: 1.6rem;
+    border-radius: 1rem;
+    background-color:green ;
+    border: 0.1rem rgb(14, 158, 4) solid;
+    width: 4rem;
+    margin-left: calc(100% - 6rem);
+    margin-top: 1rem;
+}
+
+.error-msg-container {
+    width: 90%;
+    background-color: rgb(228, 220, 220);
+    margin-left: 5%;
+    border-top: 0.1rem black solid;
+    display: none;
+}
+
+.error-msg {
+    margin: 0 5% 0.5rem;
+    padding: 0.2rem;
+    color: red;
+}
+
+.entry-item-container:nth-child(odd) {
+    background-color: rgb(228, 220, 220);
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'App/styles.css' now 'U' %}">
+    <script src="{% static 'App/script.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <link rel="stylesheet" href="{% static 'App/item_container.css' %}">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) { 
+            var scrollpos = localStorage.getItem('scrollpos');
+            if (scrollpos) window.scrollTo(0, scrollpos);
+        });
+
+        window.onbeforeunload = function(e) {
+            localStorage.setItem('scrollpos', window.scrollY);
+        };
+    </script>
+
+</head>
+<body>
+    {% load tags %}
+    {% check_login_status request %}
+    {% add_username_email_to_context request %}
+    
+    <nav>
+        <ul>
+            <li>
+                <button><a href="{% url 'index' %}">Home</a></button>
+            </li>
+
+            <li>
+                <button><a href="{% url 'search' %}">Search</a></button>
+            </li>
+
+            <li>
+                <button><a href="{% url 'trending' %}">Trending</a></button>
+            </li>
+
+            {% if logged_in %}
+
+            <li>
+                <button>Profile</button>
+                <div class="dropdown-content">
+                    <a href="{% url 'profile' %}">Settings</a>
+                    <a href="{% url 'portfolio' %}?view=items">Portfolio</a>
+                    <a href="{% url 'watchlist' %}">Watchlist</a>
+                </div>
+            </li>
+
+            {% else %}
+
+            <li>
+                <button><a href="{% url 'login' %}">Login</a></button>
+            </li>
+
+            <li>
+                <button><a href="{% url 'join' %}">Join</a></button>
+            </li>
+
+            {% endif %}
+
+        </ul>
+
+        <div id="flex-container">
+            <div id="RHS-nav-content">  
+                <div>
+                    <form id="search-form" action="{% url 'search_item' request.path_info %}" method="post">
+                        {% csrf_token %}
+                        <div id="input-submit-container">
+                            <input placeholder="Enter item ID / name" type="text" name="item_id">
+                            <button type="submit"></button>
+                        </div>
+                    </form>
+                </div>
+
+            <div>
+                {% if logged_in %}
+                    <a id="logout" href="{% url 'logout' %}"><img onclick="logout_popup(event)" src="{% static 'App/styling-images/logout_button.png' %}" alt="logout"></a>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+    </nav>
+
+        {% block content%}
+        
+        {% endblock %}
+
+
+    <footer>
+        <p>Page Created By: Logan Baxter</p>
+        <p>
+            <a target="_blank" href="https://github.com/logan9997">GitHub</a> : 
+            <a target="_blank" href="https://stackoverflow.com/users/18749472/logan-9997">Stack Overflow</a> : 
+            <a target="_blank" href="https://www.upwork.com/freelancers/~01bfefc4cf0501a2d5">Upwork</a> :
+            <a target="_blank" href="https://store.bricklink.com/legoseller9997&utm_content=globalnav#/shop">Bricklink</a>
+        </p>
+        <p>loganbax101@gmail.com</p>
+        <p>+44 07749 969728</p>
+        <br>
+        <div id="smaller-text">
+            <p>All data collected from bricklink.com</p>
+        </div>
+    </footer>
+</body>
+</html>

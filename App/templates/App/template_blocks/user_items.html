@@ -1,0 +1,175 @@
+{% block content %}
+{% load static %}
+{% load tags %}
+<link rel="stylesheet" href="{% static 'App/user_items.css' %}">
+
+<h1>&nbsp;&nbsp;{{view|capitalise}}&nbsp;&nbsp;</h1>
+
+<section id="header">
+    <div id="tool-bar-header" class="headers">
+        <h2>Overview</h2>
+    </div>
+    
+    <div id="items-header" class="headers">
+        {% include 'App/template_blocks/item_filters_and_sorts.html' with action_view='view_POST' sub_view=view item_id=item_id %}
+    </div>
+    
+</section>
+
+<section id="main-container">
+
+    <section id="tool-bar">
+            {% if request.GET.item != None%}
+                <div class="tool-bar-div" id="stats">
+                    <h3>Stats</h3>
+                    <p>Total Market Value : £{{total_market_value|two_decimals}}</p>
+                    <p>Total bought for price : £{{total_bought_price|two_decimals}}</p>
+                    <p>Total sold for price : £{{total_sold_price|none_to_hyphens}}</p>
+
+                    {% if total_profit < 0 %}
+                        <p>Total Loss £{{total_profit|times_negative_one|two_decimals}}</p>
+                    {% else %}
+                        <p>Total Profit : £{{total_profit|two_decimals}}</p>
+                    {% endif %}
+                    <br>
+                    <p>Total Owners : {{total_owners}}</p>
+                    <p>Total Watchers : {{total_watchers}}</p>
+                    <br>
+                </div>
+            {% else %}
+
+            <div class="tool-bar-div" id="stats">
+                <h3>Stats</h3>
+                    
+                {% if request.path == "/portfolio/" %}
+                    <p>Total of {{ total_items }} items in your portfolio.</p>
+                {% endif %}
+
+                <p>Total of {{ total_unique_items }} unique items in your {{ view }}.</p>
+
+                {% if metric_total.metric != 'Total Quantity'%}
+                    <p>Total {{metric_total.metric}} £{{metric_total.total | two_decimals}}</p>
+                {% else %}
+                    <p>{{metric_total.metric}} {{metric_total.total | remove_decimals}}</p>
+                {% endif %}
+
+                <br>
+
+                {% if request.path == "/portfolio/" %}
+                    <p>Total Price Bought For : £{{total_bought_price|two_decimals}}</p>
+                    <p>Total Price Sold For : £{{total_sold_price|two_decimals}}</p>
+                    {% if total_profit < 0 %}
+                        <p>Total Loss £{{total_profit|times_negative_one|two_decimals}}</p>
+                    {% else %}
+                        <p>Total Profit : £{{total_profit|two_decimals}}</p>
+                    {% endif %}
+                {% endif %}
+
+            </div>
+
+            <div class="tool-bar-div" id="themes-container">
+                <h3>Themes - <span id="themes-header-metric">({{metric_total.metric}})</span></h3>
+                {% for theme in themes %}
+                    {% if metric_total.metric != 'Total Quantity' %}
+                        <p>{{theme.theme_path | count_theme_indent }} ({{theme.count}}) : £{{theme.metric_total | two_decimals}}</p>
+                    {% else %}
+                        <p>{{theme.theme_path | count_theme_indent }} ({{theme.count}}) : {{theme.metric_total | remove_decimals}}</p>
+                    {% endif %}
+                {% endfor %}
+                <br>
+            </div>
+
+            {% endif %}
+    </section>
+    {% if request.GET.item == None %}
+        <section id="items-container">
+            {% if items|length == 0%}
+                <p>No items in {{view}}</p>
+            {% else %}
+            <div id="items">
+            {% for item in items %}
+
+            <div class="item-and-side-bar-container">
+                {% if request.path == "/portfolio/" %}
+                <div class="items-options">
+                    <div class="qty-condition-container">      
+                        {% if item.owned_quantity_new != None %} 
+                            <p>{{item.owned_quantity_new}} (N)</p>
+                        {% endif %}
+
+                        {% if item.owned_quantity_used != None %}
+                            <p>{{item.owned_quantity_used}} (U)</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="view-owned">
+                        <form action="{% url 'portfolio' %}?item={{item.item_id}}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="form-type" value="entries_button">
+                            <input type="hidden" name="item_id" value="{{item.item_id}}">
+                            <button type="submit">Entries</button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="items-options watchlist-options">
+                    <form action="{% url 'view_POST' view %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="form-type" value="remove-watchlist-item">
+                        <input type="hidden" name="item_id" value="{{item.item_id}}">
+                        <button type="submit">-</button>
+                    </form>
+                </div>
+                {% endif %}
+                {% include 'App/template_blocks/item_container.html' %}
+                </div>
+                {% endfor %}
+            </div>  
+            {% endif%}     
+        </section>
+        
+
+    {% else %}
+    <section id="items-container">
+            <div id="entry-item-container">
+                <div id="item-profile">
+                    {% include 'App/template_blocks/item_container.html' with item=item show_graph=False show_year_released_availability=True %}
+                </div>
+
+                <div id="chart-container">
+                    <div id="header-and-graph-container">
+                        <h3>{{graph_metric|capitalise_split_words}} Trends</h3>
+                        {% include 'App/template_blocks/item_chart.html' with item=item %}
+                    </div>
+                </div>
+
+                <div id="metric-change-container">
+                    <h3>Trends</h3>
+                    {% for trend in metric_changes %}
+                        <p>{{trend.metric|capitalise_split_words}} : (%) {{trend.change}}</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="add-new-entry">
+                <div id="new-entry-sub-container">
+                    <h3>Add New Entry</h3>
+                    {% include 'App/template_blocks/entry_item_form.html' with add_new=True show_notes=True %}
+                </div>
+            </div>
+
+            <div id="entries-items-container">
+                <h3>Entries</h3>
+                <div id="entries-items-loop-container">
+                {% for entry in item_entries %}
+                    {% include 'App/template_blocks/entry_item_form.html' with add_new=False show_notes=True %}
+                {% endfor %}
+                </div>
+            </div>
+
+    </section>
+    {% endif %}
+
+</section>
+
+{% endblock%}

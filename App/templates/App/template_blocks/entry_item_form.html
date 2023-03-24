@@ -1,0 +1,99 @@
+{% load tags %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'App/entry_item_form.css'%}">
+
+<form class="entry-item-container" action="{% url 'entry_item_handler' view %}" method="post">
+    {% csrf_token %}
+
+    <input type="hidden" name="item_id" value="{{item.item_id}}">
+
+    {% if not add_new %}
+
+    <input type="hidden" name="form-type" value="entry-edit">
+    <input type="hidden" name="entry_id" value="{{entry.entry_id}}">
+
+    {% else %}
+    <input type="hidden" name="form-type" value="new-entry">
+    <input type="hidden" name="user_id" value="{{user_id}}">
+
+    {% endif %}
+
+    {% if not add_new %}
+
+    <div class="entry-counter">
+        <button type="submit" name="remove-entry" value="remove!">Remove</button>
+        <p>{{item_entries|index:entry}}</p>
+        <p>({{entry.condition}})</p>
+    </div>
+
+    {% endif %}
+    
+    <div class="main-input-set">
+        <div class="label-input-container">
+            <label for="date_added">Date Added : </label>
+            {% if add_new %}
+                <input onchange="input_validation(this, 'date', true)" class="date-price-input" type="text" value="{{entry.date_added|none_to_empty_string}}" name="date_added">
+            {% else%}
+                <input onchange="input_validation(this, 'date', false)" class="date-price-input" type="text" value="{{entry.date_added|none_to_empty_string}}" name="date_added">
+                <button class="clear-button" type="submit" value="date_added_CLEAR" name="clear-input">-</button>
+            {% endif %}
+        </div>
+
+        <div class="label-input-container">
+            <label for="bought_for">Bought For (£) : </label>
+            {% if add_new %}
+                <input onchange="input_validation(this, 'price', true)" class="date-price-input" type="text" name="bought_for" value="{{entry.bought_for|none_to_zero}}">
+            {% else %}   
+                <input onchange="input_validation(this, 'price', false)" class="date-price-input" type="text" name="bought_for" value="{{entry.bought_for|none_to_zero}}">
+                <button class="clear-button" type="submit" value="bought_for_CLEAR" name="clear-input">-</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="main-input-set">
+        <div class="label-input-container">
+            <label for="date_sold">Date Sold : </label>
+            {% if add_new %}
+                <input onchange="input_validation(this, 'date', true)" class="date-price-input" type="text" value="{{entry.date_sold|none_to_empty_string}}" name="date_sold">
+            {% else %}
+                <input onchange="input_validation(this, 'date', false)" class="date-price-input" type="text" value="{{entry.date_sold|none_to_empty_string}}" name="date_sold">
+                <button class="clear-button" type="submit" value="date_sold_CLEAR" name="clear-input">-</button>
+            {% endif %}
+        </div>
+
+        <div class="label-input-container">
+            <label for="sold_for">Sold For (£) : </label>
+            {% if add_new %}
+                <input onchange="input_validation(this, 'price', true)" class="date-price-input" type="text" name="sold_for" value="{{entry.sold_for|none_to_zero}}">               
+            {% else %}
+                <input onchange="input_validation(this, 'price', false)" class="date-price-input" type="text" name="sold_for" value="{{entry.sold_for|none_to_zero}}">
+                <button class="clear-button" type="submit" value="sold_for_CLEAR" name="clear-input">-</button>
+            {% endif %}
+        </div>                               
+    </div>
+
+    {% if show_notes %}
+    <div class="main-input-set notes">
+        <label for="notes">Notes</label>
+        <textarea onchange="this.form.submit()" name="notes" rows="6" cols="18">{{entry.notes|none_to_empty_string}}</textarea>
+    </div>
+    {% endif %}
+
+    {% if add_new %}
+    <div id="condition-container-and-submit">
+        <label for="condition">Condition</label>
+        <select name="condition">
+            <option value="N">New</option>
+            <option value="U">Used</option>
+        </select>
+
+        <button type="submit" id="submit">Add!</button>
+    </div>
+    {% endif %}
+</form>
+
+<div class="error-msg-container">
+    <p class="error-msg"></p>
+</div>
+
+

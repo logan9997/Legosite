@@ -1,0 +1,57 @@
+{% extends 'App/template_blocks/base.html' %}
+
+
+
+{% block content %}
+
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'App/login.css' %}">
+
+<section id="main-container">
+
+    <h1>Sign up</h1>
+    <h2>Already have an account? Login here <a href="{% url 'login' %}">Login</a></h2>
+
+    <form action="{% url 'join' %}" method="post">
+        {% csrf_token %}
+        <div class="input-label-container">
+            <label for="username">Username: *</label>
+            <input type="text" name="username">
+        </div>
+
+        <div class="input-label-container">
+            <label for="email">Email: *</label>
+            <input type="text" name="email">
+        </div>
+
+        <div class="input-label-container">
+            <label for="password">Password: *</label>
+            <input type="text" name="password">
+        </div>
+
+        <div class="input-label-container">
+            <label for="password_confirmation">Password Confirmation: *</label>
+            <input type="text" name="password_confirmation">
+        </div>
+
+        <input type="submit" value="Join!">
+    </form>
+
+    <div id="error-message-container">
+        {{signup_message}}
+    </div>
+
+    {% if logged_in %}
+    <div id="logout-container">
+        <p>logout as {{username}} <a href="{% url 'logout' %}">here.</a> </p>
+    </div>
+    {% endif %}
+
+</section> 
+
+<!-- <img class="background-img" id="portfolio-sample" src="{% static 'App/styling-images/portfolio-sample.jpg'%}">
+<img class="background-img" id="portfolio-graph" src="{% static 'App/styling-images/portfolio-graph.jpg'%}"> -->
+
+{% endblock %}
+

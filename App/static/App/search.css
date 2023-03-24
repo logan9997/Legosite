@@ -1,0 +1,155 @@
+#important-info {
+    text-align: center;
+    font-size: 1.3rem;
+}
+
+#search-themes-container {
+    display: flex;
+    justify-content: row;
+}
+
+#sort-themes {
+    background-color: gainsboro;
+    width: 16%;
+    margin-left: 1%;
+}
+
+#all-themes-container {
+    box-shadow: 0 1rem 1rem 1rem rgb(225,225,225);   
+    display: flex;
+    flex-wrap:wrap;
+    justify-content:space-evenly;
+    flex-direction: column-reverse;
+    overflow: scroll;
+    height: 14rem;
+    width: 98%;
+    margin-left: 1%;
+    margin-bottom: 2rem;
+    overflow-y:hidden;
+    border-left: 0.1rem orangered solid;
+    border-top: 0.1rem orangered solid;
+    border-top-left-radius: 1rem;
+}
+
+.theme-container {
+    background-color: white;
+    width: 12%;
+    height: 90%;
+    display: inline-block;
+    margin: 0.7rem;
+    text-align: center;
+    transition: transform .2s;
+    text-decoration: none;
+    border-radius: 1rem;
+}
+
+.theme-container:hover {
+    transform: scale(1.05);
+}
+
+.theme-container h3 {
+    height: 1.6rem;
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    color: black;
+    font-style: normal;
+}
+
+.theme-container img {
+    background-color: red;
+    width:88%;
+    height: 62%;
+}
+#theme-items-container {
+    text-align: center;
+    background-color: whitesmoke;
+    width: 70%;
+    margin:2rem 15% 0;
+}
+
+#sort-options-container {
+    box-shadow: 0 0 1rem 1rem rgb(225,225,225);   
+    padding: 1rem 0 0.3rem;
+    margin-bottom: 2rem;
+    border: 0.1rem orangered solid;
+}
+
+#item-pages {
+    background-color: orangered;
+    padding: 0.5rem 0 0.5rem;
+    border-top-right-radius: 1rem;
+    border-top-left-radius: 1rem;
+}
+
+
+
+#theme-items {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    box-shadow: 0 1rem 1rem 1rem rgb(225,225,225);   
+    padding: 2rem 0 2rem;
+    margin-bottom: 5rem;
+}
+
+.main-item-container {
+    width: 47%;
+    margin-left: 1rem;
+}
+
+#trending-themes {
+    display: flex;
+    justify-content: space-around;
+}
+
+#biggest-winners {
+    border-left: 0.1rem green solid;
+    border-top: 0.1rem green solid;
+    border-top-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+}
+
+#biggest-losers {
+    border-right: 0.1rem red solid;
+    border-bottom: 0.1rem red solid;
+    border-top-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+}
+
+#biggest-winners h3, #biggest-winners .change {
+    color: green;
+}
+
+#biggest-losers h3, #biggest-losers .change {
+    color: red;
+}
+
+.trending-themes-container {
+    width: 30rem;
+    height: 20rem;
+    margin: 1rem;
+    box-shadow: 0 1rem 1rem 1rem rgb(225,225,225);   
+    margin-bottom: 4rem;
+}
+
+.trending-themes-container h3 {
+    text-align: center;
+    padding-top: 0.5rem;
+}
+
+.theme-path {
+    width: 22rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 1rem;
+}
+
+.change {
+    text-align: center;
+    padding-left: 1rem;
+}

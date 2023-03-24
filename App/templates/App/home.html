@@ -1,0 +1,157 @@
+{% extends 'App/template_blocks/base.html' %}
+{% block content %}
+{% load tags %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'App/home.css' %}">
+
+<h1>The Brick Exchange</h1>
+{% if logged_in %}
+<h2>Welcome back {{username}}</h2>
+{% else %}
+<h2>- Lego Market Trends -</h2>
+{% endif %}
+
+{% if trending|length >= 3%}
+<style>
+@keyframes scroll {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(calc(-13rem * {{trending|length}}));
+    }
+}
+
+#slider #slide-track {
+    height: calc(13rem * {{trending|length}} * 2);
+  }
+</style>
+
+{% endif %}
+
+<section id="container-layer1" class="layers">
+
+    <section id="biggest-trends" class="side-bars">
+        {% if portfolio_trending_items %}
+            <h3>Your Trending Items</h3>
+        {% else %}
+            <h3>Trending Items</h3>
+        {% endif %}
+        <div id="slider">
+            <div id="slide-track">
+                {% for item in trending %}
+                    <div class="slide">
+                        {% include 'App/template_blocks/item_container.html' %}
+                    </div>
+                {% endfor %}
+
+                {% if trending|length >= 3%}
+
+                {% for item in trending %}
+                    <div class="slide">
+                        {% include 'App/template_blocks/item_container.html' %}
+                    </div>
+                {% endfor %}
+
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section id="about-panel">
+
+        <div id="create-portfolio" class="about-box">
+            <h3>Build your own portfolio</h3>
+        </div>
+
+        <div id="view-trends" class="about-box">
+            <h3>View the latest price trends</h3>
+        </div>
+
+        <div id="price-data" class="about-box">
+            <h3>View lots of pricing data</h3>
+        </div>
+
+        <div id="explore-database" class="about-box">
+            <h3>Explore a database with over 33,000 items</h3>
+        </div>
+    </section>
+
+    <section id="ads"  class="side-bars">
+        <h3>Ads</h3>
+    </section>
+
+</section>
+
+<section id="container-layer2" class="layers">
+
+    {% if recently_viewed|length != 0 %}
+
+    <section id="recently-viewed">
+        <h3>Recently Viewed</h3>
+        <div id="recently-viewed-items-container">
+            {% for item in recently_viewed %}
+            <div class="main-item-container-recently-viewed">
+                {% include 'App/template_blocks/item_container.html' %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    {% endif %}
+
+</section>
+
+<section id="graph-options" class="layers">
+    <form action="{% url 'index'  %}" method="POST">
+        {% csrf_token %}
+        <label for="graph-data-form">Graph Data</label>
+        <select onchange="this.form.submit()" name="graph-metric">
+            {% for graph_option in graph_options %}
+                <option value="{{graph_option.value}}">{{graph_option.text}}</option>
+            {% endfor %}
+        </select>
+    </form>
+</section>
+
+<section id="container-layer3" class="layers">
+
+    <section id="popular-items" class="layer3-containers">
+        <h3>Popular</h3>
+        <div class="items-container">
+            {% for item in popular_items %}
+            <div class="main-item-container-layer3">
+                <div class="item-panel-container">
+                    {% include 'App/template_blocks/item_container.html' with show_graph=True %}
+                </div>
+
+                <div class="info-container">
+                    <p class="view-count">Weekly Views<br>{{item.views}}</p>
+                    <p class="weeks-price-trend">{{metric|capitalise_split_words}} Change since {{last_week}} : <br> {{item.change}}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section id="new-items" class="layer3-containers">
+        <h3>New</h3>
+        <div class="items-container">
+            {% for item in new_items %}
+            <div class="main-item-container-layer3">
+                <div class="item-panel-container">
+                    {% include 'App/template_blocks/item_container.html' with show_graph=True %}
+                </div>
+
+                <div class="info-container">
+                    <p>Info</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</section>
+
+{% endblock %}

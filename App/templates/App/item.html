@@ -1,0 +1,229 @@
+{% extends 'App/template_blocks/base.html' %}
+{% load static %}
+{% load tags %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'App/item.css' %}">
+
+<section id="layer1" class="layers">
+
+    <section id="main-item-container">
+        {% include 'App/template_blocks/item_container.html' %}
+    </section>
+
+    <section id="info-overview">
+        <div class="info-block">
+            <h3>Prices & Quantity</h3>
+            <div id="current-metrics-container">
+                <p>Total Quantity Available {{item.total_quantity}}</p>
+                <p>Avg Price £{{item.avg_price|two_decimals}}</p>
+                <p>Min Price £{{item.min_price|two_decimals}}</p>
+                <p>Max Price £  {{item.max_price|two_decimals}}</p>
+            </div>
+            
+            <div id="metric-change-container">
+                <div class="tool-tip">
+                    <span class="tool-tip-icon">?</span>
+                    <p class="tool-tip-text">% change since oldest record</p>
+                </div>
+                {% for metric_change in metric_changes %}
+                    {% if metric_change.change < 0 %}
+                        <p class="metric-change"> {{metric_change.metric}} Change (%) <span style="color:red;" >{{ metric_change.change|postivie_or_negative_sign }}</span> </p>
+                    {% else %}
+                        <p class="metric-change"> {{metric_change.metric}} Change (%) <span style="color: green;" >{{ metric_change.change|postivie_or_negative_sign }}</span> </p>
+                    {% endif %}
+                {% endfor %}
+                </div>
+
+
+        </div>
+
+        <div class="info-block">
+            <h3>Sets and Pieces</h3>
+            <p>Pieces : {{sub_sets|length}}</p>
+            <p>Sets : {{super_sets|length}}</p>
+        </div>
+
+        <div class="info-block">
+            <h3>General Info</h3>
+            <br>
+            <p>Owned By : {{total_owners}}</p>
+            <p>Watched By : {{total_watchers}}</p>
+            <br>
+            <p>Last Appearance : {{most_recent_set_appearance}}</p>
+
+            <div id="item-themes-container">
+                <h4>Themes</h4>
+                {% for theme in item_themes %}
+                    <p>{{theme.0|count_theme_indent}}</p>
+                {% endfor %}
+            </div>  
+        </div>
+    </section>
+
+</section>
+
+<section id="layer2" class="layers">
+
+    <section id="chart-container">
+        <div id="chart-background">
+            {% include 'App/template_blocks/item_chart.html' %}
+        </div>
+        <div id="chart-options">
+            <p style="display: none;" id="slider-index">{{item.dates|length}}</p>
+            <div id="slider-output-container">
+                <p id="slider-output">Range : {{item.dates.0}} - {% with item.dates|last as last %}{{last}}{% endwith %}</p>
+            </div>
+
+            <div id="slider-container">
+                <input id="slider" type="range" name="slider" min="2" max="{{item.dates|length}}" value="{{item.dates|length}}">
+            </div>
+
+            <div id="checkboxes">
+                {% for checkbox in graph_checkboxes %}
+                    <div class="checkbox-container">
+                        <label style="color:{{checkbox.colour}};" for="{{checkbox.value}}">{{checkbox.text}}</label>
+                        <input class="graph-checkbox" type="checkbox" name="{{checkbox.value}}" id="{{checkbox.value}}" checked="true">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    {% if logged_in %}
+    <section id="in-collections-forms-container">
+
+        <section id="in-collections">
+            {% if in_portfolio|length != 0%}
+                <p><a href="{% url 'portfolio' %}?item={{item.item_id}}">In Portfolio</a>| {% for condition in in_portfolio %} {{condition.condition}} : {{condition.count}} | {% endfor %}</p>
+            {% else %}
+                <p><a href="{% url 'portfolio' %}?view=items">In Portfolio</a> | New : 0 | Used : 0 |</p>
+            {% endif %}
+        </section>
+
+        <section id="form-container">
+            <h3>Add to Your Collection</h3>
+    
+            {% include 'App/template_blocks/entry_item_form.html' with view='item' add_new=True show_notes=False %}
+            
+            <form id="add-to-watchlist" action="{% url 'add_to_user_items' item.item_id %}" method="post">
+                {% csrf_token %}
+                {% if in_watchlist == 'No' %}
+                <button name="view-type" type="submit" value="watchlist">Add to Watchlist!</button>
+                {% else %}
+                <button name="view-type" type="submit" value="watchlist">Remove from Watchlist!</button>
+                {% endif %}
+            </form>
+            
+        </section>
+
+    </section>
+    {% else %}
+    <section id="login-for-collections">
+        <h2>Create an account to add to collection.</h2>
+        <div id="login-or-join">
+            <p><a href="{% url 'login' %}">Login</a> | <a href="{% url 'join' %}">Join</a></p>
+        </div>
+
+        <div class="login-block">
+            <h3>Create your own portfolio!</h3>
+            <img src="{% static 'App/styling-images/portfolio-icon.jpg' %}" alt="">
+        </div>
+
+        <div class="login-block">
+            <h3>Track your profits!</h3>
+            <img src="{% static 'App/styling-images/growth-graphic.png' %}" alt="">
+        </div>
+    </section>
+    {% endif %}
+
+</section>
+
+<section id="layer3" class="layers">
+    
+    <section id="super-sets-container">
+        <h3>Sets</h3>
+        <div class="sub-super-set-container">
+        {% for set in super_sets %}
+            <div class="set-container">
+                <div class="set-img-container">
+                    <img loading="lazy" src="{% static set.img_path %}" alt="{{set.img_path}}">
+                </div>
+
+                <div class="set-info-container">
+                    <p>{{set.set_id}}</p>
+                    <p>{{set.set_name}}</p>
+                    <p>Year Released : {{set.year_released}}</p>
+                    <p>Quantity : {{set.quantity}}</p>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </section>
+
+    <section id="sub-sets-container">
+        <h3>Pieces</h3>
+        <div class="sub-super-set-container">
+        {% for piece in sub_sets %}
+            <div class="piece-container">
+                <p>{{piece.piece_id}} * {{piece.quantity}}</p>
+                <img src="{% static piece.img_path %}" alt="img">
+            </div>
+        {% endfor %}
+        </div>
+    </section>
+</section>
+
+{% if similar_items|length > 0 %}
+
+<section id="layer4" class="layers">
+    <section id="similar-items">
+        <h3 id="similar-items-heading">Similar Items</h3>
+        <div id="similar-items-container">
+            {% for item in similar_items %}
+            <div class="similar-item-container">
+                {% include 'App/template_blocks/item_container.html' with item=item scroll_to_top=True %} 
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</section>
+
+{% endif %}
+
+
+<script>
+    var slider = document.getElementById("slider");
+    var output = document.getElementById("slider-output");
+    var index = document.getElementById("slider-index")
+    var checkboxes = document.getElementsByClassName("graph-checkbox");
+
+    //slider
+    slider.oninput = function() {
+        mychart.data.labels = JSON.parse(document.getElementById('{{item.dates_id}}').textContent).slice(0, slider.value)
+        for (let i = 0; i < checkboxes.length; i++) {
+            mychart.data.datasets[i].data = JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(0, slider.value)
+            mychart.update()
+
+        }
+        output.innerHTML = `Range : ${dates[0]} - ${dates[parseInt(slider.value)-1]}`
+        index.innerHTML = slider.value -1
+    }
+
+    //checkboxes
+    for (let i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].oninput = function() {
+            if (checkboxes[i].checked == false) {
+                mychart.data.datasets[i].hidden = true 
+            } else {
+                mychart.data.datasets[i].hidden = false
+            }
+            mychart.update()
+        }
+    }
+    mychart.options.scales.yAxes[0].ticks.maxTicksLimit = 16
+    mychart.options.scales.xAxes[0].ticks.maxTicksLimit = 16
+    mychart.update()    
+</script>
+
+{% endblock %}

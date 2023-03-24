@@ -1,0 +1,48 @@
+#main-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.profile-change-section {
+    
+    width: 40rem;
+    height: 14rem;
+    margin: 1rem;
+    position: relative;
+}
+
+.profile-change-section h2 {
+    border-bottom: 0.2rem rgb(165, 158, 158) solid;
+}
+
+.input-label-container {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+label {
+    display: inline-block;
+    width: 10rem;
+}
+
+#radio-buttons {
+    padding-left: 1rem;
+}
+
+label[for=preference] {
+    padding-bottom: 1rem;
+}
+
+input[type=submit] {
+    position: absolute;
+    bottom: -2rem;
+}
+
+input[type=radio] {
+    width: auto;
+}
+
+#change-password-error-message {
+    color: red;
+}

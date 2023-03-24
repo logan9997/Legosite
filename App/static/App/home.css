@@ -1,0 +1,258 @@
+h1 {
+    text-align: center;
+    background-color: none;
+    border: none;
+    margin: 0;
+}
+
+h2 {
+    text-align: center;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.layers {
+    margin: 0 calc(1% + 2rem) 3rem;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#container-layer1 {
+    margin-bottom: 3rem;
+    width: 98%;
+    margin-left: 1%;
+}
+
+.side-bars {
+    max-height: 40rem;
+    width: 17%;
+    text-align: center;
+    border-top: 0.1rem orangered solid;
+
+}
+
+#biggest-trends {
+    box-shadow: 0 1rem 1rem 1rem rgb(225,225,225);   
+    margin-left: 2rem;
+    border-left: 0.1rem orangered solid;
+    border-top-left-radius: 1rem;
+}
+
+#trending-items-container {
+    overflow-y: hidden;
+    max-height: 90%;
+}
+
+.main-item-container {
+    max-width: 14rem;
+    text-align: center;
+    margin-left: calc((100% - 14rem) / 2);
+}
+
+
+
+
+#slider {
+    height: 32rem;
+    position: relative;
+    overflow: hidden;
+}
+
+#slider::before,
+#slider::after {
+  background: linear-gradient(to bottom, whitesmoke 0%, rgba(255, 255, 255, 0) 100%);
+  content: "";
+  height: 10px;
+  position: absolute;
+  width: 14.7rem;
+  z-index: 2;
+  left:0;
+}
+
+#slider::after {
+    bottom:0;
+    right: 0;
+    transform: rotateZ(180deg);
+  }
+
+#slide-track {
+    overflow-y: hidden;
+    position: relative;
+    top: 1rem;
+}
+
+.slide {
+    margin-bottom: 1rem;
+    text-align: center;
+    margin-left: calc((100% - 13rem) / 2);
+}
+
+#slider #slide-track {
+    animation: scroll 16s linear infinite;
+    display: flex;
+    flex-direction: column;
+  }
+
+#slider .slide {
+    width: 13rem;
+    height: 12rem;
+}
+
+
+#ads {
+    box-shadow: 1rem 1rem 1rem 1rem rgb(225,225,225);   
+    margin-right: 2rem;
+    border-right: 0.1rem orangered solid;
+    border-top-right-radius: 1rem;  
+}
+
+#about-panel {
+    width: 60%;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 2rem 0;
+}
+
+.about-box {
+    border-radius: 1rem;
+    width: 46%;
+    height: 16rem;
+    margin: 2%;
+    transition: 0.5s;
+    background:  repeating-linear-gradient(
+        135deg,
+        rgb(238, 126, 85),
+        rgb(238, 126, 85) 10px,
+        white 10px,
+        white 40px
+      );
+    box-shadow: 0.6rem 0.6rem 0.6rem rgb(225,225,225);
+    }
+
+.about-box:hover {
+    transform: scale(1.03);
+    transition: 0.5s;
+}
+
+.about-box h3 {
+    text-align: center;
+    background-color: orangered;
+    border-top-right-radius: 1rem;
+    border-top-left-radius: 1rem;
+    margin: 0;
+}
+
+#recently-viewed {
+    box-shadow: 0 1rem 1rem 1rem rgb(225,225,225);   
+    text-align: center;
+    padding-bottom: 1rem;
+    background-color: whitesmoke;
+    padding: 0;
+    width: 100%;
+}
+
+#recently-viewed h3 {
+    padding:1rem 0 0;
+    height: 2rem;
+    margin: 0;
+}
+
+#recently-viewed-items-container {
+    display: flex;
+    overflow: scroll;
+}
+
+.main-item-container-recently-viewed {
+    margin: 0 1rem 0;
+}
+
+#graph-options {
+    height: 4rem;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 1rem 1rem 1rem rgb(225,225,225);   
+}
+
+#graph-options:before, #graph-options:after {
+    position: relative;
+    top: 2.5rem;
+    overflow: hidden;
+    width: 42%;
+    height: 2px;
+    content: '\a0';
+    background-color: orangered;
+
+}
+
+#graph-options:before {
+    margin-left: 0%;
+    text-align: right;
+}
+
+#graph-options label, select {
+    display: block;
+    text-align: center;
+    margin: 0.5rem;
+}
+
+#graph-options label {
+    font-size: 1rem;
+}
+
+#graph-options select {
+    border-radius: 0.4rem;
+}
+
+.layer3-containers {
+    box-shadow: 0 1rem 1rem 1rem rgb(225,225,225);   
+    width:46.5%;
+    height: 60rem;
+    text-align: center;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+
+}
+
+.items-container {
+    display: flex;
+    flex-direction: column;
+    overflow:scroll;
+    overflow-x: hidden; 
+    height: calc(100% - 3.6rem);
+}
+
+.main-item-container-layer3 {
+    display: flex;
+    flex-direction: row;
+    margin: 1rem;
+}
+
+.item-panel-container {
+    width: 76%;
+    background-color: white;
+    border-radius: 1rem;
+    border-top: 0.1rem orangered solid;
+    border-left: 0.1rem orangered solid;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.info-container {
+    padding-top: 1rem;
+    margin-left: 1rem;
+    background-color: white;
+    border-radius: 1rem;
+    width: 22%;
+    text-align: center;
+    border-bottom: 0.1rem orangered solid;
+    border-right: 0.1rem orangered solid;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.view-count {
+    width: 10rem;
+}
+
