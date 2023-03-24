@@ -86,19 +86,15 @@ WSGI_APPLICATION = 'legosite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'legosite_DB',
-#         'USER':'postgres',
-#         'PASSWORD':'#Legomario1',
-#         'HOST':'',
-#         'PORT':'5432', 
-#     }
-# }
-
 DATABASES = {
-    "default" : dj_database_url.config()
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'legosite_DB',
+        'USER':'postgres',
+        'PASSWORD':'#Legomario1',
+        'HOST':'',
+        'PORT':'5432', 
+    }
 }
 
 # DATABASES = {
