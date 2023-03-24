@@ -92,7 +92,7 @@ DATABASES = {
         'NAME': 'legosite_DB',
         'USER':'postgres',
         'PASSWORD':'#Legomario1',
-        'HOST':'127.0.0.1',
+        'HOST':'localhost',
         'PORT':'5432', 
     }
 }
