@@ -5,7 +5,7 @@ DATE_DEFAULT = '1991-01-01'
 
 class Item(models.Model):
     item_id = models.CharField(max_length=20, primary_key=True)
-    item_name = models.CharField(max_length=210)
+    item_name = models.CharField(max_length=220)
     year_released = models.IntegerField()
     item_type = models.CharField(max_length=1, choices=(
         ("M","minifig"), ("S", "set")

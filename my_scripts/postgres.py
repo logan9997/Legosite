@@ -10,8 +10,7 @@ cursor = conn.cursor()
 
 def test():
     cursor.execute("""
-        SELECT table_name FROM information_schema.tables
-        WHERE table_schema = 'public'
+        SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
     """)
 
     for table in cursor.fetchall():
