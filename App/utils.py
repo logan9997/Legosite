@@ -147,7 +147,7 @@ def format_theme_items(theme_items):
         {
             "item_id":item[0],
             "item_type":item[1],
-            "img_path":f"App/images/{item[0]}.png",
+            "img_path":f"App/images/sets/{item[0]}.png",
         } for item in theme_items
     ]
 
