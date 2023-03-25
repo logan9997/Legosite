@@ -1,0 +1,211 @@
+body {
+    /* background-color:white; */
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    padding-bottom:5rem; 
+    background-color: whitesmoke;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    padding-top: 6rem;
+    overflow-x: hidden;
+}
+
+nav {
+    border-bottom: 0.1rem rgb(228, 220, 220) solid;
+    position:fixed;
+    width: 100%;
+    z-index: 5;
+    height: 3rem;
+    background-color: white;
+    top:0;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+nav ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+    width: 50%;
+    left: 25%;
+    position: absolute;
+    height: 100%;
+    margin: 0;
+}
+
+nav ul li {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    width: 5rem;
+}
+
+nav ul li button {
+    background-color: transparent;
+    border: none;
+    font-size: medium;
+    text-align: center;
+    color:black ;
+}
+
+nav ul li a {
+    font-size: medium;
+    text-decoration: none;
+    color: black;
+}
+
+.dropdown-content {
+    display: none;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    border: 0.1rem rgb(228, 220, 220) solid;
+    border-top: none;
+    margin-top: 0;
+    width: 5rem;
+    position: absolute;
+    top: 100%;
+}
+
+.dropdown-content a {
+    background-color: white;
+    padding: 0.4rem 0 0.4rem;
+}
+
+.dropdown-content a:hover {
+    background-color: whitesmoke;
+}
+
+nav ul li:hover .dropdown-content {
+    display: flex;
+}
+
+#flex-container {
+    margin-left: 76%;
+    width: 24rem;
+
+}
+
+#RHS-nav-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#search-form {
+    width: 16rem;
+    height: 2rem;
+}
+
+#input-submit-container {
+    display: inline-block;
+
+}
+
+#search-form {
+    width: 12rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    
+}
+
+#input-submit-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+#search-form input {
+    width: 8rem;
+    height: 1.8rem;
+    width: 12rem;
+    border-radius: 0.4rem;
+    text-align: center;
+}
+
+#search-form button {
+    width: 2rem;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    border: none;
+}
+
+#search-button {
+    height: 1.6rem;
+}
+
+#logout {
+    width: 1rem;
+    height: 2rem;
+    position: relative;
+}
+
+#logout img {
+    height: 2rem;
+    margin-right: 3rem;
+}
+
+footer {
+    min-height: 10rem;
+    background-color: white;
+    top: 0;
+    width: 100vw;
+    padding: 0;
+    border-top: 0.1rem rgb(228, 220, 220) solid;
+    text-align: center;
+    padding-bottom: 1rem;
+}
+
+footer #smaller-text {
+    font-size: 0.73rem;
+    font-style: italic;
+    color: gray;
+}
+
+.tool-tip {
+    background-color: rgb(224, 212, 212);
+    border-radius: 50%;
+    width: 1rem;
+    height: 1rem;
+    padding: 0.2rem;
+    font-size: 0.9rem;
+    text-align: center;
+    border: 0.1rem orangered solid;
+    position: relative;
+    top: 4rem;
+    right: 1rem;
+}
+
+.tool-tip-text {
+    visibility: hidden;
+    position: absolute;
+    width: 10rem;
+    bottom: 1.5rem;
+    left: -4.65rem;
+    background-color: rgb(224, 212, 212);
+    border-radius: 0.5rem;
+    border: 0.1rem orangered solid;
+}
+
+.tool-tip:hover .tool-tip-text {
+    visibility: visible;
+}
+
+.tool-tip .tool-tip-text::after {
+    content: " ";
+    position: absolute;
+    top: 100%; /* At the bottom of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: orangered transparent transparent transparent;
+  }
+

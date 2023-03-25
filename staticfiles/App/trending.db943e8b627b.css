@@ -1,0 +1,16 @@
+#winners {
+    background-color: red;
+    width: 60%;
+    margin-left: 20%;
+}
+
+.main-item-container {
+    width: 30rem;
+    margin: 1rem;
+    display: flex;
+    flex-direction: row;
+}
+
+.item-info-container {
+    background-color: green;
+}
