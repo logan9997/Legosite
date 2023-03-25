@@ -89,10 +89,10 @@ WSGI_APPLICATION = 'legosite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'd2snip8ocne2mk',
-        'USER':'zkjnryuzxrnrae',
-        'PASSWORD':'e1553a6b4ef02b4fa0b4630f3b57d415999fb38a1e0551d6c3b8fd677c5cd153',
-        'HOST':'ec2-52-5-167-89.compute-1.amazonaws.com',
+        'NAME': 'legosite_DB',
+        'USER':'postgres',
+        'PASSWORD':'#Legomario1',
+        'HOST':'localhost',
         'PORT':'5432', 
     }
 }
