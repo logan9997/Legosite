@@ -64,7 +64,7 @@ def format_item_info(items, **kwargs):
         "min_price":item[5],
         "max_price":item[6],
         "total_quantity":item[7],
-        "img_path":f"App/images/{item[0]}.png",
+        "img_path":f"App/images/minifigures/{item[0]}.png",
         }
 
         if kwargs.get("view") == "portfolio":
@@ -162,7 +162,7 @@ def format_sub_sets(pieces):
             "piece_name":clean_html_codes(piece[1]),
             "colour_id":piece[2],
             "quantity":piece[3],
-            "img_path":f"App/images/{piece[2]}_{piece[0]}.png",
+            "img_path":f"App/images/pieces/{piece[2]}_{piece[0]}.png",
         }
         set_dicts.append(set_dict)
     return set_dicts
@@ -176,7 +176,7 @@ def format_super_sets(sets):
             "set_name":clean_html_codes(_set[1]),
             "year_released":_set[2],
             "quantity":_set[3],
-            "img_path":f"App/images/{_set[0]}.png",
+            "img_path":f"App/images/sets/{_set[0]}.png",
         }
         set_dicts.append(set_dict)
     return set_dicts
