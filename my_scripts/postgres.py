@@ -1,9 +1,9 @@
 import psycopg2 as db
 
-HOST = "localhost"
-DATABASE = "legosite_DB"
-USER = "postgres"
-PASSWORD = '#Legomario1'
+HOST = "ec2-35-169-9-79.compute-1.amazonaws.com"
+DATABASE = "d9evsf0knvksog"
+USER = "jalkrxxifnsfhv"
+PASSWORD = 'b82b631a3b1139285895f94e3352bdc3082c951df34c4807f7b11c240937cd91'
 
 conn = db.connect(host=HOST, database=DATABASE, user=USER, password=PASSWORD)
 cursor = conn.cursor()
