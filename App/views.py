@@ -4,6 +4,7 @@ from datetime import (
 )
 
 from django.shortcuts import render, redirect
+from django.db import connection
 from .config import *
 from .utils import *
 
@@ -42,6 +43,7 @@ from my_scripts.responses import *
 from my_scripts.database import *
 
 
+
 def search_item(request, current_view):
     #get a list of all item ids that exist inside the database 
     item_ids = Item.objects.all().values_list("item_id",flat=True)
@@ -55,6 +57,7 @@ def search_item(request, current_view):
 
 @timer
 def index(request):
+
     if "user_id" not in request.session:
         request.session["user_id"] = -1
     user_id = request.session["user_id"]

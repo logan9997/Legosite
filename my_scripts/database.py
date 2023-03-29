@@ -1,16 +1,17 @@
-import sqlite3
 import datetime
-import sys 
 import psycopg2
+
+from django.db import connection
 
 class DatabaseManagment():
 
     def __init__(self) -> None:
-        self.con = psycopg2.connect('''
-            user=jalkrxxifnsfhv dbname=d9evsf0knvksog 
-            host=ec2-35-169-9-79.compute-1.amazonaws.com port=5432
-            password=b82b631a3b1139285895f94e3352bdc3082c951df34c4807f7b11c240937cd91
-        ''')
+        self.user = "postgres"
+        self.dbname = "legosite_DB"
+        self.host = "127.0.0.1"
+        self.password = "#Legomario1"
+        self.port = "5432"
+        self.con = psycopg2.connect(f'user={self.user} dbname={self.dbname} host={self.host} password={self.password} port={self.port}')
         self.cursor = self.con.cursor()
 
 
@@ -19,7 +20,7 @@ class DatabaseManagment():
         if kwargs.get("fetchone"):
             return self.cursor.fetchone()
         return self.cursor.fetchall()
-
+            
 
     def add_pieces(self, info):
         sql = f'''
@@ -37,26 +38,6 @@ class DatabaseManagment():
         '''
         self.cursor.execute(sql)
         self.con.commit()    
-
-
-    def add_price_info(self, item) -> None:
-        today = datetime.date.today().strftime('%Y-%m-%d')
-        try:
-            self.cursor.execute(f'''
-                INSERT INTO "App_price" (
-                    'item_id','date','avg_price',
-                    'min_price','max_price','total_quantity'
-                )
-                VALUES
-                (
-                    '{item["item"]["no"]}', '{today}', '{round(float(item["avg_price"]), 2)}',
-                    '{round(float(item["min_price"]),2)}', '{round(float(item["max_price"]),2)}',
-                    '{item["total_quantity"]}'
-                )
-            ''')
-        except sqlite3.IntegrityError:
-            pass
-        self.con.commit()
 
 
     def add_set_participation(self, info):
@@ -408,21 +389,21 @@ class DatabaseManagment():
 
     def get_user_items(self, user_id, view) -> list[str]:
 
-        sql_select = "SELECT I.item_id, item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity"
+        sql_select = "SELECT _view1.item_id, item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity"
         if view == "portfolio":
             sql_select += f''',
-                (SELECT COUNT() FROM App_portfolio P2 WHERE user_id = 1 AND condition = 'N' AND _view1.item_id = P2.item_id GROUP BY item_id) as 'N',
-                (SELECT COUNT() FROM App_portfolio P2 WHERE user_id = 1 AND condition = 'U' AND _view1.item_id = P2.item_id GROUP BY item_id) as 'U'
+                (SELECT COUNT(*) FROM "App_portfolio" P2 WHERE user_id = 1 AND condition = 'N' AND _view1.item_id = P2.item_id GROUP BY P2.item_id),
+                (SELECT COUNT(*) FROM "App_portfolio" P2 WHERE user_id = 1 AND condition = 'U' AND _view1.item_id = P2.item_id GROUP BY P2.item_id)
             '''
 
         sql = f'''
             {sql_select}
             FROM "App_{view}" _view1, "App_item" I, "App_price" P
             WHERE user_id = {user_id}
-                AND (date, I.item_id) IN (SELECT MAX(date), item_id FROM "App_price" GROUP BY item_id)
+                AND (date, _view1.item_id) IN (SELECT MAX(date), item_id FROM "App_price" GROUP BY date, item_id)
                 AND I.item_id = _view1.item_id 
                 AND I.item_id = P.item_id
-            GROUP BY I.item_id 
+            GROUP BY item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity,  _view1.item_id  
         '''
         return self.SELECT(sql)
 
@@ -451,7 +432,7 @@ class DatabaseManagment():
     def portfolio_total_item_price(self, user_id) -> list[str]:
         sql = f'''
             SELECT ROUND(avg_price * PO.quantity, 2), I.item_id, condition
-            FROM App_portfolio PO, "App_price" PR, "App_item" I
+            FROM "App_portfolio" PO, "App_price" PR, "App_item" I
             WHERE PO.user_id = {user_id}
                 AND PO.item_id = I.item_id
                 AND I.item_id = PR.item_id
@@ -497,7 +478,7 @@ class DatabaseManagment():
     def get_portfolio_item_quantity(self, item_id, condition, user_id) -> int:
         sql = f'''
             SELECT quantity
-            FROM App_portfolio
+            FROM "App_portfolio"
             WHERE item_id = '{item_id}'
                 AND condition = '{condition}'
                 AND user_id = '{user_id}'
@@ -508,7 +489,7 @@ class DatabaseManagment():
     def get_portfolio_price_trends(self, user_id) -> list[str]:
         sql = f'''
             SELECT date, ROUND(SUM(avg_price * quantity) ,2)
-            FROM App_portfolio PO, "App_price" PR, "App_item" I
+            FROM "App_portfolio" PO, "App_price" PR, "App_item" I
             WHERE user_id = {user_id}
                 AND PO.item_id = I.item_id
                 AND PR.item_id = I.item_id
@@ -546,14 +527,15 @@ class DatabaseManagment():
                 AND P1.item_id = I.item_id
                 AND I.item_id = PO.item_id
             )
-            ,2) AS [Change]
+            ) 
 
-            FROM "App_price" P2 , App_portfolio PO, "App_item" I
+            FROM "App_price" P2 , "App_portfolio" PO, "App_item" I
             WHERE user_id = {user_id}
                 AND PO.item_id = I.item_id
                 AND I.item_id = P2.item_id
-            GROUP BY I.item_id
-            ORDER BY ABS([change]) DESC
+            GROUP BY I.item_id, item_name, year_released, item_type, P2.avg_price, 
+            P2.min_price, P2.max_price, P2.total_quantity, user_id, PO.item_id
+            ORDER BY ABS(-1) DESC
         '''
         return self.SELECT(sql)
 
@@ -593,7 +575,7 @@ class DatabaseManagment():
     def get_portfolio_items_condition(self, user_id) -> list[str]:
         sql = f'''
             SELECT item_id, condition
-            FROM App_portfolio
+            FROM "App_portfolio"
             WHERE user_id = {user_id}
         '''
         return self.SELECT(sql)
@@ -602,7 +584,7 @@ class DatabaseManagment():
     def total_portfolio_price_trend(self, user_id) -> list[str]:
         sql = f'''
             SELECT SUM(max_price), date
-            FROM "App_price" price, App_portfolio portfolio, "App_item" item, "App_user" user
+            FROM "App_price" price, "App_portfolio" portfolio, "App_item" item, "App_user" user
             WHERE user.user_id = {user_id}
                 AND price.item_id = item.item_id
                 AND item.item_id = portfolio.item_id
@@ -740,7 +722,7 @@ class DatabaseManagment():
             WHERE views > 0
                 AND I.item_id = P.item_id
                 AND date = (SELECT MAX(date) FROM "App_price")
-            GROUP BY I.item_id
+            GROUP BY avg_price, min_price, max_price, total_quantity, I.item_id
             ORDER BY views DESC
 
         '''
@@ -764,7 +746,7 @@ class DatabaseManagment():
             WHERE date = '{datetime.datetime.today().strftime("%Y-%m-%d")}'
                 AND item_id = '{item_id}'
             )
-        ) AS 'change'
+        ) 
         FROM "App_item"
         WHERE item_id = '{item_id}'
         '''
