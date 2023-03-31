@@ -87,17 +87,19 @@ WSGI_APPLICATION = 'legosite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+with open("./database_credentials.txt", "r") as file:
+    credentials = {param.rstrip("\n").split("=")[0].upper() : param.rstrip("\n").split("=")[1]  for param in file.readlines()}
+
+#change key name to match django settings
+credentials["NAME"] = credentials.pop("DBNAME")
+
+credentials.update({'ENGINE': 'django.db.backends.postgresql_psycopg2'})
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'd9evsf0knvksog',
-        'USER':'jalkrxxifnsfhv',
-        'PASSWORD':'b82b631a3b1139285895f94e3352bdc3082c951df34c4807f7b11c240937cd91',
-        'HOST':'ec2-35-169-9-79.compute-1.amazonaws.com',
-        'PORT':'5432', 
-    },
+    'default': credentials
 }
 
+print(DATABASES)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

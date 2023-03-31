@@ -6,14 +6,11 @@ from django.db import connection
 class DatabaseManagment():
 
     def __init__(self) -> None:
-        self.user = "postgres"
-        self.dbname = "legosite_DB"
-        self.host = "127.0.0.1"
-        self.password = "#Legomario1"
-        self.port = "5432"
-        self.con = psycopg2.connect(f'user={self.user} dbname={self.dbname} host={self.host} password={self.password} port={self.port}')
+        with open("./database_credentials.txt", "r") as file:
+            credentials = {param.rstrip("\n").split("=")[0] : param.rstrip("\n").split("=")[1]  for param in file.readlines()}
+        self.con = psycopg2.connect(**credentials)
         self.cursor = self.con.cursor()
-
+        
 
     def SELECT(self, sql, **kwargs):
         self.cursor.execute(sql)
