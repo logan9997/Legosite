@@ -164,10 +164,11 @@ class DatabaseManagment():
             ) + 0.00001) * 100)) 
             FROM "App_price" P1, "App_item" I
             WHERE I.item_id = P1.item_id 
-                AND date = (
-                    SELECT max(date)
-                    FROM "App_price"
-                ) 
+                AND (I.item_id, date) = any (
+                    SELECT DISTINCT ON (item_id) item_id, max(date) 
+                    FROM "App_price" P2  
+                    GROUP BY item_id
+                )
             
         '''
         #ORDER BY [percentage change] DESC
@@ -203,19 +204,18 @@ class DatabaseManagment():
         if sort_field[0] == "item_id":
             sort_field[0] = "I.item_id"
         sql = f'''
-            SELECT I.item_id, item_name, year_released, item_type, avg_price, 
-            min_price, max_price, total_quantity, date
+            SELECT DISTINCT ON (I.item_id) I.item_id, item_name, year_released, item_type, avg_price, 
+            min_price, max_price, total_quantity
             FROM "App_item" I, "App_theme" T, "App_price" P1
             WHERE T.item_id = I.item_id
                 AND I.item_id = P1.item_id
                 AND theme_path = '{theme_path}'
                 AND item_type = 'M'
-                AND date = (
-                    SELECT MAX(date) 
-                    FROM "App_price" P2 
+                AND (I.item_id, date) = any (
+                    SELECT DISTINCT ON (item_id) item_id, max(date) 
+                    FROM "App_price" P2  
                     GROUP BY item_id
                 )
-            GROUP BY I.item_id
             ORDER BY {sort_field[0]} {sort_field[1]}
         '''
         return self.SELECT(sql)      
@@ -442,7 +442,11 @@ class DatabaseManagment():
         SELECT ROUND(SUM({metric}))
         FROM "App_{view}" _view, "App_item" I, "App_price" P
         WHERE user_id = {user_id}
-            AND (date, I.item_id) IN (SELECT MAX(date), item_id FROM "App_price" GROUP BY item_id)
+            AND (I.item_id, date) = any (
+                    SELECT DISTINCT ON (item_id) item_id, max(date) 
+                    FROM "App_price" P2  
+                    GROUP BY item_id
+                )
             AND I.item_id = _view.item_id 
             AND I.item_id = P.item_id
         '''
@@ -501,9 +505,9 @@ class DatabaseManagment():
             (
                 SELECT {metric}
                 FROM "App_price" P1
-                WHERE date IN (
-                    SELECT MAX(date) 
-                    FROM "App_price" 
+                WHERE (I.item_id, date) = any (
+                    SELECT DISTINCT ON (item_id) item_id, max(date) 
+                    FROM "App_price" P2  
                     GROUP BY item_id
                 )
                 AND user_id = {user_id}
@@ -514,9 +518,9 @@ class DatabaseManagment():
             (
                 SELECT {metric}
                 FROM "App_price" P1
-                WHERE date IN (
-                    SELECT MIN(date) 
-                    FROM "App_price" 
+                WHERE (I.item_id, date) = any (
+                    SELECT DISTINCT ON (item_id) item_id, min(date) 
+                    FROM "App_price" P2  
                     GROUP BY item_id
                 )
                 AND user_id = {user_id}
@@ -555,10 +559,11 @@ class DatabaseManagment():
             FROM "App_price" P1, "App_item" I, "App_theme" T
             WHERE I.item_id = P1.item_id 
                 AND T.item_id = I.item_id
-                AND date = (
-                    SELECT max(date)
-                    FROM "App_price"
-                )             
+                AND (I.item_id, date) = any (
+                    SELECT DISTINCT ON (item_id) item_id, max(date) 
+                    FROM "App_price" P2  
+                    GROUP BY item_id
+                )          
         '''
         return self.SELECT(sql)
 
@@ -678,7 +683,11 @@ class DatabaseManagment():
             FROM "App_price" P, "App_theme" T, "App_{view}" _view, "App_item" I
             WHERE user_id = {user_id}
                 AND theme_path NOT LIKE '%~%'
-                AND (date, P.item_id) IN (SELECT MAX(date), item_id FROM "App_price" GROUP BY item_id)
+                AND (I.item_id, date) = any (
+                    SELECT DISTINCT ON (item_id) item_id, max(date) 
+                    FROM "App_price" P2  
+                    GROUP BY item_id
+                )
                 AND I.item_id = P.item_id
                 AND I.item_id = _view.item_id
                 AND I.item_id = T.item_id
@@ -695,7 +704,11 @@ class DatabaseManagment():
             WHERE user_id = {user_id}
                 AND theme_path LIKE '{theme_path}%'
                 AND theme_path != '{theme_path}'
-                AND (date, P.item_id) IN (SELECT MAX(date), item_id FROM "App_price" GROUP BY item_id)
+                AND (I.item_id, date) = any (
+                    SELECT DISTINCT ON (item_id) item_id, max(date) 
+                    FROM "App_price" P2  
+                    GROUP BY item_id
+                )
                 AND I.item_id = P.item_id
                 AND I.item_id = _view.item_id
                 AND I.item_id = T.item_id
