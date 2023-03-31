@@ -274,7 +274,6 @@ def search(request, theme_path='all'):
         sub_theme_indent = request.path.replace("/search/", "").count("/")
         sub_themes = [{"sub_theme":theme[0].split("~")[sub_theme_indent], "img_path":f"App/images/{theme[1]}.png"} for theme in DB.get_sub_theme_set(theme_path.replace("/", "~"), sub_theme_indent)]
 
-    print(Item.objects.filter(item_id="00-4"))
     total_theme_items = Theme.objects.filter(theme_path=theme_path.replace("/", "~"), item__item_type="M").count()
 
     current_page = check_page_boundaries(current_page, total_theme_items, SEARCH_ITEMS_PER_PAGE)

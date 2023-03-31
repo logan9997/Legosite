@@ -78,7 +78,7 @@ class DatabaseManagment():
 
     def get_item_supersets(self, item_id):
         sql = f'''
-            SELECT I.item_id, item_name, year_released, quantity
+            SELECT DISTINCT ON (I.item_id) I.item_id, item_name, year_released, quantity
             FROM "App_item" I, "App_setparticipation" SP
             WHERE I.item_id in (
                 SELECT set_id
@@ -86,7 +86,6 @@ class DatabaseManagment():
                 WHERE item_id = '{item_id}'
             )
                 AND SP.set_id = I.item_id
-            GROUP BY I.item_id
         '''
         return self.SELECT(sql)
 
@@ -102,7 +101,7 @@ class DatabaseManagment():
     def check_for_todays_date(self) -> int:
         today = datetime.date.today()
         sql = f'''
-            SELECT COUNT()
+            SELECT count(*)
             FROM "App_price"
             WHERE date = '{today}'
         '''
@@ -148,7 +147,7 @@ class DatabaseManagment():
     def get_biggest_trends(self, change_metric) -> list[str]:
 
         sql = f'''
-            SELECT I.item_id, item_name, year_released, item_type, avg_price, 
+            SELECT DISTINCT ON (I.item_id) I.item_id, item_name, year_released, item_type, avg_price, 
             min_price, max_price, total_quantity, ABS(ROUND((
                 (SELECT {change_metric}
                 FROM "App_price" P2
@@ -157,7 +156,7 @@ class DatabaseManagment():
                         SELECT min(date)
                         FROM "App_price"
                     ) 
-            ) - {change_metric}) *-1.0 /  (
+            ) - {change_metric}) *-1.0 /  ((
             SELECT {change_metric}
             FROM "App_price" P2
             WHERE P2.item_id = P1.item_id
@@ -165,15 +164,16 @@ class DatabaseManagment():
                     SELECT min(date)
                     FROM "App_price"
                 ) 
-            ) * 100, 2)) AS [percentage change]
+            ) + 0.00001) * 100)) 
             FROM "App_price" P1, "App_item" I
             WHERE I.item_id = P1.item_id 
                 AND date = (
                     SELECT max(date)
                     FROM "App_price"
                 ) 
-            ORDER BY [percentage change] DESC
+            
         '''
+        #ORDER BY [percentage change] DESC
 
         result = self.SELECT(sql)
         losers = result[len(result)-10:][::-1]
@@ -239,7 +239,7 @@ class DatabaseManagment():
 
     def get_item_metric_changes(self, item_id, change_metric):
         sql = f'''
-            SELECT round(
+            SELECT DISTINCT ON (I.item_id) round(
                 ((
                 SELECT {change_metric}
                 FROM "App_price" P2
@@ -260,7 +260,7 @@ class DatabaseManagment():
                         FROM "App_price"
                         WHERE item_id = '{item_id}'
                     )
-            ) *100, 2) as '%change'
+            ) *100)
 
             FROM "App_price" P1, "App_item" I
             WHERE I.item_id = P1.item_id 
@@ -270,7 +270,6 @@ class DatabaseManagment():
                     FROM "App_price"
                     WHERE item_id = '{item_id}'
                 ) 
-            GROUP BY I.item_id
             '''
         return self.SELECT(sql, fetchone=True)[0]
 
@@ -389,7 +388,7 @@ class DatabaseManagment():
 
     def get_user_items(self, user_id, view) -> list[str]:
 
-        sql_select = "SELECT _view1.item_id, item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity"
+        sql_select = "SELECT DISTINCT ON (I.item_id) _view1.item_id, item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity"
         if view == "portfolio":
             sql_select += f''',
                 (SELECT COUNT(*) FROM "App_portfolio" P2 WHERE user_id = 1 AND condition = 'N' AND _view1.item_id = P2.item_id GROUP BY P2.item_id),
@@ -403,7 +402,7 @@ class DatabaseManagment():
                 AND (date, _view1.item_id) IN (SELECT MAX(date), item_id FROM "App_price" GROUP BY date, item_id)
                 AND I.item_id = _view1.item_id 
                 AND I.item_id = P.item_id
-            GROUP BY item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity,  _view1.item_id  
+            
         '''
         return self.SELECT(sql)
 
@@ -411,7 +410,7 @@ class DatabaseManagment():
     def is_item_in_user_items(self, user_id, view, item_id) -> bool:
 
         if view == "portfolio":
-            sql_select = "SELECT condition, COUNT()" 
+            sql_select = "SELECT condition, COUNT(*)" 
             sql_group = "GROUP BY condition"
         else:
             sql_select = "SELECT item_id" 
@@ -443,7 +442,7 @@ class DatabaseManagment():
 
     def user_items_total_price(self, user_id, metric, view) -> list[str]:
         sql = f'''
-        SELECT ROUND(SUM({metric}), 2)
+        SELECT ROUND(SUM({metric}))
         FROM "App_{view}" _view, "App_item" I, "App_price" P
         WHERE user_id = {user_id}
             AND (date, I.item_id) IN (SELECT MAX(date), item_id FROM "App_price" GROUP BY item_id)
@@ -488,7 +487,7 @@ class DatabaseManagment():
 
     def get_portfolio_price_trends(self, user_id) -> list[str]:
         sql = f'''
-            SELECT date, ROUND(SUM(avg_price * quantity) ,2)
+            SELECT date, ROUND(SUM(avg_price * quantity))
             FROM "App_portfolio" PO, "App_price" PR, "App_item" I
             WHERE user_id = {user_id}
                 AND PO.item_id = I.item_id
@@ -500,7 +499,7 @@ class DatabaseManagment():
 
     def biggest_portfolio_changes(self, user_id, metric) -> list[str]:
         sql = f'''
-            SELECT I.item_id, item_name, year_released, item_type, avg_price, 
+            SELECT DISTINCT ON (I.item_id) I.item_id, item_name, year_released, item_type, avg_price, 
             min_price, max_price, total_quantity, ROUND(
             (
                 SELECT {metric}
@@ -533,16 +532,13 @@ class DatabaseManagment():
             WHERE user_id = {user_id}
                 AND PO.item_id = I.item_id
                 AND I.item_id = P2.item_id
-            GROUP BY I.item_id, item_name, year_released, item_type, P2.avg_price, 
-            P2.min_price, P2.max_price, P2.total_quantity, user_id, PO.item_id
-            ORDER BY ABS(-1) DESC
         '''
         return self.SELECT(sql)
 
 
     def biggest_theme_trends(self, change_metric) -> list[str]:
         sql = f'''
-            SELECT theme_path, round((
+            SELECT DISTINCT ON (theme_path) theme_path, round((
                 (SELECT {change_metric}
                 FROM "App_price" P2
                 WHERE P2.item_id = P1.item_id
@@ -550,7 +546,7 @@ class DatabaseManagment():
                         SELECT min(date)
                         FROM "App_price"
                     ) 
-            ) - {change_metric}) *-1.0 /  (
+            ) - {change_metric}) *-1.0 /  ((
             SELECT {change_metric}
             FROM "App_price" P2
             WHERE P2.item_id = P1.item_id
@@ -558,16 +554,14 @@ class DatabaseManagment():
                     SELECT min(date)
                     FROM "App_price"
                 ) 
-            ) * 100, 2) AS [percentage change]
+            ) + 0.00001) * 100)
             FROM "App_price" P1, "App_item" I, "App_theme" T
             WHERE I.item_id = P1.item_id 
                 AND T.item_id = I.item_id
                 AND date = (
                     SELECT max(date)
                     FROM "App_price"
-                ) 
-            GROUP BY theme_path
-            ORDER BY [percentage change] DESC
+                )             
         '''
         return self.SELECT(sql)
 
@@ -667,13 +661,12 @@ class DatabaseManagment():
                 theme_path = theme_path.replace(char, "~")
 
         sql = f'''
-            SELECT theme_path, I.item_id
+            SELECT DISTINCT ON (theme_path) theme_path, I.item_id
             FROM "App_theme" T, "App_item" I
             WHERE T.item_id = I.item_id
                 AND item_type = 'S'
                 AND theme_path LIKE '{theme_path}%'
                 AND LENGTH(theme_path) - LENGTH(REPLACE(theme_path, '~', '')) = {sub_theme_indent}
-            GROUP BY theme_path
         '''
 
         result = self.SELECT(sql)
@@ -684,7 +677,7 @@ class DatabaseManagment():
 
     def parent_themes(self, user_id:int, view:str, metric:str) -> list[str]:           
         sql = f'''
-            SELECT theme_path, COUNT(), ROUND(SUM({metric}),2)
+            SELECT theme_path, COUNT(*), ROUND(SUM({metric}))
             FROM "App_price" P, "App_theme" T, "App_{view}" _view, "App_item" I
             WHERE user_id = {user_id}
                 AND theme_path NOT LIKE '%~%'
@@ -700,7 +693,7 @@ class DatabaseManagment():
 
     def sub_themes(self, user_id:int, theme_path:str, view:str, metric:str) -> list[str]:
         sql = f'''
-            SELECT theme_path, COUNT(), ROUND(SUM({metric}),2), P.item_id
+            SELECT theme_path, COUNT(*), ROUND(SUM({metric}))
             FROM "App_price" P, "App_theme" T, "App_{view}" _view, "App_item" I
             WHERE user_id = {user_id}
                 AND theme_path LIKE '{theme_path}%'
@@ -729,10 +722,7 @@ class DatabaseManagment():
         return self.SELECT(sql)
     
 
-    def get_weekly_item_metric_change(self, item_id, last_weeks_date, metric) -> int:
-
-        print(metric)
-        
+    def get_weekly_item_metric_change(self, item_id, last_weeks_date, metric) -> int:        
         sql = f'''
             SELECT (
             (SELECT AVG({metric})
@@ -780,15 +770,14 @@ class DatabaseManagment():
     def get_total_owners_or_watchers(self ,view, item_id):
         if view == "portfolio":
             sql = f'''
-                SELECT item_id
+                SELECT DISTINCT ON (user_id) item_id
                 FROM "App_{view}"
                 WHERE item_id = '{item_id}'
-                GROUP BY user_id
             '''
             return len(self.SELECT(sql))
         else:
             sql = f'''
-                SELECT count()
+                SELECT count(*)
                 FROM "App_watchlist"
                 WHERE item_id = '{item_id}'
                 GROUP BY user_id
@@ -801,7 +790,7 @@ class DatabaseManagment():
         
     def get_similar_items(self, item_name, item_type, item_id, sql_like):
         sql = f'''
-            SELECT I.item_id, item_name, year_released, item_type, avg_price, 
+            SELECT DISTINCT ON (I.item_id) I.item_id, item_name, year_released, item_type, avg_price, 
             min_price, max_price, total_quantity
             FROM "App_item" I, "App_theme" T, "App_price" P
             WHERE I.item_id = T.item_id
@@ -810,7 +799,6 @@ class DatabaseManagment():
                 AND item_name != '{item_name}'
                 AND item_type = '{item_type}'
                 {sql_like}
-            GROUP BY I.item_id
         '''
 
         if self.SELECT(sql) == None:
