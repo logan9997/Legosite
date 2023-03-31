@@ -52,8 +52,8 @@ def search_item(request, current_view):
     selected_item = request.POST.get("item_id")
 
     if selected_item in item_ids:
-        return redirect(f"http://127.0.0.1:8000/item/{selected_item}")
-    return redirect(f"http://127.0.0.1:8000{current_view}")
+        return redirect(f"/item/{selected_item}")
+    return redirect(f"{current_view}")
 
 @timer
 def index(request):
@@ -269,7 +269,7 @@ def search(request, theme_path='all'):
 
         if len(theme_items) == 0:
             redirect_path = "".join([f"{sub_theme}/" for sub_theme in theme_path.split("/")][:-1])
-            #return redirect(f"http://127.0.0.1:8000/search/{redirect_path}")
+            #return redirect(f"/search/{redirect_path}")
        
         sub_theme_indent = request.path.replace("/search/", "").count("/")
         sub_themes = [{"sub_theme":theme[0].split("~")[sub_theme_indent], "img_path":f"App/images/{theme[1]}.png"} for theme in DB.get_sub_theme_set(theme_path.replace("/", "~"), sub_theme_indent)]
@@ -355,7 +355,7 @@ def login(request):
                 request.session["login_attempts"] = 0
 
                 #redirect to home page id login successful
-                return redirect("http://127.0.0.1:8000/")
+                return redirect("/")
             else:
                 #display login error message, increment login_attempts 
                 context.update({"login_message":"Username and Password do not match"})
@@ -427,7 +427,7 @@ def join(request):
                     user_id = user.values_list("user_id", flat=True)[0]
                     request.session["user_id"] = user_id
                     request.session.modified = True
-                    return redirect("http://127.0.0.1:8000/")
+                    return redirect("/")
 
                 #set error messages depending on what the user did wrong in filling out the form
                 context["signup_message"] = "Username / Email already exists"
@@ -579,7 +579,7 @@ def view_POST(request, view):
 
     item_id = request.GET.get("item")
     if item_id != None:
-        return redirect(f"http://127.0.0.1:8000/{view}/?item={item_id}")
+        return redirect(f"/{view}/?item={item_id}")
 
     return redirect(view)
 
@@ -621,7 +621,7 @@ def add_to_user_items(request, item_id):
         else:
             Watchlist.objects.filter(user_id=user_id, item_id=item_id).delete()
             
-    return redirect(f"http://127.0.0.1:8000/item/{item_id}")
+    return redirect(f"/item/{item_id}")
 
 
 
@@ -632,8 +632,8 @@ def entry_item_handler(request, view):
     if request.POST.get("remove-entry") != None:
         Portfolio.objects.filter(portfolio_id=entry_id).delete()
         if view == "portfolio":
-            return redirect(f"http://127.0.0.1:8000/{view}/?item={item_id}")
-        return redirect(f"http://127.0.0.1:8000/{view}/{item_id}/")
+            return redirect(f"/{view}/?item={item_id}")
+        return redirect(f"/{view}/{item_id}/")
     
 
     elif "CLEAR" in request.POST.get("clear-input", ""):
@@ -645,8 +645,8 @@ def entry_item_handler(request, view):
 
         Portfolio.objects.filter(portfolio_id=entry_id).update(**new_data)
         if view == "portfolio":
-            return redirect(f"http://127.0.0.1:8000/{view}/?item={item_id}")
-        return redirect(f"http://127.0.0.1:8000/{view}/{item_id}/")
+            return redirect(f"/{view}/?item={item_id}")
+        return redirect(f"/{view}/{item_id}/")
     
 
     elif request.POST.get("form-type") == "entry-edit":
@@ -664,14 +664,14 @@ def entry_item_handler(request, view):
                 fields[k] = None
 
         Portfolio.objects.filter(portfolio_id=entry_id).update(**fields)
-        return redirect(f"http://127.0.0.1:8000/{view}/?item={item_id}")
+        return redirect(f"/{view}/?item={item_id}")
     
     elif request.POST.get("form-type") == "new-entry":
         values = {k:v for k,v in request.POST.items() if k not in ["csrfmiddlewaretoken", "form-type"] and v != ''}
         Portfolio(**values).save()
         if view == "portfolio":
-            return redirect(f"http://127.0.0.1:8000/{view}/?item={item_id}")
-        return redirect(f"http://127.0.0.1:8000/{view}/{item_id}/")
+            return redirect(f"/{view}/?item={item_id}")
+        return redirect(f"/{view}/{item_id}/")
 
 def profile(request):
 
