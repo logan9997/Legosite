@@ -44,6 +44,7 @@ from my_scripts.database import *
 
 
 def base_url(request) -> str:
+    print(request.path)
     return request.path
 
 
@@ -75,9 +76,6 @@ def index(request):
 
     recently_viewed_ids = request.session["recently-viewed"][:RECENTLY_VIEWED_ITEMS_NUM]
     recently_viewed = [DB.get_item_info(item_id, "avg_price")[0] for item_id in recently_viewed_ids]
-
-    #duplicate list eg [1,2,3] -> [1,2,3,1,2,3] for infinite CSS carousel 
-    '''recently_viewed.extend(recently_viewed)'''
 
     recently_viewed = format_item_info(recently_viewed, graph_data=[graph_metric], user_id=user_id)
     popular_items = format_item_info(DB.get_popular_items()[:10], popular_items=True, home_view="_popular_items", graph_data=[graph_metric])
