@@ -199,12 +199,15 @@ class DatabaseManagment():
         '''
         return self.SELECT(sql)
     
-
+    #[(current_page-1) * SEARCH_ITEMS_PER_PAGE : (current_page) * SEARCH_ITEMS_PER_PAGE]
+    #theme_path.replace("/", "~"), sort_field.split("-")
     def get_theme_items(self, theme_path, sort_field) -> list[str]:
+        distinct = f"(I.item_id, {sort_field[0]})"
         if sort_field[0] == "item_id":
             sort_field[0] = "I.item_id"
+            distinct = "(I.item_id)"
         sql = f'''
-            SELECT DISTINCT ON (I.item_id) I.item_id, item_name, year_released, item_type, avg_price, 
+            SELECT DISTINCT ON {distinct} I.item_id, item_name, year_released, item_type, avg_price, 
             min_price, max_price, total_quantity
             FROM "App_item" I, "App_theme" T, "App_price" P1
             WHERE T.item_id = I.item_id

@@ -87,17 +87,33 @@ WSGI_APPLICATION = 'legosite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-with open("./database_credentials.txt", "r") as file:
-    credentials = {param.rstrip("\n").split("=")[0].upper() : param.rstrip("\n").split("=")[1]  for param in file.readlines()}
+DEVELOPMENT = True
 
-#change key name to match django settings
-credentials["NAME"] = credentials.pop("DBNAME")
+if not DEVELOPMENT:
 
-credentials.update({'ENGINE': 'django.db.backends.postgresql_psycopg2'})
+    with open("./database_credentials.txt", "r") as file:
+        credentials = {param.rstrip("\n").split("=")[0].upper() : param.rstrip("\n").split("=")[1]  for param in file.readlines()}
 
-DATABASES = {
-    'default': credentials
-}
+    #change key name to match django settings
+    credentials["NAME"] = credentials.pop("DBNAME")
+
+    credentials.update({'ENGINE': 'django.db.backends.postgresql_psycopg2'})
+
+    DATABASES = {
+        'default': credentials
+    }
+
+else:
+     DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'legosite_DB',
+            'USER': 'postgres',
+            'PASSWORD': '#Legomario1',
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+        } 
+    }   
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

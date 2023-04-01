@@ -8,7 +8,7 @@
 
     {% load tags %}
 
-    <p id="important-info">Only theme with data <a href="{{request.get_host}}/search/all/Star_Wars/">Star Wars</a></p>
+    <p id="important-info">Only theme with data <a href="{% url 'search' %}Star_Wars">Star Wars</a></p>
     {% if sub_themes|length > 0 %}
 
     <section id="search-themes-container">
