@@ -6,7 +6,14 @@ from django.db import connection
 class DatabaseManagment():
 
     def __init__(self) -> None:
-        with open("./database_credentials.txt", "r") as file:
+        DEVELOPMENT = True
+
+        if not DEVELOPMENT:
+            file_name = "./heroku_database_credentials.txt"
+        else:
+            file_name = "./localhost_database_credentials.txt"
+
+        with open(file_name, "r") as file:
             credentials = {param.rstrip("\n").split("=")[0] : param.rstrip("\n").split("=")[1]  for param in file.readlines()}
         self.con = psycopg2.connect(**credentials)
         self.cursor = self.con.cursor()

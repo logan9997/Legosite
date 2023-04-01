@@ -90,30 +90,18 @@ WSGI_APPLICATION = 'legosite.wsgi.application'
 DEVELOPMENT = True
 
 if not DEVELOPMENT:
-
-    with open("./database_credentials.txt", "r") as file:
-        credentials = {param.rstrip("\n").split("=")[0].upper() : param.rstrip("\n").split("=")[1]  for param in file.readlines()}
-
-    #change key name to match django settings
-    credentials["NAME"] = credentials.pop("DBNAME")
-
-    credentials.update({'ENGINE': 'django.db.backends.postgresql_psycopg2'})
-
-    DATABASES = {
-        'default': credentials
-    }
-
+    file_name = "./heroku_database_credentials.txt"
 else:
-     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'legosite_DB',
-            'USER': 'postgres',
-            'PASSWORD': '#Legomario1',
-            'HOST': '127.0.0.1',
-            'PORT': '5432',
-        } 
-    }   
+    file_name = "./localhost_database_credentials.txt"
+
+with open(file_name, "r") as file:
+    credentials = {param.rstrip("\n").split("=")[0].upper() : param.rstrip("\n").split("=")[1]  for param in file.readlines()}
+
+credentials.update({'ENGINE': 'django.db.backends.postgresql_psycopg2'})
+
+DATABASES = {
+    'default': credentials
+}   
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
