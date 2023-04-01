@@ -514,6 +514,9 @@ def portfolio(request, item_id=None):
     item_id = request.GET.get("item")
     if item_id != None:
 
+        if len(Portfolio.objects.filter(user_id=user_id, item_id=item_id)) == 0:
+            return redirect("portfolio")
+
         if "graph_metric" in request.session:
             context["graph_metric"] = request.session["graph_metric"]
             context["graph_options"] = request.session["graph_options"]
