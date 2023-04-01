@@ -98,6 +98,7 @@ with open(file_name, "r") as file:
     credentials = {param.rstrip("\n").split("=")[0].upper() : param.rstrip("\n").split("=")[1]  for param in file.readlines()}
 
 credentials.update({'ENGINE': 'django.db.backends.postgresql_psycopg2'})
+credentials["NAME"] = credentials.pop("DBNAME")
 
 DATABASES = {
     'default': credentials

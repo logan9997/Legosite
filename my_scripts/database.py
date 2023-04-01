@@ -1,7 +1,6 @@
 import datetime
 import psycopg2
-
-from django.db import connection
+import os
 
 class DatabaseManagment():
 
@@ -12,6 +11,8 @@ class DatabaseManagment():
             file_name = "./heroku_database_credentials.txt"
         else:
             file_name = "./localhost_database_credentials.txt"
+            if not os.path.exists(file_name):
+                file_name = "../localhost_database_credentials.txt"
 
         with open(file_name, "r") as file:
             credentials = {param.rstrip("\n").split("=")[0] : param.rstrip("\n").split("=")[1]  for param in file.readlines()}
@@ -41,7 +42,27 @@ class DatabaseManagment():
             VALUES ('{info["item_id"]}', '{info["piece_id"]}', '{info["quantity"]}', '{info["colour_id"]}')
         '''
         self.cursor.execute(sql)
-        self.con.commit()    
+        self.con.commit()   
+
+
+    def add_price_info(self, item) -> None:
+        today = datetime.date.today().strftime('%Y-%m-%d')
+        try:
+            self.cursor.execute(f"""
+                INSERT INTO "App_price" (
+                    item_id,date,avg_price,
+                    min_price,max_price,total_quantity
+                )
+                VALUES
+                (
+                    '{item["item"]["no"]}', '{today}', '{round(float(item["avg_price"]), 2)}',
+                    '{round(float(item["min_price"]),2)}', '{round(float(item["max_price"]),2)}',
+                    '{item["total_quantity"]}'
+                )
+            """)
+        except psycopg2.IntegrityError:
+            pass
+        self.con.commit() 
 
 
     def add_set_participation(self, info):
@@ -151,7 +172,7 @@ class DatabaseManagment():
     def get_biggest_trends(self, change_metric) -> list[str]:
 
         sql = f'''
-            SELECT DISTINCT ON (I.item_id) I.item_id, item_name, year_released, item_type, avg_price, 
+            SELECT DISTINCT ON (I.item_id, Change) I.item_id, item_name, year_released, item_type, avg_price, 
             min_price, max_price, total_quantity, ABS(ROUND((
                 (SELECT {change_metric}
                 FROM "App_price" P2
@@ -168,7 +189,7 @@ class DatabaseManagment():
                     SELECT min(date)
                     FROM "App_price"
                 ) 
-            ) + 0.00001) * 100)) 
+            ) + 0.00001) * 100)) as Change
             FROM "App_price" P1, "App_item" I
             WHERE I.item_id = P1.item_id 
                 AND (I.item_id, date) = any (
@@ -176,9 +197,8 @@ class DatabaseManagment():
                     FROM "App_price" P2  
                     GROUP BY item_id
                 )
-            
+			ORDER BY Change DESC, I.item_id
         '''
-        #ORDER BY [percentage change] DESC
 
         result = self.SELECT(sql)
         losers = result[len(result)-10:][::-1]
@@ -257,7 +277,7 @@ class DatabaseManagment():
                         FROM "App_price"
                         WHERE item_id = '{item_id}'
                     ) 
-                ) - {change_metric}) *-1.0 / (
+                ) - {change_metric}) *-1.0 / ((
                 SELECT {change_metric}
                 FROM "App_price" P2
                 WHERE P2.item_id = P1.item_id
@@ -267,7 +287,7 @@ class DatabaseManagment():
                         FROM "App_price"
                         WHERE item_id = '{item_id}'
                     )
-            ) *100)
+            ) + 0.0001) *100)
 
             FROM "App_price" P1, "App_item" I
             WHERE I.item_id = P1.item_id 
@@ -313,9 +333,8 @@ class DatabaseManagment():
     def get_item_info(self, item_id, change_metric) -> list[str]:
         sql = f'''
             SELECT I.item_id, item_name, year_released, item_type, avg_price, 
-            min_price, max_price, total_quantity, round(
-                ((
-                SELECT {change_metric}
+            min_price, max_price, total_quantity, (
+                (SELECT {change_metric}
                 FROM "App_price" P2
                 WHERE P2.item_id = P1.item_id
                     AND I.item_id = '{item_id}'
@@ -324,7 +343,7 @@ class DatabaseManagment():
                         FROM "App_price"
                         WHERE item_id = '{item_id}'
                     ) 
-                ) - {change_metric}) *-1.0 / (
+                ) - ({change_metric}) *-1.0) / ((
                 SELECT {change_metric}
                 FROM "App_price" P2
                 WHERE P2.item_id = P1.item_id
@@ -334,7 +353,7 @@ class DatabaseManagment():
                         FROM "App_price"
                         WHERE item_id = '{item_id}'
                     )
-            ) *100) as "%change"
+            ) + 0.01) * 100
 
             FROM "App_price" P1, "App_item" I
             WHERE I.item_id = P1.item_id 

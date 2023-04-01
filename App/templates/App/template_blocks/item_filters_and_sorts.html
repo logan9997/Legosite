@@ -4,6 +4,7 @@
 
 <section id="main-forms-container">
 
+    
 {% if sub_view != "" %}
     <form id="page-buttons-form" action="{% url action_view sub_view %}" method="POST">
 {% else %}
@@ -44,12 +45,15 @@
     {% endif %}
     </div>
 <div>
-    {% if item_id == None or item_id == "" %}
-        <form id="page-buttons-form" action="{% url action_view sub_view %}" method="POST">
+    {% if sub_view != "" %}
+        {% if item_id == None and item_id == "" %}
+            <form id="page-buttons-form" action="{% url action_view sub_view %}" method="POST">
+        {% else %}
+            <form id="page-buttons-form" action="{% url action_view sub_view %}?item={{item_id}}" method="POST">
+        {% endif %}
     {% else %}
-        <form id="page-buttons-form" action="{% url action_view sub_view %}?item={{item_id}}" method="POST">
+        <form id="page-buttons-form" action="{% url action_view %}" method="POST">
     {% endif %}
-
 
         {% csrf_token %}
         <label for="graph-data-form">Graph Data : </label>

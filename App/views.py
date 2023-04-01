@@ -37,7 +37,10 @@ from django.db.models import (
     Sum,
     Count,
     Max,
+    Value
 ) 
+
+from django.db.models.functions import Coalesce
 
 from my_scripts.responses import * 
 from my_scripts.database import *
@@ -212,18 +215,28 @@ def trending(request):
     request, options = save_POST_params(request)
 
     graph_metric = options.get("graph-metric", "avg_price")
-    trend_type = options.get("sort-field", "avg_price-desc")
+    trending_order = options.get("sort-field", "avg_price-desc")
     current_page = options.get("page", 1)
 
+    trend_type_valid = False
+    for option in get_trending_options():
+        if trending_order == option["value"]:
+            trend_type_valid = True
+            break
+
+    if not trend_type_valid:
+        trending_order = "avg_price-desc"
+
     graph_options = sort_dropdown_options(get_graph_options(), graph_metric)
-    trend_options = sort_dropdown_options(get_trending_options(), trend_type)
+    trend_options = sort_dropdown_options(get_trending_options(), trending_order)
 
     items = format_item_info(DB.get_biggest_trends(graph_metric), price_trend=[graph_metric], graph_data=[graph_metric])
-
     current_page = check_page_boundaries(current_page, len(items), SEARCH_ITEMS_PER_PAGE)
     page_numbers = slice_num_pages(len(items), current_page, SEARCH_ITEMS_PER_PAGE)
 
-    items = sort_items(items, trend_type)
+    [print(item["item_id"]) for item in items]
+
+    items = sort_items(items, trending_order)
     items = items[(current_page-1) * SEARCH_ITEMS_PER_PAGE : (current_page) * SEARCH_ITEMS_PER_PAGE]
 
     context = {
@@ -505,10 +518,10 @@ def portfolio(request, item_id=None):
     
     context = user_items(request, "portfolio", user_id)
 
-    context["total_items"] = Portfolio.objects.filter(user_id=user_id).count()
-    context["total_bought_price"] = Portfolio.objects.filter(user_id=user_id).aggregate(total_bought_for=Sum("bought_for"))["total_bought_for"]
-    context["total_sold_price"] = Portfolio.objects.filter(user_id=user_id).aggregate(total_sold_for=Sum("sold_for"))["total_sold_for"] 
-    context["total_profit"] = round(Portfolio.objects.filter(user_id=user_id).aggregate(profit=Sum("bought_for") - Sum("sold_for"))["profit"], 2)
+    context["total_items"] = Portfolio.objects.filter(user_id=user_id).count() 
+    context["total_bought_price"] = Portfolio.objects.filter(user_id=user_id).aggregate(total_bought_for=Sum("bought_for", default=0))["total_bought_for"]
+    context["total_sold_price"] = Portfolio.objects.filter(user_id=user_id).aggregate(total_sold_for=Sum("sold_for", default=0))["total_sold_for"]
+    context["total_profit"] = round(Portfolio.objects.filter(user_id=user_id).aggregate(profit=Sum("bought_for", default=0) - Sum("sold_for", default=0))["profit"], 2)
 
 
     item_id = request.GET.get("item")
