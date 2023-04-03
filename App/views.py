@@ -236,7 +236,7 @@ def trending(request):
     dates = DB.get_dates()
 
     max_date = str(request.session.get("slider_date", dates[-1][0].strftime('%Y-%m-%d')))
-    slider_value = request.session["slider_value"] 
+    slider_value = request.session.get("slider_value", len(dates) -1) 
 
     items = DB.get_biggest_trends(trending_order.split("-")[0], max_date)
 
