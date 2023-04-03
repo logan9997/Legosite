@@ -199,7 +199,7 @@ class DatabaseManagment():
                 AND (I.item_id, date) = any (
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
                     FROM "App_price" P2  
-                    WHERE date < '{max_date_sql}'
+                    {max_date_sql}
                     GROUP BY item_id
                 )
             ORDER BY Change DESC, I.item_id
