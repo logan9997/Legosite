@@ -238,7 +238,7 @@ def trending(request):
     max_date = str(request.session.get("slider_date", dates[-1][0].strftime('%Y-%m-%d')))
     slider_value = request.session.get("slider_value", len(dates) -1) 
 
-    items = DB.get_biggest_trends(trending_order.split("-")[0], max_date)
+    items = DB.get_biggest_trends(trending_order.split("-")[0], max_date=max_date)
 
     #remove trending items if % change (-1) is equal to None (0.00)
     items = [_item for _item in items if _item[-1] != None]
