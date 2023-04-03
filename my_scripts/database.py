@@ -176,7 +176,7 @@ class DatabaseManagment():
         
         limit_sql = kwargs.get("limit", "")
         if "limit" in kwargs:
-            limit_sql = f"LIMIT{limit_sql}"
+            limit_sql = f"LIMIT {limit_sql}"
 
         sql = f'''
             SELECT DISTINCT ON (I.item_id, Change) I.item_id, item_name, year_released, item_type, avg_price, 
