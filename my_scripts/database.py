@@ -169,7 +169,10 @@ class DatabaseManagment():
         return self.SELECT(sql)     
 
     
-    def get_biggest_trends(self, change_metric, max_date) -> list[str]:
+    def get_biggest_trends(self, change_metric, **kwargs) -> list[str]:
+        max_date_sql = kwargs.get("max_date", "")
+        if "max_date" in kwargs:
+            max_date_sql = f"WHERE date < '{max_date_sql}'"
 
         sql = f'''
             SELECT DISTINCT ON (I.item_id, Change) I.item_id, item_name, year_released, item_type, avg_price, 
@@ -196,7 +199,7 @@ class DatabaseManagment():
                 AND (I.item_id, date) = any (
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
                     FROM "App_price" P2  
-                    WHERE date < '{max_date}'
+                    WHERE date < '{max_date_sql}'
                     GROUP BY item_id
                 )
             ORDER BY Change DESC, I.item_id
