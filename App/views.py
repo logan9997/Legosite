@@ -103,7 +103,7 @@ def index(request):
 
     if user_id == -1 or len(DB.get_user_items(user_id, "portfolio")) == 0:
         context["portfolio_trending_items"] = False
-        context["trending"] = format_item_info(DB.get_biggest_trends(graph_metric), price_trend=[graph_metric], graph_data=[graph_metric], user_id=user_id)
+        context["trending"] = format_item_info(DB.get_biggest_trends(graph_metric, limit=10), price_trend=[graph_metric], graph_data=[graph_metric], user_id=user_id)
     else:
         context["portfolio_trending_items"] = True
         context["trending"] = format_item_info(DB.biggest_portfolio_changes(user_id, graph_metric), graph_data=[graph_metric])

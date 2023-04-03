@@ -173,6 +173,10 @@ class DatabaseManagment():
         max_date_sql = kwargs.get("max_date", "")
         if "max_date" in kwargs:
             max_date_sql = f"WHERE date < '{max_date_sql}'"
+        
+        limit_sql = kwargs.get("limit", "")
+        if "limit" in kwargs:
+            limit_sql = f"LIMIT{limit_sql}"
 
         sql = f'''
             SELECT DISTINCT ON (I.item_id, Change) I.item_id, item_name, year_released, item_type, avg_price, 
@@ -203,6 +207,7 @@ class DatabaseManagment():
                     GROUP BY item_id
                 )
             ORDER BY Change DESC, I.item_id
+            {limit_sql}
         '''
         return self.SELECT(sql)
     
