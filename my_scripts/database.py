@@ -172,7 +172,7 @@ class DatabaseManagment():
     def get_biggest_trends(self, change_metric, **kwargs) -> list[str]:
         max_date_sql = kwargs.get("max_date", "")
         if "max_date" in kwargs:
-            max_date_sql = f"WHERE date < '{max_date_sql}'"
+            max_date_sql = f"WHERE date =< '{max_date_sql}'"
         
         limit_sql = kwargs.get("limit", "")
         if "limit" in kwargs:
