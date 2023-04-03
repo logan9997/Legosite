@@ -74,7 +74,7 @@
                     <form id="search-form" action="{% url 'search_item' request.path_info %}" method="post">
                         {% csrf_token %}
                         <div id="input-submit-container">
-                            <input placeholder="Enter item ID / name" type="text" name="item_id">
+                            <input placeholder="Enter item ID" type="text" name="item_id">
                             <button type="submit"></button>
                         </div>
                     </form>

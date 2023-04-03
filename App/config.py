@@ -14,6 +14,7 @@ PAGE_NUM_LIMIT = 8
 SEARCH_ITEMS_PER_PAGE = 50
 USER_ITEMS_ITEMS_PER_PAGE = 10
 MAX_SIMILAR_ITEMS = 12
+TRENDING_ITEMS_PER_PAGE = 20
 ALL_METRICS = ["avg_price", "min_price", "max_price", "total_quantity"]
 
 REMOVE_CHARS = ["(", ")"]

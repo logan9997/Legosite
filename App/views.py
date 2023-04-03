@@ -47,7 +47,6 @@ from my_scripts.database import *
 
 
 def base_url(request) -> str:
-    print("HOST ",request.get_host())
     return request.get_host().strip(" ")
 
 
@@ -181,11 +180,7 @@ def item(request, item_id):
     sub_sets = DB.get_item_subsets(item_id)
     super_sets = DB.get_item_supersets(item_id)
 
-    metric_changes = [
-        {"metric":" ".join(list(map(str.capitalize, metric_change.split("_")))) , 
-        "change":DB.get_item_metric_changes(item_id, metric_change)} 
-        for metric_change in ["avg_price", "min_price", "max_price", "total_quantity"]
-    ]
+    metric_changes = get_metric_changes(item_id)
 
     context = {
         "show_year_released_availability":True,
@@ -209,49 +204,94 @@ def item(request, item_id):
 
     return render(request, "App/item.html", context=context)
 
-
-def trending(request):
-
+def trending_POST(request):
     request, options = save_POST_params(request)
 
     graph_metric = options.get("graph-metric", "avg_price")
     trending_order = options.get("sort-field", "avg_price-desc")
     current_page = options.get("page", 1)
 
-    trend_type_valid = False
-    for option in get_trending_options():
-        if trending_order == option["value"]:
-            trend_type_valid = True
-            break
+    request.session["graph_metric"] = graph_metric
+    request.session["trending_order"] = trending_order
+    request.session["current_page"] = current_page
 
-    if not trend_type_valid:
-        trending_order = "avg_price-desc"
+    dates = DB.get_dates()
+    slider_value = int(options.get("slider", len(dates))) -1
+    date = dates[slider_value][0].strftime('%Y-%m-%d')
 
-    graph_options = sort_dropdown_options(get_graph_options(), graph_metric)
+    request.session["slider_date"] = date
+    request.session["slider_value"] = slider_value
+
+    return redirect("trending")
+
+
+def trending(request):
+
+    trending_order = request.session.get("trending_order", "avg_price-desc") 
+    current_page = request.session.get("current_page", 1)
+
+    graph_options = sort_dropdown_options(get_graph_options(), trending_order.split("-")[0])
     trend_options = sort_dropdown_options(get_trending_options(), trending_order)
 
-    items = format_item_info(DB.get_biggest_trends(graph_metric), price_trend=[graph_metric], graph_data=[graph_metric])
-    current_page = check_page_boundaries(current_page, len(items), SEARCH_ITEMS_PER_PAGE)
-    page_numbers = slice_num_pages(len(items), current_page, SEARCH_ITEMS_PER_PAGE)
+    dates = DB.get_dates()
 
-    [print(item["item_id"]) for item in items]
+    max_date = str(request.session.get("slider_date", dates[-1][0].strftime('%Y-%m-%d')))
+    slider_value = request.session["slider_value"] 
 
-    items = sort_items(items, trending_order)
-    items = items[(current_page-1) * SEARCH_ITEMS_PER_PAGE : (current_page) * SEARCH_ITEMS_PER_PAGE]
+    items = DB.get_biggest_trends(trending_order.split("-")[0], max_date)
+
+    #remove trending items if % change (-1) is equal to None (0.00)
+    items = [_item for _item in items if _item[-1] != None]
+
+    current_page = check_page_boundaries(current_page, len(items), TRENDING_ITEMS_PER_PAGE)
+    num_pages = slice_num_pages(len(items), current_page, TRENDING_ITEMS_PER_PAGE)
+
+    items = items[(current_page-1) * TRENDING_ITEMS_PER_PAGE : (current_page) * TRENDING_ITEMS_PER_PAGE]
+    items = format_item_info(items, price_trend=[trending_order.split("-")[0]], graph_data=[trending_order.split("-")[0]])
+
+    for _item in items:
+        _item["metric_changes"] = get_metric_changes(_item["item_id"], max_date=max_date)
+
 
     context = {
         "items":items,
         "show_graph":True,
         "graph_options":graph_options,
         "sort_options":trend_options,
-        "page_numbers":page_numbers
-        }
-    
+        "num_pages":num_pages,
+        "current_page":current_page,
+        "dates":[date[0].strftime('%Y-%m-%d') for date in DB.get_dates()],
+        "slider_value":slider_value +1,
+        "max_slider_value":len(dates) ,
+        "metric_data":trending_order.split("-")[0]
+    }
+
+    clear_session_url_params(request, "graph_metric", "trending_order", "current_page")
 
     return render(request, "App/trending.html", context=context)
 
+
+def search_POST(request):
+    request, options = save_POST_params(request)
+
+    theme_path = request.session.get("theme_path", "")
+
+    graph_metric = options.get("graph-metric", "avg_price")
+    sort_field = options.get("sort-field", "avg_price-desc")
+    current_page = int(options.get("page", 1))
+
+    request.session["graph_metric"] = graph_metric
+    request.session["sort_field"] = sort_field
+    request.session["current_page"] = current_page
+    print(f"{base_url(request)}/search/{theme_path}")
+    return redirect(f"http://{base_url(request)}/search/{theme_path}")
+
+
 @timer
 def search(request, theme_path='all'):
+
+    request.session["theme_path"] = theme_path
+    print(theme_path)
 
     if 'all' in request.path:
         return redirect(request.path.replace("all/", ""))
@@ -260,11 +300,9 @@ def search(request, theme_path='all'):
         if "search" not in request.META.get('HTTP_REFERER'):
             request = clear_session_url_params(request, "graph-metric", "sort-field", "page", sub_dict="url_params")
 
-    request, options = save_POST_params(request)
-
-    graph_metric = options.get("graph-metric", "avg_price")
-    sort_field = options.get("sort-field", "avg_price-desc")
-    current_page = int(options.get("page", 1))
+    graph_metric = request.session.get("graph_metric", "avg_price")
+    sort_field = request.session.get("sort_field", "avg_price-desc")
+    current_page = request.session.get("current_page",1)  
 
     if "user_id" in request.session:
         user_id = request.session["user_id"]
@@ -541,7 +579,7 @@ def portfolio(request, item_id=None):
         context["metric_changes"] = [{"metric":metric,"change":DB.get_item_metric_changes(item_id, metric)} for metric in ALL_METRICS]
         context["item"] = format_item_info(DB.get_item_info(item_id, context["graph_metric"]), graph_data=[context["graph_metric"]], price_trend=ALL_METRICS)[0]
         
-        context["total_profit"] = round(Portfolio.objects.filter(user_id=user_id, item_id=item_id).aggregate(profit=Sum("bought_for") - Sum("sold_for"))["profit"], 2)
+        context["total_profit"] = round(Portfolio.objects.filter(user_id=user_id, item_id=item_id).aggregate(profit=Sum("sold_for", default=0) - Sum("bought_for", default=0))["profit"], 2)
         context["total_owners"] = len(Portfolio.objects.filter(item_id=item_id).aggregate(Count("user_id")))
         context["total_watchers"] = Watchlist.objects.filter(item_id=item_id).count()
         
@@ -550,8 +588,8 @@ def portfolio(request, item_id=None):
         ).values_list("avg_price", flat=True)[0] * Portfolio.objects.filter(item_id=item_id, user_id=user_id, date_sold=None).count()
 
         if len(Portfolio.objects.filter(item_id=item_id, user_id=user_id)) > 0:
-            context["total_bought_price"] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(total_bought_for=Sum("bought_for"))["total_bought_for"]
-            context["total_sold_price"] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(total_sold_for=Sum("sold_for"))["total_sold_for"] 
+            context["total_bought_price"] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(total_bought_for=Sum("bought_for", default=0))["total_bought_for"]
+            context["total_sold_price"] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(total_sold_for=Sum("sold_for", default=0))["total_sold_for"] 
 
     return render(request, "App/portfolio.html", context=context)
 
@@ -688,6 +726,7 @@ def entry_item_handler(request, view):
         if view == "portfolio":
             return redirect(f"http://{base_url(request)}/{view}/?item={item_id}")
         return redirect(f"http://{base_url(request)}/{view}/{item_id}/")
+
 
 def profile(request):
 

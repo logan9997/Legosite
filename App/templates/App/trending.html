@@ -2,23 +2,77 @@
 
 {% block content %}
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'App/trending.css' %}">
+{% load static %}
+{% load tags %}
+<link rel="stylesheet" href="{% static 'App/trending.css' %}">
 
-    <section id="winners-losers">
-        <div id="winners">
-            {% include 'App/template_blocks/item_filters_and_sorts.html' with action_view='trending' sub_view="" %}
-        {% for item in items %}
-            <div class="main-item-container">
-                <div class="template-container">
-                    {% include 'App/template_blocks/item_container.html' %}
-                </div>
-                <div class="item-info-container">
-                    <p>{{g}} {{item.price_change}}</p>
-                </div>
-            </div>
-        {% endfor %}
+<script>
+    var charts = [];
+</script>
+
+<section id="main-container">
+    <h2>Trending</h2>
+    <div id="header">
+        <div id="inputs-forms-container">
+            {% include 'App/template_blocks/item_filters_and_sorts.html' with action_view='trending_POST' sub_view="" hide_graph_metric_options=True %}
         </div>
-    </section>
+        <div id="slider-container">
+            <form action="{% url 'trending_POST' %}" method="post">
+                {% csrf_token %}
+                <input type="range" id="slider" name="slider" min="2" max="{{max_slider_value}}" value="{{slider_value}}">
+            </form>
+            <p id="slider-value">Range : {{dates.0}} - {{dates|iterable_index:slider_value}}</p>
+        </div>
+    </div>
+
+    <div id="items-container">
+    {% for item in items %}
+        <div class="main-item-container">
+            <div class="template-container">
+                {% include 'App/template_blocks/item_container.html' %}
+            </div>
+            <div class="metric-changes-container">
+                {% for change in item.metric_changes %}
+                    {% if change.change >= 0 %}
+                        <p style="color: green;">{{change.metric}} (%) {{change.change}}</p>
+                    {% else %}
+                        <p style="color: red;">{{change.metric}} (%) {{change.change}}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</section>
+
+{{ items|json_script:"items_id" }}
+{{ metric_data|json_script:"metric_data" }}
+
+<script>
+    var items = JSON.parse(document.getElementById("items_id").textContent)
+    var slider = document.getElementById("slider")
+    var slider_output = document.getElementById("slider-value")
+    var chart_metric = document.getElementById("metric_data")
+    var slider_value = slider.value 
+
+    window.onload = function() {
+        console.log("LOAD", slider_value)
+        for (let i = 0; i < charts.length; i ++) {
+            charts[i].data.labels = items[i].dates.slice(0, slider_value)
+            // charts[i].data.datasets[i].data = items[i]..slice(0, slider_value)
+            charts[i].update()
+        }   
+    }
+
+    slider.oninput = function() {
+        var slider = document.getElementById("slider")
+        var slider_value = slider.value - 1
+        slider_output.textContent = `Range : ${items[0].dates[0]} - ${items[0].dates[slider_value]}`
+    }
+
+    slider.onchange = function() {
+        slider.parentElement.submit()
+    }
+</script>
 
 {% endblock%}

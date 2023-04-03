@@ -10,7 +10,6 @@
 {% else %}
     <form id="page-buttons-form" action="{% url action_view %}" method="POST">
 {% endif %}
-
     {% csrf_token %}
     {% for page_button in num_pages %}
         {% if page_button == current_page %}
@@ -24,9 +23,9 @@
 <div id="sort-forms">
     {% if request.GET.item == None %}
         {% if sub_view != "" %}
-            <form id="page-buttons-form" action="{% url action_view sub_view %}" method="POST">
+            <form action="{% url action_view sub_view %}" method="POST">
         {% else %}
-            <form id="page-buttons-form" action="{% url action_view %}" method="POST">
+            <form action="{% url action_view %}" method="POST">
         {% endif %}
             {% csrf_token %}
             <div class="input-label-container">
@@ -44,15 +43,17 @@
         </form>
     {% endif %}
     </div>
+
+{% if not hide_graph_metric_options %}
 <div>
     {% if sub_view != "" %}
-        {% if item_id == None and item_id == "" %}
-            <form id="page-buttons-form" action="{% url action_view sub_view %}" method="POST">
+        {% if item_id == None or item_id == "" %}
+            <form action="{% url action_view sub_view %}" method="POST">
         {% else %}
-            <form id="page-buttons-form" action="{% url action_view sub_view %}?item={{item_id}}" method="POST">
+            <form action="{% url action_view sub_view %}?item={{item_id}}" method="POST">
         {% endif %}
     {% else %}
-        <form id="page-buttons-form" action="{% url action_view %}" method="POST">
+        <form action="{% url action_view %}" method="POST">
     {% endif %}
 
         {% csrf_token %}
@@ -64,5 +65,6 @@
         </select>
     </form>
 </div>
+{% endif %}
 
 </section>

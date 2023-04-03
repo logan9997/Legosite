@@ -45,7 +45,7 @@ def clean_html_codes(string:str):
     return string
 
 
-def format_item_info(items, **kwargs):
+def format_item_info(items, **kwargs) -> list[dict]:
     #view:str ,price_trend:bool, popular_items:bool
     #graph_data:bool new_items:bool
 
@@ -235,7 +235,7 @@ def sort_themes(field:str, order:str, sub_themes:list[str]) -> list[str]:
     #else:
 
 
-def sort_items(items, sort , **order) -> list[str]:
+def sort_items(items, sort , **order) -> list[dict]:
     sort_field = sort.split("-")[0]
     order = {"asc":False, "desc":True}[sort.split("-")[1]]
     items = sorted(items, key=lambda field:field[sort_field], reverse=order)
@@ -270,7 +270,7 @@ def get_sub_themes(user_id:int, parent_themes:list[str], themes:list[dict], inde
     return themes
 
 
-def clear_session_url_params(request, *keys, **sub_dict):
+def clear_session_url_params(request, *keys:str, **sub_dict:dict):
     #options to del values from a sub dict of request.session eg request.session["dict_name"]
     if sub_dict.get("sub_dict") != None:
         if sub_dict.get("sub_dict") in request.session:
@@ -367,6 +367,16 @@ def save_POST_params(request) -> tuple[dict, dict]:
     return request, options
 
 
+
+# def save_POST_params(request) -> tuple[dict, dict]:
+#     for k, v in request.POST.items():
+#         request.session["url_params"][k] = v
+#     options = request.session["url_params"]
+
+#     request.session.modified = True
+#     return request, options
+
+
 def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, item_id:str, items:list[str], i:int) -> tuple[int, list]:
     for sub in itertools.combinations(single_words, i):
         sql_like = "AND " + ''.join([f"item_name LIKE '%{word}%' AND " for word in sub])[:-4]
@@ -407,3 +417,13 @@ def get_similar_items(item_name:str, item_type:str, item_id:str) -> list:
 
         i -= 1
     return items[:MAX_SIMILAR_ITEMS]
+
+
+def get_metric_changes(item_id, **kwargs) -> list[dict]:
+
+    changes = [
+        {"metric":" ".join(list(map(str.capitalize, metric_change.split("_")))), 
+        "change":DB.get_item_metric_changes(item_id, metric_change, **kwargs)} 
+        for metric_change in ["avg_price", "min_price", "max_price", "total_quantity"]
+    ]
+    return changes

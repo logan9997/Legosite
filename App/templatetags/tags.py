@@ -18,6 +18,10 @@ def check_login_status(context, request):
         context["logged_in"] = False
     return ''
 
+@register.filter
+def iterable_index(list:list, i:int):
+    return list[i-1]
+
 
 @register.simple_tag(takes_context=True)
 def add_username_email_to_context(context, request):

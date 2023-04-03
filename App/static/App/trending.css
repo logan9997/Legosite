@@ -1,16 +1,51 @@
-#winners {
-    background-color: red;
+#main-container {
+    width: 70%;
+    margin-left: 15%;
+    border-radius: 1rem;
+}
+
+h2 {
+    font-size: 2rem;
+    text-align: center;
+    padding: 0;
+}
+
+#header {
+    box-shadow: 0 0rem 1rem 1rem rgb(225,225,225);   
+    border: 0.1rem orangered solid;
+    margin-bottom: 2rem;
+}
+
+#inputs-forms-container {
+    padding-top: 1rem;
+}
+
+#slider-container {
     width: 60%;
     margin-left: 20%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+#items-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    box-shadow: 0 1rem 1rem 1rem rgb(225,225,225);   
 }
 
 .main-item-container {
-    width: 30rem;
     margin: 1rem;
     display: flex;
     flex-direction: row;
+    justify-content: center;
 }
 
-.item-info-container {
-    background-color: green;
+.metric-changes-container {
+    width: 14rem;
+    background-color: white;
+    border-radius: 1rem;
+    margin-left: 1rem;
 }

@@ -164,5 +164,3 @@ function input_validation(input, type, add_new) {
         }
     }
 }
-
-
