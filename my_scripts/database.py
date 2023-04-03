@@ -289,7 +289,7 @@ class DatabaseManagment():
     def get_item_metric_changes(self, item_id, change_metric, **kwargs):
         max_date_sql = kwargs.get("max_date", "")
         if max_date_sql != "":
-            max_date_sql = f"AND date < '{max_date_sql}'"
+            max_date_sql = f"AND date <= '{max_date_sql}'"
 
         sql = f'''
             SELECT ROUND(CAST( 
