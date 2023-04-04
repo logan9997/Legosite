@@ -24,6 +24,9 @@
 
     <script>
         var dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
+        if (window.location.href.includes("trending")) {
+            dates = dates.slice(0, onload_slider_value)
+        }
         var metric_data = [
             {
                 id:'{{item.avg_price_id}}',

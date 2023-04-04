@@ -36,7 +36,8 @@ def timer(func):
 def clean_html_codes(string:str):
     codes = {
         "&#41;":")", 
-        "&#40;":"("
+        "&#40;":"(",
+        "&#39;": "'"
     }
 
     for k, v in codes.items():
@@ -377,6 +378,17 @@ def save_POST_params(request) -> tuple[dict, dict]:
 #     return request, options
 
 
+def extend_remove_words(words:list, *args) -> list:
+
+    for arg in args:
+        words.extend(arg)
+
+    for func in [str.capitalize]:
+        words.extend(list(map(func, words)))
+    return words
+
+
+
 def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, item_id:str, items:list[str], i:int) -> tuple[int, list]:
     for sub in itertools.combinations(single_words, i):
         sql_like = "AND " + ''.join([f"item_name LIKE '%{word}%' AND " for word in sub])[:-4]
@@ -393,11 +405,20 @@ def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, 
 
 
 def get_similar_items(item_name:str, item_type:str, item_id:str) -> list:
+
+    item_type = DB.get_item_type(item_id)
+    remove_words = list(DB.get_most_common_words("item_name", item_type, ',', '(', ')', min_word_length=2, limit=25))
+    remove_words = extend_remove_words(remove_words, COLOURS, EXTRA_WORDS)
+
+    print(remove_words)
+
     single_words = [
         ''.join(char for char in word if char not in REMOVE_CHARS) 
         for word in item_name.split(" ")
-        if len(word) > 3 and ''.join(char for char in word if char not in REMOVE_CHARS) not in REMOVE_WORDS
+        if len(word) > 3 and ''.join(char for char in word if char not in REMOVE_CHARS) not in remove_words
     ]
+
+    print(single_words)
 
     i = len(single_words) ; items = []
 

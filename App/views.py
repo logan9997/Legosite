@@ -111,7 +111,7 @@ def index(request):
 
     return render(request, "App/home.html", context=context)
 
-
+@timer
 def item(request, item_id):
 
     request, options = save_POST_params(request)
@@ -123,7 +123,10 @@ def item(request, item_id):
         DB.get_item_info(item_id, metric),
         graph_data=["avg_price", "min_price", "max_price", "total_quantity"]
     )
-    
+
+    #convert last item into new format so on window load slider max value is not Day, Month, Year format 
+    item_info[0]["dates"][-1] = item_info[0]["dates"][-1].strftime('%Y-%m-%d')
+
     if item_info == []:
         return redirect(request.META.get('HTTP_REFERER'))
     item_info = item_info[0]
@@ -172,7 +175,9 @@ def item(request, item_id):
         in_watchlist = "No"
 
     item_themes = Theme.objects.filter(item_id=item_id).values_list("theme_path")
+    start = time.time()
     similar_items = format_item_info(get_similar_items(item_info["item_name"], item_info["item_type"], item_info["item_id"]))
+    print("FIN - ", time.time() - start)
 
     total_watchers = DB.get_total_owners_or_watchers("watchlist", item_id) 
     total_owners = DB.get_total_owners_or_watchers("portfolio", item_id)

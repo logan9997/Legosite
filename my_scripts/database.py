@@ -877,4 +877,59 @@ class DatabaseManagment():
         if self.SELECT(sql) == None:
             return []
         return self.SELECT(sql)
+    
 
+    def get_item_parent_theme(self, item_id):
+        sql = f'''
+            SELECT theme_path
+            FROM "App_item" I, "App_theme" TH
+            WHERE TH.item_id = I.item_id
+                AND LENGTH(theme_path) = LENGTH(REPLACE(theme_path, '~', '')) 
+				AND I.item_id = '{item_id}'
+        '''
+        return self.SELECT(sql, fetchone=True)[0]
+    
+
+    def get_item_type(self, item_id):
+        sql = f'''
+            SELECT item_type
+            FROM "App_item"
+            WHERE item_id = '{item_id}'
+        '''
+        return self.SELECT(sql, fetchone=True)[0]
+
+
+    def get_most_common_words(self, field, item_type, *args, **kwargs):
+        min_word_length = kwargs.get("min_word_length", 3)
+        limit = kwargs.get("limit", 100)
+
+        if len(args) != 0:
+
+            replace_sql = f""
+            for i, char in enumerate(args):
+                if i == 0:
+                    replace_sql += f"REPLACE({field}, '{char}', '')"
+                else:
+                    replace_sql = "REPLACE(" + replace_sql
+                    replace_sql += f", '{char}', '')"
+            replace_sql += ", ' '"
+        else:
+            replace_sql = "item_name, ''"
+
+        sql = f'''
+            SELECT word
+            FROM 
+            (
+                SELECT UNNEST(
+                string_to_array(
+                    {replace_sql}
+                )) AS word
+                FROM "App_item" I
+                WHERE item_type = '{item_type}'
+            ) AS sub_query
+            WHERE LENGTH(word) >= {min_word_length}
+            GROUP BY word
+            ORDER BY COUNT(*) DESC 
+            LIMIT {limit}      
+        '''
+        return [word[0] for word in self.SELECT(sql)]

@@ -18,19 +18,20 @@ TRENDING_ITEMS_PER_PAGE = 20
 ALL_METRICS = ["avg_price", "min_price", "max_price", "total_quantity"]
 
 REMOVE_CHARS = ["(", ")"]
-REMOVE_WORDS = [
-    "and", "in", "for", "and", "all", "with", "one", "two",
-    "containing", "including", "extra", "modified", "not", "eyes",
-    "large", "small", "the", "printed", "legs", "arms", "molded", "dark",
-    "light", "tan", "markings", "aqua", "black", "blue", "green", "orange",
+
+COLOURS = [
+    "aqua", "black", "blue", "green", "orange",
     "yellow", "pink", "brown", "coral", "azure", "gray", "nougat", "purple", 
     "red", "turqoise", "lavender", "lime", "maersk", "magenta", "neon",
-    "olive", "sand", "reddish", "white", "yellowish", "trans-", "trans", "leg", 
-    "arm", "head"
-    ]
+    "olive", "sand", "reddish", "white", "yellowish", "tan", "trans-", "trans"
+]
 
-for func in [str.upper, str.capitalize]:
-    REMOVE_WORDS.extend(list(map(func, REMOVE_WORDS)))
+EXTRA_WORDS = [
+    "large", "small", "containing", "including", "extra", "modified", "simple",
+    "arm", "head", "long", "short", "reflective", "colour", "colour", "male",
+    "female", "man", "woman", "boy", "girl","printed", "legs", "arms", "molded", "dark",
+    "light""markings",
+]
 
 
 def get_sort_options() -> list[dict[str, str]]:

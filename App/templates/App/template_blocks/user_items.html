@@ -27,9 +27,9 @@
                     <p>Total sold for price : £{{total_sold_price|none_to_hyphens}}</p>
 
                     {% if total_profit < 0 %}
-                        <p>Total Loss £{{total_profit|times_negative_one|two_decimals}}</p>
+                        <p>Total Loss £{{total_profit|times_negative_one|large_num_commas|two_decimals}}</p>
                     {% else %}
-                        <p>Total Profit : £{{total_profit|two_decimals}}</p>
+                        <p>Total Profit : £{{total_profit|two_decimals|large_num_commas }}</p>
                     {% endif %}
                     <br>
                     <p>Total Owners : {{total_owners}}</p>

@@ -23,6 +23,22 @@ def iterable_index(list:list, i:int):
     return list[i-1]
 
 
+@register.filter
+def large_num_commas(number):
+    number = str(number)
+    if "." in number:
+        num_int = number.split(".")[0]
+        num_decimal = "." + number.split(".")[1]
+    else:
+        num_int = number
+        num_decimal = ""
+    
+    sections = []
+    for i,c in enumerate(num_int):
+        if (i+1) % 3 == 0:
+            sections.append(num_int[i:i+3])
+    return number
+
 @register.simple_tag(takes_context=True)
 def add_username_email_to_context(context, request):
     try: 

@@ -6,8 +6,11 @@
 {% load tags %}
 <link rel="stylesheet" href="{% static 'App/trending.css' %}">
 
+{{ slider_value|json_script:"slider_value"}}
+
 <script>
     var charts = [];
+    var onload_slider_value = JSON.parse(document.getElementById("slider_value").textContent)
 </script>
 
 <section id="main-container">
@@ -46,23 +49,12 @@
 </section>
 
 {{ items|json_script:"items_id" }}
-{{ metric_data|json_script:"metric_data" }}
 
 <script>
     var items = JSON.parse(document.getElementById("items_id").textContent)
     var slider = document.getElementById("slider")
     var slider_output = document.getElementById("slider-value")
-    var chart_metric = document.getElementById("metric_data")
     var slider_value = slider.value 
-
-    window.onload = function() {
-        console.log("LOAD", slider_value)
-        for (let i = 0; i < charts.length; i ++) {
-            charts[i].data.labels = items[i].dates.slice(0, slider_value)
-            // charts[i].data.datasets[i].data = items[i]..slice(0, slider_value)
-            charts[i].update()
-        }   
-    }
 
     slider.oninput = function() {
         var slider = document.getElementById("slider")
