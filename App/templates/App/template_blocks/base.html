@@ -21,6 +21,7 @@
         window.onbeforeunload = function(e) {
             localStorage.setItem('scrollpos', window.scrollY);
         };
+        var charts = [];
     </script>
 
 </head>
@@ -28,6 +29,13 @@
     {% load tags %}
     {% check_login_status request %}
     {% add_username_email_to_context request %}
+
+    {% item_ids as item_ids %}
+    {{ item_ids|json_script:"item_ids" }}
+
+    {% item_names as item_names %}
+    {{ item_names|json_script:"item_names" }}
+    
     
     <nav>
         <ul>
@@ -68,27 +76,34 @@
 
         </ul>
 
-        <div id="flex-container">
-            <div id="RHS-nav-content">  
-                <div>
-                    <form id="search-form" action="{% url 'search_item' request.path_info %}" method="post">
-                        {% csrf_token %}
-                        <div id="input-submit-container">
-                            <input placeholder="Enter item ID" type="text" name="item_id">
-                            <button type="submit"></button>
-                        </div>
-                    </form>
-                </div>
+        <div id="search-logout-suggestions-container">
+            <div id="search-logout-container">
+                <form id="search-form" action="{% url 'search_item' request.path_info %}" method="post">
+                    {% csrf_token %}
+                        <input id="item-id-input" oninput="search_suggestions(this)" placeholder="Enter item ID" type="text" name="item_id">
+                </form>
 
-            <div>
                 {% if logged_in %}
-                    <a id="logout" href="{% url 'logout' %}"><img onclick="logout_popup(event)" src="{% static 'App/styling-images/logout_button.png' %}" alt="logout"></a>
+                <a id="logout" href="{% url 'logout' %}"><img onclick="logout_popup(event)" src="{% static 'App/styling-images/logout_button.png' %}" alt="logout"></a>
                 {% endif %}
             </div>
 
+            <div id="search-suggestions">
+                {% for i in '012345'|make_list %}
+                    <div class="search-suggestion">
+                        <div class="item-id-img-container">
+                            <a onclick="clear_search_suggestions()" class="item-id"></a>
+                            <img class="item-img">
+                        </div>
+                        <div class="item-name-contianer">
+                            <p class="item-name"></p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
 
-    </div>
+
     </nav>
 
         {% block content%}

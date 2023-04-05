@@ -9,6 +9,43 @@ window.onload = function() {
     };
 }
 
+
+function search_suggestions(input) {
+    var item_ids = JSON.parse(document.getElementById("item_ids").textContent);
+    var item_names = JSON.parse(document.getElementById("item_names").textContent);
+    var input = document.getElementById("item-id-input").value.toLowerCase();
+    var suggestion_boxes = document.getElementsByClassName("search-suggestion")
+
+    clear_search_suggestions()
+
+    var matches = 0;
+    for (let i = 0; i < item_ids.length; i ++) {
+        if ((item_ids[i].includes(input) || item_names[i].toLowerCase().includes(input)) && input != "") {
+            var box = suggestion_boxes[matches];
+            box.style.display = "block"
+            box.getElementsByClassName("item-id")[0].innerHTML = item_ids[i]
+            box.getElementsByClassName("item-id")[0].href = `/item/${item_ids[i]}`
+            box.getElementsByClassName("item-name")[0].innerHTML = item_names[i]
+            box.getElementsByClassName("item-img")[0].src = `/static/App/minifigures/${item_ids[i]}.png`
+            matches += 1;
+
+            if (matches == 10) {
+                break;
+            }
+        }
+    }
+}
+
+function clear_search_suggestions() {
+    var suggestion_boxes = document.getElementsByClassName("search-suggestion")
+
+    for (let i = 0; i < suggestion_boxes.length; i ++) {
+        var box = suggestion_boxes[i];
+        box.style.display = "none"
+    }
+}
+
+
 function display_item_delete_quantity() {
     form = document.getElementsByClassName("")
 }

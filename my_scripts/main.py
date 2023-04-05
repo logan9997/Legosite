@@ -42,7 +42,7 @@ def update_items():
         print(info)
         try:
             db.insert_item_info(info)
-        except sqlite3.IntegrityError or KeyError:
+        except psycopg2.IntegrityError or KeyError:
             print(info)
             break
 
@@ -84,7 +84,7 @@ def sub_sets():
                     info = {"piece_name":remove_sql_chars(entry["item"]["name"]), "piece_id":entry["item"]["no"], "type":entry["item"]["type"]}
                     DB.add_pieces(info)
                     print("NEW",_item[0], entry["item"]["no"])
-                except sqlite3.IntegrityError:
+                except psycopg2.IntegrityError:
                     print("OLD",_item[0], entry["item"]["no"])
                 info = {"item_id":_item[0], "piece_id":entry["item"]["no"],"colour_id":entry["color_id"], "quantity":entry["quantity"]}
                 DB.add_piece_participation(info)

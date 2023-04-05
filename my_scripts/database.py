@@ -25,7 +25,7 @@ class DatabaseManagment():
         if kwargs.get("fetchone"):
             return self.cursor.fetchone()
         return self.cursor.fetchall()
-            
+    
 
     def add_pieces(self, info):
         sql = f'''
@@ -133,33 +133,6 @@ class DatabaseManagment():
         return self.SELECT(sql)
 
 
-    def get_most_viewed_items(self) -> list[str]:
-        sql = '''
-            SELECT item_id
-            FROM "App_item"
-            ORDER BY views DESC
-        '''
-        return self.SELECT(sql)
-
-    def increment_item_views(self, item_id) -> None:
-        self.cursor.execute(f'''
-            UPDATE "App_item"
-            SET views = views + 1
-            WHERE item_id = '{item_id}'
-        ''')
-        self.con.commit()
-
-
-    def get_minifig_prices(self, minifig_id) -> list[str]:
-        sql = f'''
-            SELECT date, avg_price, min_price, max_price, total_quantity
-            FROM "App_price"
-            WHERE item_id = '{minifig_id}'
-        '''
-        
-        return self.SELECT(sql)
-    
-
     def theme_item_ids(self):
         sql = '''
             SELECT DISTINCT ON (theme_path) I.item_id
@@ -168,14 +141,6 @@ class DatabaseManagment():
                 AND item_type = 'S'
         '''
         return self.SELECT(sql)
-
-    def get_dates(self, minifig_id) -> list[str]:
-        sql = f'''
-            SELECT date
-            FROM "App_price"
-            WHERE item_id = '{minifig_id}'
-        '''
-        return self.SELECT(sql)     
 
     
     def get_biggest_trends(self, change_metric, **kwargs) -> list[str]:
@@ -221,31 +186,6 @@ class DatabaseManagment():
         return self.SELECT(sql)
     
 
-    def get_min_max_date(self, func) -> str:
-        sql = f'''
-            SELECT {func}(date)
-            FROM "App_price"
-        '''
-        return self.SELECT(sql)
-    
-
-    def get_dates(self) -> list[str]:
-        sql = '''
-            SELECT DISTINCT ON (date) date
-            FROM "App_price"
-        '''
-        return self.SELECT(sql)
-
-
-    def group_by_items(self) -> list[str]:
-        sql = '''
-            SELECT item_id, item_type
-            FROM "App_item"
-            GROUP BY item_id
-        '''
-        return self.SELECT(sql)
-
-
     def get_parent_themes(self) -> list[str]:
         sql = '''
             SELECT REPLACE(REPLACE(theme_path, '/', ''), ' ', '-')
@@ -257,8 +197,7 @@ class DatabaseManagment():
         '''
         return self.SELECT(sql)
     
-    #[(current_page-1) * SEARCH_ITEMS_PER_PAGE : (current_page) * SEARCH_ITEMS_PER_PAGE]
-    #theme_path.replace("/", "~"), sort_field.split("-")
+
     def get_theme_items(self, theme_path, sort_field) -> list[str]:
         distinct = f"(I.item_id, {sort_field[0]})"
         if sort_field[0] == "item_id":
@@ -403,14 +342,6 @@ class DatabaseManagment():
         '''
         return self.SELECT(sql)
 
-    def get_not_null_years(self) -> list[str]:
-        sql = '''
-            SELECT item_id
-            FROM "App_item"
-            WHERE year_released is null
-        '''
-        return self.SELECT(sql)
-
 
     def get_sub_themes(self, parent_theme):
         sql = f'''
@@ -522,6 +453,7 @@ class DatabaseManagment():
             return 0.0
         return result
 
+
     def update_portfolio_item_quantity(self, user_id, item_id, condition, quantity) -> None:
         self.cursor.execute(f'''
             UPDATE App_portfolio
@@ -531,15 +463,6 @@ class DatabaseManagment():
                 AND condition = '{condition}'
         ''')
         self.con.commit()
-
-
-    def get_pieces_colours(self):
-        sql = '''
-            SELECT piece_id, colour_id
-            FROM "App_pieceparticipation"
-            GROUP BY piece_id, colour_id
-        '''
-        return self.SELECT(sql)
 
 
     def get_portfolio_item_quantity(self, item_id, condition, user_id) -> int:

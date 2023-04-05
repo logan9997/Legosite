@@ -1,6 +1,6 @@
 from django import template
 from django.utils.safestring import mark_safe
-from ..models import User
+from ..models import User, Item, Theme
 
 import json
 
@@ -17,6 +17,23 @@ def check_login_status(context, request):
     except KeyError:
         context["logged_in"] = False
     return ''
+
+
+@register.simple_tag
+def item_ids():
+    return list(Item.objects.filter(
+        item_type="M", theme__theme_path__contains="Star_Wars", 
+        item_id__contains="sw"
+        ).values_list("item_id", flat=True))
+
+@register.simple_tag
+def item_names():
+    return list(Item.objects.filter(
+        item_type="M", theme__theme_path__contains="Star_Wars", 
+        item_id__contains="sw"
+    ).values_list("item_name", flat=True))
+
+
 
 @register.filter
 def iterable_index(list:list, i:int):

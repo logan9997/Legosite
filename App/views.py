@@ -37,7 +37,7 @@ from django.db.models import (
     Sum,
     Count,
     Max,
-    Value
+    F,
 ) 
 
 from django.db.models.functions import Coalesce
@@ -63,6 +63,7 @@ def search_item(request, current_view):
 
 @timer
 def index(request):
+
     if "user_id" not in request.session:
         request.session["user_id"] = -1
     user_id = request.session["user_id"]
@@ -140,7 +141,7 @@ def item(request, item_id):
     #stops view count being increased on refresh
     if "item_id" not in request.session or request.session.get("item_id") != item_id:
         request.session["item_id"] = item_id
-        DB.increment_item_views(item_id)
+        Item.objects.filter(item_id=item_id).update(views=F("views")+1)
 
     '''
     CHANGE IF USER IS LOGGED IN!!
@@ -188,6 +189,7 @@ def item(request, item_id):
 
     metric_changes = get_metric_changes(item_id)
 
+
     context = {
         "show_year_released_availability":True,
         "show_graph":False,
@@ -221,9 +223,9 @@ def trending_POST(request):
     request.session["trending_order"] = trending_order
     request.session["current_page"] = current_page
 
-    dates = DB.get_dates()
+    dates = list(Price.objects.distinct("date").values_list("date", flat=True))
     slider_value = int(options.get("slider", len(dates))) -1
-    date = dates[slider_value][0].strftime('%Y-%m-%d')
+    date = dates[slider_value].strftime('%Y-%m-%d')
 
     request.session["slider_date"] = date
     request.session["slider_value"] = slider_value
@@ -239,9 +241,10 @@ def trending(request):
     graph_options = sort_dropdown_options(get_graph_options(), trending_order.split("-")[0])
     trend_options = sort_dropdown_options(get_trending_options(), trending_order)
 
-    dates = DB.get_dates()
+    dates = list(Price.objects.distinct("date").values_list("date", flat=True))
+    dates = [date.strftime('%Y-%m-%d') for date in dates]
 
-    max_date = str(request.session.get("slider_date", dates[-1][0].strftime('%Y-%m-%d')))
+    max_date = str(request.session.get("slider_date", dates[-1]))
     slider_value = request.session.get("slider_value", len(dates) -1) 
 
     items = DB.get_biggest_trends(trending_order.split("-")[0], max_date=max_date)
@@ -266,7 +269,7 @@ def trending(request):
         "sort_options":trend_options,
         "num_pages":num_pages,
         "current_page":current_page,
-        "dates":[date[0].strftime('%Y-%m-%d') for date in DB.get_dates()],
+        "dates":dates,
         "slider_value":slider_value +1,
         "max_slider_value":len(dates) ,
         "metric_data":trending_order.split("-")[0]
