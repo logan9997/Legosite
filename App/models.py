@@ -39,7 +39,6 @@ class User(models.Model):
         ("All", "All")
     ))
     region = models.CharField(max_length=60, default='None')
-    date_joined = models.DateField(DATE_FORMAT, blank=True, null=True)
 
 
 class Portfolio(models.Model):

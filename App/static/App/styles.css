@@ -71,6 +71,10 @@ nav ul li a {
     top: 100%;
 }
 
+a {
+    color: blue;
+}
+
 .dropdown-content a {
     background-color: white;
     padding: 0.4rem 0 0.4rem;

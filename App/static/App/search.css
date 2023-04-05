@@ -3,9 +3,34 @@
     font-size: 1.3rem;
 }
 
+#important-info a {
+    text-decoration: none;
+}
+
+#theme-path-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    margin-bottom: 2rem;
+}
+
+#theme-path-container a {
+    padding: 0 0.4rem 0;
+    color:blue;
+
+}
+
+#theme-path-container span {
+    color: black;
+}
+
+#theme-path-container span, #theme-path-container a {
+    text-decoration: none;
+} 
+
 #search-themes-container {
     display: flex;
-    justify-content: row;
+    justify-content: center;
 }
 
 #sort-themes {
@@ -18,7 +43,6 @@
     box-shadow: 0 1rem 1rem 1rem rgb(225,225,225);   
     display: flex;
     flex-wrap:wrap;
-    justify-content:space-evenly;
     flex-direction: column-reverse;
     overflow: scroll;
     height: 14rem;

@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from database import DatabaseManagment
+import time, requests, os
 
 
 class Scraper():
@@ -176,20 +177,19 @@ class ImageScrape():
     def __init__(self) -> None:
         self.driver = webdriver.Chrome()
         self.url = "https://www.bricklink.com/catalogTree.asp?itemType=S"
-        self.db = DatabaseManagment()
+        self.DB = DatabaseManagment()
 
 
     def loop_through_images(self):
-        self.item_ids = self.db.get_pieces_colours()[1901:]
-        directory = r"C:\Users\logan\OneDrive\Documents\Programming\Python\apis\BL_API\Website\App\static\App\images"
-        import time, requests, os
+        self.item_ids = self.DB.theme_item_ids()
+        directory = r"..\App\static\App\sets"
         for item in self.item_ids:
             #1 = type, #0 = item_id
             
-            url = f"https://img.bricklink.com/ItemImage/PN/{item[1]}/{item[0]}.png"
-            img_name = directory + fr"/{item[1]}_{item[0]}.png"
+            url = f"https://img.bricklink.com/ItemImage/SN/0/{item[0]}.png"
+            img_name = directory + fr"\{item[0]}.png"
             if img_name not in os.listdir(directory):
-                print(item[0])
+                print(item[0], img_name)
                 img_data = requests.get(url).content
                 with open(img_name, "wb") as handler:
                     handler.write(img_data)

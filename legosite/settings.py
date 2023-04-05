@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-yw92!lqu(z&m@5cl##=eoa&!3vhb!)qz2f587%le)=!snne6b-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 PYTHONUNBUFFERED = ''
 
@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'legosite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DEVELOPMENT = False
+DEVELOPMENT = True
 
 if not DEVELOPMENT:
     file_name = "./heroku_database_credentials.txt"

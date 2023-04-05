@@ -9,6 +9,14 @@
     {% load tags %}
 
     <p id="important-info">Only theme with data <a href="{% url 'search' %}Star_Wars">Star Wars</a></p>
+
+    <div id="theme-path-container">
+        {% for theme in theme_hrefs %}
+            <a href="{% url 'search' %}{{theme.theme_url}}">{{theme.theme|replace_underscore}}</a>
+            {% if theme_hrefs|index:theme != theme_hrefs|length %}<span>/</span>{% endif %}
+        {% endfor %}
+    </div>
+
     {% if sub_themes|length > 0 %}
 
     <section id="search-themes-container">

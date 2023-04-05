@@ -410,15 +410,11 @@ def get_similar_items(item_name:str, item_type:str, item_id:str) -> list:
     remove_words = list(DB.get_most_common_words("item_name", item_type, ',', '(', ')', min_word_length=2, limit=25))
     remove_words = extend_remove_words(remove_words, COLOURS, EXTRA_WORDS)
 
-    print(remove_words)
-
     single_words = [
         ''.join(char for char in word if char not in REMOVE_CHARS) 
         for word in item_name.split(" ")
         if len(word) > 3 and ''.join(char for char in word if char not in REMOVE_CHARS) not in remove_words
     ]
-
-    print(single_words)
 
     i = len(single_words) ; items = []
 

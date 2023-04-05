@@ -124,8 +124,9 @@ def item(request, item_id):
         graph_data=["avg_price", "min_price", "max_price", "total_quantity"]
     )
 
-    #convert last item into new format so on window load slider max value is not Day, Month, Year format 
+    #convert first and last item into new format so on window load slider max value is not Day, Month, Year format 
     item_info[0]["dates"][-1] = item_info[0]["dates"][-1].strftime('%Y-%m-%d')
+    item_info[0]["dates"][0] = item_info[0]["dates"][0].strftime('%Y-%m-%d')
 
     if item_info == []:
         return redirect(request.META.get('HTTP_REFERER'))
@@ -174,7 +175,7 @@ def item(request, item_id):
     else:
         in_watchlist = "No"
 
-    item_themes = Theme.objects.filter(item_id=item_id).values_list("theme_path")
+    item_themes = Theme.objects.filter(item_id=item_id).distinct("theme_path").values_list("theme_path")
     start = time.time()
     similar_items = format_item_info(get_similar_items(item_info["item_name"], item_info["item_type"], item_info["item_id"]))
     print("FIN - ", time.time() - start)
@@ -296,7 +297,6 @@ def search_POST(request):
 def search(request, theme_path='all'):
 
     request.session["theme_path"] = theme_path
-    print(theme_path)
 
     if 'all' in request.path:
         return redirect(request.path.replace("all/", ""))
@@ -316,7 +316,7 @@ def search(request, theme_path='all'):
 
     
     if theme_path == 'all':
-        sub_themes = [{"sub_theme":theme[0], "img_path":f"App/images/{theme[1]}.png"} for theme in DB.get_sub_theme_set('', 0)]
+        sub_themes = [{"sub_theme":theme[0], "img_path":f"App/sets/{theme[1]}.png"} for theme in DB.get_sub_theme_set('', 0)]
         
         theme_items = [] 
     else:
@@ -328,7 +328,7 @@ def search(request, theme_path='all'):
             #return redirect(f"http://{base_url(request)}/search/{redirect_path}")
     
         sub_theme_indent = request.path.replace("/search/", "").count("/")
-        sub_themes = [{"sub_theme":theme[0].split("~")[sub_theme_indent], "img_path":f"App/images/{theme[1]}.png"} for theme in DB.get_sub_theme_set(theme_path.replace("/", "~"), sub_theme_indent)]
+        sub_themes = [{"sub_theme":theme[0].split("~")[sub_theme_indent], "img_path":f"App/sets/{theme[1]}.png"} for theme in DB.get_sub_theme_set(theme_path.replace("/", "~"), sub_theme_indent)]
 
     total_theme_items = Theme.objects.filter(theme_path=theme_path.replace("/", "~"), item__item_type="M").count()
 
@@ -344,6 +344,28 @@ def search(request, theme_path='all'):
     sort_options = sort_dropdown_options(get_sort_options(), sort_field)
 
     theme_items = sort_items(theme_items,sort_field)
+
+    parent_theme = theme_path.split("/")[0]
+
+    theme_hrefs = [{"theme":"All", "theme_url":""}]
+
+    if theme_path.count("/") == 0 and theme_path != "all":
+        theme_hrefs.append({"theme":theme_path, "theme_url":theme_path})
+
+    elif theme_path.count("/") != 0:
+        [
+            theme_hrefs.append(
+            {
+                "theme" : theme_path.split("/")[i],
+                "theme_url" : "/".join(theme_path.split("/")[0:i+1])
+            }
+            ) for i in range(len(theme_path.split("/")))
+        ] 
+
+        for i, theme in enumerate(theme_hrefs):
+            if i != 0:
+                theme["theme"] = theme["theme"].replace(f"{parent_theme}_", "")
+    
 
     if request.method == "POST": 
         if request.POST.get("form-type") == "theme-url":
@@ -361,7 +383,8 @@ def search(request, theme_path='all'):
         "theme_sort_options":theme_sort_options,
         "graph_options":graph_options,
         "sort_options":sort_options,
-        "biggest_theme_trends":biggest_theme_trends()
+        "biggest_theme_trends":biggest_theme_trends(),
+        "theme_hrefs":theme_hrefs,
     }
     
     return render(request, "App/search.html", context=context)
@@ -474,7 +497,7 @@ def join(request):
                     #if the username or email does not already exist, add the new users details to database
                     new_user = User(
                         username=username,email=email,password=password,
-                        email_preference="All", region="None", date_joined=datetime.date.today().strftime('%Y-%m-%d')
+                        email_preference="All", region="None"
                     )
                     new_user.save()
 
@@ -484,11 +507,20 @@ def join(request):
                     request.session["user_id"] = user_id
                     request.session.modified = True
                     return redirect("/")
-
                 #set error messages depending on what the user did wrong in filling out the form
-                context["signup_message"] = "Username / Email already exists"
-            context["signup_message"] = "Passwords do not Match"
 
+            else:
+                context["signup_message"] = "Passwords do not Match"
+            
+            if len(User.objects.filter(Q(username=username))) != 0:
+                context["signup_message"] = "Username already exists"
+            
+            elif len(User.objects.filter(Q(email=email))) != 0:
+                context["signup_message"] = "Email already exists"
+
+        else:
+            context["signup_message"] = "Please fill in all required fields (*)"
+               
     #add the username to context which can only happen if the user is logged in
     return render(request, "App/join.html", context=context)
 

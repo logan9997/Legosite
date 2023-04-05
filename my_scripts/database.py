@@ -158,7 +158,16 @@ class DatabaseManagment():
         '''
         
         return self.SELECT(sql)
+    
 
+    def theme_item_ids(self):
+        sql = '''
+            SELECT DISTINCT ON (theme_path) I.item_id
+            FROM "App_theme" TH, "App_item" I
+            WHERE TH.item_id = I.item_id
+                AND item_type = 'S'
+        '''
+        return self.SELECT(sql)
 
     def get_dates(self, minifig_id) -> list[str]:
         sql = f'''
@@ -730,6 +739,12 @@ class DatabaseManagment():
             FROM "App_theme" T, "App_item" I
             WHERE T.item_id = I.item_id
                 AND item_type = 'S'
+                AND I.item_id IN (
+                    SELECT DISTINCT ON (theme_path) I.item_id
+                    FROM "App_theme" TH, "App_item" I
+                    WHERE TH.item_id = I.item_id
+                        AND item_type = 'S'
+                )
                 AND theme_path LIKE '{theme_path}%'
                 AND LENGTH(theme_path) - LENGTH(REPLACE(theme_path, '~', '')) = {sub_theme_indent}
         '''
