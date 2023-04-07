@@ -4,6 +4,8 @@ from ..models import User, Item, Theme
 
 import json
 
+from ..config import *
+
 register = template.Library()
 
 #add login status to base.html to either display (logout) / (login + join) in the nav bar
@@ -20,18 +22,23 @@ def check_login_status(context, request):
 
 
 @register.simple_tag
+def max_search_suggestions():
+    return MAX_SEARCH_SUGGESTIONS
+
+
+@register.simple_tag
 def item_ids():
     return list(Item.objects.filter(
         item_type="M", theme__theme_path__contains="Star_Wars", 
         item_id__contains="sw"
-        ).values_list("item_id", flat=True))
+        ).values_list("item_id", flat=True).distinct("item_id"))
 
 @register.simple_tag
 def item_names():
     return list(Item.objects.filter(
         item_type="M", theme__theme_path__contains="Star_Wars", 
         item_id__contains="sw"
-    ).values_list("item_name", flat=True))
+    ).values_list("item_name", flat=True).distinct("item_id"))
 
 
 

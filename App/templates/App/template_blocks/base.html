@@ -80,7 +80,7 @@
             <div id="search-logout-container">
                 <form id="search-form" action="{% url 'search_item' request.path_info %}" method="post">
                     {% csrf_token %}
-                        <input id="item-id-input" oninput="search_suggestions(this)" placeholder="Enter item ID" type="text" name="item_id">
+                        <input id="item-id-input" oninput="search_suggestions(this)" placeholder="Enter item ID / item Name" type="text" name="item_id">
                 </form>
 
                 {% if logged_in %}
@@ -88,19 +88,8 @@
                 {% endif %}
             </div>
 
-            <div id="search-suggestions">
-                {% for i in '012345'|make_list %}
-                    <div class="search-suggestion">
-                        <div class="item-id-img-container">
-                            <a onclick="clear_search_suggestions()" class="item-id"></a>
-                            <img class="item-img">
-                        </div>
-                        <div class="item-name-contianer">
-                            <p class="item-name"></p>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
+            {% max_search_suggestions as max_search_suggestions %}
+            {{ max_search_suggestions|json_script:"max_search_suggestions" }}
         </div>
 
 

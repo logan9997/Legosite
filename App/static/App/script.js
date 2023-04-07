@@ -14,41 +14,65 @@ function search_suggestions(input) {
     var item_ids = JSON.parse(document.getElementById("item_ids").textContent);
     var item_names = JSON.parse(document.getElementById("item_names").textContent);
     var input = document.getElementById("item-id-input").value.toLowerCase();
-    var suggestion_boxes = document.getElementsByClassName("search-suggestion")
+    const max_search_suggestions = JSON.parse(document.getElementById("max_search_suggestions").textContent)
+    const main_container = document.getElementById("search-logout-suggestions-container")
+    
+    var suggestion_boxes = document.getElementsByClassName("search-suggestion");
 
-    clear_search_suggestions()
+    for (let i = suggestion_boxes.length - 1; i >= 0; i --) {
+        suggestion_boxes[i].remove()
+    }
+
+    //create container when search box is active
+    if (document.getElementById("search-suggestions") == null) {
+        main_suggestions = document.createElement("div")
+        main_suggestions.setAttribute("id", "search-suggestions")
+        main_suggestions.style.display = "flex"
+        main_container.appendChild(main_suggestions)
+    }
+
+    var suggestion_boxes_container = document.getElementById("search-suggestions");
+
 
     var matches = 0;
     for (let i = 0; i < item_ids.length; i ++) {
-        if ((item_ids[i].includes(input) || item_names[i].toLowerCase().includes(input)) && input != "") {
-            var box = suggestion_boxes[matches];
-            box.style.display = "block"
-            box.getElementsByClassName("item-id")[0].innerHTML = item_ids[i]
-            box.getElementsByClassName("item-id")[0].href = `/item/${item_ids[i]}`
-            box.getElementsByClassName("item-name")[0].innerHTML = item_names[i]
-            box.getElementsByClassName("item-img")[0].src = `/static/App/minifigures/${item_ids[i]}.png`
+        if (
+            (item_ids[i].slice(0,input.length).toLowerCase() == input || item_names[i].slice(0, input.length).toLowerCase() == input)
+            && input != ""
+        ) {
+            //create each box for every item
+            html_block = document.createElement("a");
+            html_block.setAttribute("href", `/item/${item_ids[i]}`)
+            html_block.setAttribute("class", "search-suggestion")
+            html_block.innerHTML = `
+                    <div class="item-id-img-container">
+                        <a href="/item/${item_ids[i]}" onclick="clear_search_suggestions()" class="item-id">${item_ids[i]}</a>
+                        <img class="item-img" src="/static/App/minifigures/${item_ids[i]}.png">
+                    </div>
+                    <div class="item-name-contianer">
+                        <p class="item-name">${item_names[i]}</p>
+                    </div>
+            `
+            suggestion_boxes_container.appendChild(html_block)
             matches += 1;
-
-            if (matches == 10) {
+            if (matches == max_search_suggestions) {
                 break;
             }
         }
     }
-}
-
-function clear_search_suggestions() {
-    var suggestion_boxes = document.getElementsByClassName("search-suggestion")
-
-    for (let i = 0; i < suggestion_boxes.length; i ++) {
-        var box = suggestion_boxes[i];
-        box.style.display = "none"
+    const suggestion_box_height = 6.15;
+    var container_height = matches * suggestion_box_height
+    if (container_height > 6 * suggestion_box_height) {
+        container_height = 6 * suggestion_box_height
+    }
+    suggestion_boxes_container.style.height = `${container_height}rem`
+    
+    //remove container
+    if (matches == 0) {
+        document.getElementById("search-suggestions").remove()
     }
 }
 
-
-function display_item_delete_quantity() {
-    form = document.getElementsByClassName("")
-}
 
 function logout_popup(e) {
     if (confirm("Logging out? Are you sure?")) {

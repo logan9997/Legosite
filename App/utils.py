@@ -392,13 +392,17 @@ def extend_remove_words(words:list, *args) -> list:
 def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, item_id:str, items:list[str], i:int) -> tuple[int, list]:
     for sub in itertools.combinations(single_words, i):
         sql_like = "AND " + ''.join([f"item_name LIKE '%{word}%' AND " for word in sub])[:-4]
-        items = DB.get_similar_items(item_name, item_type, item_id, sql_like)
-        if len(items) > 1:
-            items.extend(items)
-            items = list(dict.fromkeys(items))
-            return i, items 
-        
-        if len(sub) <= 3 and len(items) > 10:
+        new_items = DB.get_similar_items(item_name, item_type, item_id, sql_like)
+        # print(sub, len(items), [item[0] for item in items])
+
+        for item in new_items:
+            if len(items) < MAX_SIMILAR_ITEMS and item not in items:
+                items.append(item)
+                if len(items) >= MAX_SIMILAR_ITEMS:
+                    return i, list(dict.fromkeys(items))
+
+        print(len(sub), len(items), i)
+        if len(sub) <= 3 and len(items) >= 3:
             return i, items
 
     return i, []
@@ -425,11 +429,14 @@ def get_similar_items(item_name:str, item_type:str, item_id:str) -> list:
         len(single_words) >= 9:3
     }
     i = i // length_single_words_convert[True]
+    
+    if i > 3:
+        i = 3
 
     while True:
         i, items = similar_items_iterate(single_words, item_name, item_type, item_id, items, i)
 
-        if len(items) > MAX_SIMILAR_ITEMS or i <= 1:
+        if len(items) >= MAX_SIMILAR_ITEMS or i <= 1:
             break
 
         i -= 1

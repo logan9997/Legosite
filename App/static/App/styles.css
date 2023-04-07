@@ -92,7 +92,7 @@ nav ul li:hover .dropdown-content {
 #search-logout-suggestions-container {
     height: 3rem;
     width: 16rem;
-    left: calc(100% - 16rem - 2rem);
+    left: calc(100% - 16rem - 6rem);
     position: relative;
 }
 
@@ -103,39 +103,57 @@ nav ul li:hover .dropdown-content {
 #search-logout-suggestions-container form {
     height: 2rem;
     margin-top: 0.4rem;
-    width: 8rem;
+    
 }
 
 #search-logout-suggestions-container form input {
     height: 2rem;
-    border-radius: 0.7rem;
     text-align: center;
+    width: 15.5rem;
+    border-radius: 0;
+    outline: none;
 }
 
 #logout img {
-    margin-top: 0.4rem;
-    margin-left: 4rem;
+    margin-top: 0.6rem;
+    margin-left: 2rem;
     width: 2rem;
     height: 2rem;
 }
 
-#search-suggestions {
-    background-color: green;
-    display: flex;
-    flex-direction: column;
-    margin-top: 0.4rem;
+#search-suggestions-container {
+    background-color: red;
 }
 
-.search-suggestion {
-    height: 6rem;
-    padding: 0;
-    margin: 0;
-    background-color: rgb(228, 220, 220);
+#search-suggestions {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.35rem;
+    overflow-y: scroll;
+    height: calc(6.1rem * 6);
+    background-color: yellow;
+}
+
+#search-suggestions::-webkit-scrollbar {
     display: none;
 }
 
-.search-suggestion:nth-child(even) {
-    background-color: rgb(208, 200, 200);
+.search-suggestion {
+    height: 6.2rem;
+    padding: 0;
+    margin: 0;
+    background-color: white;
+    border-bottom: 0.1rem whitesmoke solid; 
+    text-decoration: none;
+    color: black;   
+}
+
+.search-suggestion:hover {
+    background-color: whitesmoke;
+}
+
+.search-suggestion:last-child {
+    border: none;
 }
 
 .item-id-img-container {
@@ -144,35 +162,34 @@ nav ul li:hover .dropdown-content {
     flex-direction: column;
     height: 5.65rem;
     margin-top: 0.35rem;
+    right: 2rem;
     float: left;
-    text-align: center;
-
-
 }
 
-.item-id-img-container img {
+.item-img {
     height: 4rem;
     width: 4rem;
     margin: 0.5rem 1rem 0;
 }
 
-.search-suggestion a {
-    margin-left: 1rem;
+.item-id {
+    text-align: center;
+    padding: 0;
+    text-decoration: none;
 }
 
 .item-name-contianer {
-    width: 60%;
-    height: 2rem;
+    width: 55%;
+    height: 4.1rem;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* number of lines to show */
-            line-clamp: 2; 
+    -webkit-line-clamp: 3; 
+    line-clamp: 3; 
     -webkit-box-orient: vertical;
+    font-size: 0.9rem;
+    margin-top: 1rem;
 }
 
-.item-name-contianer p {
-
-}
 
 footer {
     min-height: 10rem;
