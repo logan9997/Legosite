@@ -37,8 +37,10 @@ function search_suggestions(input) {
     var matches = 0;
     for (let i = 0; i < item_ids.length; i ++) {
         if (
-            (item_ids[i].slice(0,input.length).toLowerCase() == input || item_names[i].slice(0, input.length).toLowerCase() == input)
-            && input != ""
+            (
+            item_ids[i].slice(0,input.length).toLowerCase() == input || 
+            item_names[i].slice(0, input.length).toLowerCase() == input
+            ) && input != ""
         ) {
             //create each box for every item
             html_block = document.createElement("a");

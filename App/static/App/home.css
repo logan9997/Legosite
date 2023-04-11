@@ -162,6 +162,11 @@ h2 {
 #recently-viewed-items-container {
     display: flex;
     overflow: scroll;
+    justify-content: center;
+}
+
+#recently-viewed-items-container::-webkit-scrollbar {
+    display: none;
 }
 
 .main-item-container-recently-viewed {
@@ -221,6 +226,10 @@ h2 {
     overflow:scroll;
     overflow-x: hidden; 
     height: calc(100% - 3.6rem);
+}
+
+.items-container::-webkit-scrollbar {
+    display: none;
 }
 
 .main-item-container-layer3 {

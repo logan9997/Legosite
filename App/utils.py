@@ -32,6 +32,9 @@ def timer(func):
         return result 
     return inner
 
+def base_url(request) -> str:
+    return request.get_host().strip(" ")
+
 
 def clean_html_codes(string:str):
     codes = {
@@ -46,13 +49,19 @@ def clean_html_codes(string:str):
     return string
 
 
-def format_item_info(items, **kwargs) -> list[dict]:
-    #view:str ,price_trend:bool, popular_items:bool
-    #graph_data:bool new_items:bool
+def format_item_info(items:tuple, **kwargs) -> list[dict]:
+    '''
+    function to convert tuples returned from SQL queries into a readable dict
+    structure. Hard coded key value pairs inside the decleration of the item_dict
+    variable appears for all items. Kwargs will add any additional key : value pairs
+    where the value is the index of the field returned from the SQL query.
 
-    if kwargs.get("view") == "search":
-        user_item_ids_portfolio = Portfolio.objects.filter(user_id=kwargs.get("user_id")).values_list("item_id", flat=True).annotate(items=Count("item_id"))
-        user_item_ids_watchlist = Watchlist.objects.filter(user_id=kwargs.get("user_id")).values_list("item_id", flat=True).annotate(items=Count("item_id"))
+    ADDITIONAL KWARGS (excluding kwargs that specify a tuple index)
+    - graph_data:list[str] - a list of all graph metrics to be displayed on the items graph
+    - metric_trends:list[str] - a list metrics to show % change of first and last records
+    - item_group:str - used to create different chart ids when the same item appears multiple times on the same page 
+    - view:str - used for distinguishing between portfolio and watchlist views
+    '''
 
     item_dicts = []
     for item in items:
@@ -67,54 +76,55 @@ def format_item_info(items, **kwargs) -> list[dict]:
         "total_quantity":item[7],
         "img_path":f"App/minifigures/{item[0]}.png",
         }
+    
+        if "metric_changes" in kwargs:
+            metric_changes = kwargs.get("metric_changes", [])
+            item_dict = add_metric_changes(metric_changes, item_dict)
 
-        if kwargs.get("view") == "portfolio":
-            item_dict.update({
-                "owned_quantity_new":item[8],
-                "owned_quantity_used":item[9],
-            })
+        if "graph_data" in kwargs:
+            item_dict = add_graph_data(item_dict, **kwargs)
 
-        elif kwargs.get("view") == "search":
-            item_dict.update({
-                "in_portfolio":item[0] in user_item_ids_portfolio,
-                "in_watchlist":item[0] in user_item_ids_watchlist,
-            })
+        if "owned_quantity_new" in kwargs and "owned_quantity_used" in kwargs and kwargs.get("view", '') == "portfolio":
+            item_dict = item_owned_quantity(item_dict, **kwargs)
 
-        if kwargs.get("price_trend", False) and kwargs.get("view") == "portfolio":
-            item_dict.update({
-                "price_change":item[11]
-            })
-
-        elif kwargs.get("price_trend", False):
-            item_dict["metric_changes"] = {}
-            for metric in  kwargs.get("price_trend"):
-                item_dict["metric_changes"][f"{metric}_change"] = item[8]
-
-        if kwargs.get("popular_items"):
-            item_dict.update({
-                "views":item[8], 
-            })        
-            
-
-        graph_data = kwargs.get("graph_data", False)
-
-        if graph_data != False:
-            user_id = kwargs.get("user_id")
-            item_dict.update({
-                "chart_id":f"{item[0]}_chart" + f"{kwargs.get('home_view', '')}",
-                "dates":append_graph_dates(item[0]),
-                "dates_id":f"{item[0]}_dates" + f"{kwargs.get('home_view', '')}",
-            })
-
-            for metric in graph_data:
-                item_dict.update({
-                    f"{metric}_graph":append_item_graph_info(item[0], graph_metric=metric, user_id=user_id)[0],
-                    f"{metric}_id":f"{item[0]}_{metric}" + f"{kwargs.get('home_view', '')}",
-                })
+        #only accepts values of type int, v < len(item) to avoid indexing errors
+        item_dict.update({
+            k : item[v] for k, v in kwargs.items() if type(v) == int and v < len(item)
+        })
 
         item_dicts.append(item_dict)
 
     return item_dicts
+
+
+def item_owned_quantity(item_dict:dict, **kwargs):
+    owned_quantity_new = DB.get_portfolio_item_quantity(item_dict["item_id"], "N", kwargs.get("user_id", -1))
+    owned_quantity_used = DB.get_portfolio_item_quantity(item_dict["item_id"], "U", kwargs.get("user_id", -1))
+    item_dict["owned_quantity_new"] = owned_quantity_new
+    item_dict["owned_quantity_used"] = owned_quantity_used
+    return item_dict
+
+
+def add_metric_changes(metric_changes:list[str], item_dict:dict, **kwargs):
+    item_dict["metric_changes"] = {}
+    for metric in metric_changes:
+        item_dict["metric_changes"][metric] = DB.get_item_metric_changes(item_dict["item_id"], metric, kwargs.get("user_id", -1))
+    return item_dict
+
+
+def add_graph_data(item_dict:dict, **kwargs):
+    item_dict.update({
+        "chart_id":f"{item_dict['item_id']}_chart" + f"{kwargs.get('item_group', '')}",
+        "dates":append_graph_dates(item_dict['item_id']),
+        "dates_id":f"{item_dict['item_id']}_dates" + f"{kwargs.get('item_group', '')}",
+    })
+
+    for metric in kwargs.get("graph_data", []):
+        item_dict.update({
+            f"{metric}_graph":append_item_graph_info(item_dict['item_id'], graph_metric=metric, user_id=kwargs.get("user_id", -1))[0],
+            f"{metric}_id":f"{item_dict['item_id']}_{metric}" + f"{kwargs.get('home_view', '')}",
+        })
+    return item_dict
 
 
 def format_portfolio_items(items):
@@ -182,6 +192,7 @@ def format_super_sets(sets):
         set_dicts.append(set_dict)
     return set_dicts
 
+
 def biggest_theme_trends():
     themes = DB.biggest_theme_trends("avg_price")
     themes_formated = [
@@ -192,29 +203,30 @@ def biggest_theme_trends():
     ]
 
     losers_winners = {
-        "biggest_winners":themes_formated[:5],
-        "biggest_losers":themes_formated[-5:][::-1]
+        "biggest_winners":sorted(themes_formated[:5], key=lambda x:x["change"]),
+        "biggest_losers":sorted(themes_formated[-5:][::-1], key=lambda x:x["change"], reverse=True)
     }
 
     return losers_winners 
 
 def get_current_page(request, portfolio_items:list, items_per_page) -> int:
-    #current page
-    page = int(request.GET.get("page", 1)) 
-    #number of pages, ITEMS_PER_PAGE items per page
+
+    current_page = int(request.GET.get("page", 1)) 
+
     pages = math.ceil(len(portfolio_items) / items_per_page) 
     #boundaries for next and back page
-    back_page = page - 1
-    next_page = page + 1
-    if page == pages: 
-        next_page = page
-    elif page == 1:
-        back_page = page
+    back_page = current_page - 1
+    next_page = current_page + 1
+
+    if current_page == pages: 
+        next_page = current_page
+    elif current_page == 1:
+        back_page = current_page
 
     if back_page <= 0:
         back_page = 1
 
-    return back_page, page, next_page
+    return back_page, current_page, next_page
 
 
 def get_change_password_error_message(rules:list[dict[str, str]]) -> str:
@@ -366,16 +378,6 @@ def save_POST_params(request) -> tuple[dict, dict]:
 
     request.session.modified = True
     return request, options
-
-
-
-# def save_POST_params(request) -> tuple[dict, dict]:
-#     for k, v in request.POST.items():
-#         request.session["url_params"][k] = v
-#     options = request.session["url_params"]
-
-#     request.session.modified = True
-#     return request, options
 
 
 def extend_remove_words(words:list, *args) -> list:

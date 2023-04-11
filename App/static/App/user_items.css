@@ -372,7 +372,6 @@ textarea {
     height: 56rem;
 }
 
-
-
-
-
+#entries-items-loop-container::-webkit-scrollbar {
+    display: none;
+}

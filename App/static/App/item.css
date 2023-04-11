@@ -303,6 +303,10 @@
     overflow: scroll;
 }
 
+.sub-super-set-container::-webkit-scrollbar {
+    display: none;
+}
+
 .set-container {
     width: 90%;
     height: 12rem;

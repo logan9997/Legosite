@@ -31,7 +31,8 @@ EXTRA_WORDS = [
     "large", "small", "containing", "including", "extra", "modified", "simple",
     "arm", "head", "long", "short", "reflective", "colour", "colour", "male",
     "female", "man", "woman", "boy", "girl","printed", "legs", "arms", "molded", "dark",
-    "light""markings",
+    "light""markings", "smooth", "outfit", "hair", "your", "with", "part", "mini", "pack", "bundle",
+    "uniform", "series", "detail"
 ]
 
 

@@ -5,7 +5,7 @@ import os
 class DatabaseManagment():
 
     def __init__(self) -> None:
-        DEVELOPMENT = False
+        DEVELOPMENT = True
 
         if not DEVELOPMENT:
             file_name = "./heroku_database_credentials.txt"
@@ -383,6 +383,7 @@ class DatabaseManagment():
 
     def get_user_items(self, user_id, view) -> list[str]:
 
+        print(view)
         sql_select = "SELECT DISTINCT ON (I.item_id) _view1.item_id, item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity"
         if view == "portfolio":
             sql_select += f''',
@@ -467,7 +468,7 @@ class DatabaseManagment():
 
     def get_portfolio_item_quantity(self, item_id, condition, user_id) -> int:
         sql = f'''
-            SELECT quantity
+            SELECT COUNT(*)
             FROM "App_portfolio"
             WHERE item_id = '{item_id}'
                 AND condition = '{condition}'
@@ -628,7 +629,7 @@ class DatabaseManagment():
 
 
     def get_item_graph_info(self,item_id, metric, **kwargs) -> list[str]:
-        if kwargs.get("user_id") != None and kwargs.get("view") != None:
+        if kwargs.get("user_id") != -1 and kwargs.get("view") != None:
             sql = f'''
                 SELECT {metric}, date
                 FROM "App_price" P, "App_{kwargs.get("view")}" View, "App_item" I

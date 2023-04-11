@@ -4,7 +4,6 @@ from datetime import (
 )
 
 from django.shortcuts import render, redirect
-from django.db import connection
 from .config import *
 from .utils import *
 
@@ -46,9 +45,6 @@ from my_scripts.responses import *
 from my_scripts.database import *
 
 
-def base_url(request) -> str:
-    return request.get_host().strip(" ")
-
 
 def search_item(request, current_view):
     #get a list of all item ids that exist inside the database 
@@ -79,9 +75,9 @@ def index(request):
     recently_viewed_ids = request.session["recently-viewed"][:RECENTLY_VIEWED_ITEMS_NUM]
     recently_viewed = [DB.get_item_info(item_id, "avg_price")[0] for item_id in recently_viewed_ids]
 
-    recently_viewed = format_item_info(recently_viewed, graph_data=[graph_metric], user_id=user_id)
-    popular_items = format_item_info(DB.get_popular_items()[:10], popular_items=True, home_view="_popular_items", graph_data=[graph_metric])
-    new_items = format_item_info(DB.get_new_items()[:10], home_view="_new_items", graph_data=[graph_metric])[:10]
+    # recently_viewed = format_item_info(recently_viewed, graph_data=[graph_metric], user_id=user_id)
+    popular_items = format_item_info(DB.get_popular_items()[:10], weekly_views=8, item_group="_popular_items", graph_data=[graph_metric])
+    new_items = format_item_info(DB.get_new_items()[:10], item_group="_new_items", graph_data=[graph_metric])[:10]
 
     last_week = dt.today() - timedelta(days=7)
     last_week = last_week.strftime('%Y-%m-%d')
@@ -97,14 +93,14 @@ def index(request):
         "last_week":last_week,
         "popular_items":popular_items,
         "new_items":new_items,
-        "recently_viewed":recently_viewed,
+        # "recently_viewed":recently_viewed,
         "show_graph":False,
         "metric":graph_metric,
     }
 
     if user_id == -1 or len(DB.get_user_items(user_id, "portfolio")) == 0:
         context["portfolio_trending_items"] = False
-        context["trending"] = format_item_info(DB.get_biggest_trends(graph_metric, limit=10), price_trend=[graph_metric], graph_data=[graph_metric], user_id=user_id)
+        context["trending"] = format_item_info(DB.get_biggest_trends(graph_metric, limit=10), metric_trends=[graph_metric], graph_data=[graph_metric], user_id=user_id)
     else:
         context["portfolio_trending_items"] = True
         context["trending"] = format_item_info(DB.biggest_portfolio_changes(user_id, graph_metric), graph_data=[graph_metric])
@@ -256,7 +252,7 @@ def trending(request):
     num_pages = slice_num_pages(len(items), current_page, TRENDING_ITEMS_PER_PAGE)
 
     items = items[(current_page-1) * TRENDING_ITEMS_PER_PAGE : (current_page) * TRENDING_ITEMS_PER_PAGE]
-    items = format_item_info(items, price_trend=[trending_order.split("-")[0]], graph_data=[trending_order.split("-")[0]])
+    items = format_item_info(items, metric_trends=[trending_order.split("-")[0]], graph_data=[trending_order.split("-")[0]])
 
     for _item in items:
         _item["metric_changes"] = get_metric_changes(_item["item_id"], max_date=max_date)
@@ -324,7 +320,8 @@ def search(request, theme_path='all'):
         theme_items = [] 
     else:
         theme_items = DB.get_theme_items(theme_path.replace("/", "~"), sort_field.split("-"))[(current_page-1) * SEARCH_ITEMS_PER_PAGE : (current_page) * SEARCH_ITEMS_PER_PAGE] #return all sets for theme
-        theme_items = format_item_info(theme_items, view="search",graph_data=[graph_metric] ,user_id=user_id)
+        theme_items = format_item_info(theme_items,graph_data=[graph_metric] ,user_id=user_id)
+        #add in
 
         if len(theme_items) == 0:
             redirect_path = "".join([f"{sub_theme}/" for sub_theme in theme_path.split("/")][:-1])
@@ -546,7 +543,7 @@ def user_items(request, view, user_id):
     sort_field = options.get("sort-field", "avg_price-desc")
 
     items = DB.get_user_items(user_id, view)
-    items = format_item_info(items, view=view, graph_data=[graph_metric], user_id=user_id)
+    items = format_item_info(items, owned_quantity_new=8, owned_quantity_used=9, graph_data=[graph_metric], user_id=user_id)
 
     current_page = check_page_boundaries(current_page, len(items), USER_ITEMS_ITEMS_PER_PAGE)
     num_pages = slice_num_pages(len(items), current_page, USER_ITEMS_ITEMS_PER_PAGE)
@@ -617,7 +614,7 @@ def portfolio(request, item_id=None):
         items = format_portfolio_items(items)
         context["item_entries"] = items
         context["metric_changes"] = [{"metric":metric,"change":DB.get_item_metric_changes(item_id, metric)} for metric in ALL_METRICS]
-        context["item"] = format_item_info(DB.get_item_info(item_id, context["graph_metric"]), graph_data=[context["graph_metric"]], price_trend=ALL_METRICS)[0]
+        context["item"] = format_item_info(DB.get_item_info(item_id, context["graph_metric"]), graph_data=[context["graph_metric"]], metric_trends=ALL_METRICS)[0]
         
         context["total_profit"] = round(Portfolio.objects.filter(user_id=user_id, item_id=item_id).aggregate(profit=Sum("sold_for", default=0) - Sum("bought_for", default=0))["profit"], 2)
         context["total_owners"] = len(Portfolio.objects.filter(item_id=item_id).aggregate(Count("user_id")))
@@ -647,7 +644,7 @@ def view_POST(request, view):
 
     items = DB.get_user_items(user_id, view=view)
 
-    portfolio_items = format_item_info(items, view=view)
+    portfolio_items = format_item_info(items, owned_quantity_new=8, owned_quantity_used=9)
 
     if request.POST.get("form-type") == "remove-or-add-portfolio-item":
         form = AddOrRemovePortfolioItem(request.POST)
