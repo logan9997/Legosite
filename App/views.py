@@ -39,8 +39,6 @@ from django.db.models import (
     F,
 ) 
 
-from django.db.models.functions import Coalesce
-
 from my_scripts.responses import * 
 from my_scripts.database import *
 
@@ -49,6 +47,8 @@ from my_scripts.database import *
 def search_item(request, current_view):
     #get a list of all item ids that exist inside the database 
     item_ids = Item.objects.all().values_list("item_id",flat=True)
+
+    # [print(item_id) for item_id in list(item_ids) if "sw125" in item_id]
     
     #get item from the search bar, if it exists redirect to that items info page
     selected_item = request.POST.get("item_id")
@@ -117,13 +117,13 @@ def item(request, item_id):
 
     #[0] since list with one element (being the item)
     item_info = format_item_info(
-        DB.get_item_info(item_id, metric),
-        graph_data=["avg_price", "min_price", "max_price", "total_quantity"]
+        DB.get_item_info(item_id, metric), graph_data=ALL_METRICS
     )
 
-    #convert first and last item into new format so on window load slider max value is not Day, Month, Year format 
-    item_info[0]["dates"][-1] = item_info[0]["dates"][-1].strftime('%Y-%m-%d')
-    item_info[0]["dates"][0] = item_info[0]["dates"][0].strftime('%Y-%m-%d')
+    if item_info != []:
+        #convert first and last item into new format so on window load slider max value is not Day, Month, Year format 
+        item_info[0]["dates"][-1] = item_info[0]["dates"][-1].strftime('%Y-%m-%d')
+        item_info[0]["dates"][0] = item_info[0]["dates"][0].strftime('%Y-%m-%d')
 
     if item_info == []:
         return redirect(request.META.get('HTTP_REFERER'))
@@ -173,9 +173,9 @@ def item(request, item_id):
         in_watchlist = "No"
 
     item_themes = Theme.objects.filter(item_id=item_id).distinct("theme_path").values_list("theme_path")
-    start = time.time()
+    print("aAA", item_themes)
+
     similar_items = format_item_info(get_similar_items(item_info["item_name"], item_info["item_type"], item_info["item_id"]))
-    print("FIN - ", time.time() - start)
 
     total_watchers = DB.get_total_owners_or_watchers("watchlist", item_id) 
     total_owners = DB.get_total_owners_or_watchers("portfolio", item_id)

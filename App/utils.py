@@ -271,6 +271,11 @@ def get_sub_themes(user_id:int, parent_themes:list[str], themes:list[dict], inde
         sub_themes = DB.sub_themes(user_id, theme[0], view, metric)
         sub_themes = [theme_path for theme_path in sub_themes if theme_path.count("~") == indent]
 
+        print(theme)
+
+        # if theme[0] in [theme["theme_path"] for theme in themes]:
+        #     break
+
         themes.append({
             "theme_path":theme[0],
             "count":theme[1],
@@ -395,7 +400,6 @@ def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, 
     for sub in itertools.combinations(single_words, i):
         sql_like = "AND " + ''.join([f"item_name LIKE '%{word}%' AND " for word in sub])[:-4]
         new_items = DB.get_similar_items(item_name, item_type, item_id, sql_like)
-        # print(sub, len(items), [item[0] for item in items])
 
         for item in new_items:
             if len(items) < MAX_SIMILAR_ITEMS and item not in items:
@@ -403,7 +407,6 @@ def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, 
                 if len(items) >= MAX_SIMILAR_ITEMS:
                     return i, list(dict.fromkeys(items))
 
-        print(len(sub), len(items), i)
         if len(sub) <= 3 and len(items) >= 3:
             return i, items
 
