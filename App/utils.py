@@ -199,15 +199,17 @@ def biggest_theme_trends():
         {
             "theme_path":theme[0],
             "change":theme[1]
-        } for theme in themes
-    ]
+        } 
+        for theme in themes]
 
-    losers_winners = {
+    losers_and_winners = {
         "biggest_winners":sorted(themes_formated[:5], key=lambda x:x["change"]),
         "biggest_losers":sorted(themes_formated[-5:][::-1], key=lambda x:x["change"], reverse=True)
     }
 
-    return losers_winners 
+    print(losers_and_winners)
+
+    return losers_and_winners 
 
 def get_current_page(request, portfolio_items:list, items_per_page) -> int:
 
@@ -451,8 +453,10 @@ def get_similar_items(item_name:str, item_type:str, item_id:str) -> list:
 def get_metric_changes(item_id, **kwargs) -> list[dict]:
 
     changes = [
-        {"metric":" ".join(list(map(str.capitalize, metric_change.split("_")))), 
-        "change":DB.get_item_metric_changes(item_id, metric_change, **kwargs)} 
-        for metric_change in ["avg_price", "min_price", "max_price", "total_quantity"]
+        {
+            "metric" : " ".join(list(map(str.capitalize, metric_change.split("_")))), 
+            "change" : DB.get_item_metric_changes(item_id, metric_change, **kwargs)
+        } 
+        for metric_change in ALL_METRICS
     ]
     return changes

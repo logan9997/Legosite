@@ -6,11 +6,12 @@
 {% load tags %}
 <link rel="stylesheet" href="{% static 'App/trending.css' %}">
 
-{{ slider_value|json_script:"slider_value"}}
+{{ slider_start_value|json_script:"slider_start_value"}}
+{{ slider_end_value|json_script:"slider_end_value"}}
 
 <script>
-    
-    var onload_slider_value = JSON.parse(document.getElementById("slider_value").textContent)
+    var onload_slider_value_start = JSON.parse(document.getElementById("slider_start_value").textContent) -1
+    var onload_slider_value_end = JSON.parse(document.getElementById("slider_end_value").textContent) 
 </script>
 
 <section id="main-container">
@@ -22,9 +23,10 @@
         <div id="slider-container">
             <form action="{% url 'trending_POST' %}" method="post">
                 {% csrf_token %}
-                <input type="range" id="slider" name="slider" min="2" max="{{max_slider_value}}" value="{{slider_value}}">
+                <input type="range" id="slider_start" name="slider_start" min="1" max="{{max_slider_start_value}}" value="{{slider_start_value}}">
+                <input type="range" id="slider_end" name="slider_end" min="{{min_slider_end_value}}" max="{{max_slider_end_value}}" value="{{slider_end_value}}">
             </form>
-            <p id="slider-value">Range : {{dates.0}} - {{dates|iterable_index:slider_value}}</p>
+            <p id="slider-value">Range : {{dates|iterable_index:slider_start_value}} - {{dates|iterable_index:slider_end_value}}</p>
         </div>
     </div>
 
@@ -52,18 +54,38 @@
 
 <script>
     var items = JSON.parse(document.getElementById("items_id").textContent)
-    var slider = document.getElementById("slider")
-    var slider_output = document.getElementById("slider-value")
-    var slider_value = slider.value 
 
-    slider.oninput = function() {
-        var slider = document.getElementById("slider")
-        var slider_value = slider.value - 1
-        slider_output.textContent = `Range : ${items[0].dates[0]} - ${items[0].dates[slider_value]}`
+    var slider_start = document.getElementById("slider_start")
+    var slider_start_value = slider_start.value 
+    var slider_end = document.getElementById("slider_end")
+    var slider_end_value = slider_start.value 
+
+    var slider_output = document.getElementById("slider-value")
+
+    slider_start.oninput = function() {
+        var slider_start = document.getElementById("slider_start")
+        var slider_start_value = slider_start.value - 1
+
+        var slider_end = document.getElementById("slider_end")
+        var slider_end_value = slider_end.value - 1
+        slider_output.textContent = `Range : ${items[0].dates[slider_start_value]} - ${items[0].dates[slider_end_value]}`
     }
 
-    slider.onchange = function() {
-        slider.parentElement.submit()
+    slider_end.oninput = function() {
+        var slider_start = document.getElementById("slider_start")
+        var slider_start_value = slider_start.value - 1
+
+        var slider_end = document.getElementById("slider_end")
+        var slider_end_value = slider_end.value - 1
+        slider_output.textContent = `Range : ${items[0].dates[slider_start_value]} - ${items[0].dates[slider_end_value]}`
+    }
+
+    slider_start.onchange = function() {
+        slider_start.parentElement.submit()
+    }
+
+    slider_end.onchange = function() {
+        slider_end.parentElement.submit()
     }
 </script>
 

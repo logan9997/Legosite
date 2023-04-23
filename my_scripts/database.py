@@ -5,7 +5,7 @@ import os
 class DatabaseManagment():
 
     def __init__(self) -> None:
-        DEVELOPMENT = False
+        DEVELOPMENT = True
 
         if not DEVELOPMENT:
             file_name = "./heroku_database_credentials.txt"
@@ -144,9 +144,13 @@ class DatabaseManagment():
 
     
     def get_biggest_trends(self, change_metric, **kwargs) -> list[str]:
+        min_date_sql = kwargs.get("min_date", "")
+        if "min_date" in kwargs:
+            min_date_sql = f"WHERE date >= '{min_date_sql}'"
+    
         max_date_sql = kwargs.get("max_date", "")
         if "max_date" in kwargs:
-            max_date_sql = f"WHERE date <= '{max_date_sql}'"
+            max_date_sql = f"date <= '{max_date_sql}'"
         
         limit_sql = kwargs.get("limit", "")
         if "limit" in kwargs:
@@ -163,7 +167,6 @@ class DatabaseManagment():
                 ) 
                 - {change_metric}) *-1.0 /  NULLIF(
                 (
-
                     SELECT {change_metric}
                     FROM "App_price" P2
                     WHERE P2.item_id = P1.item_id
@@ -176,8 +179,9 @@ class DatabaseManagment():
             WHERE I.item_id = P1.item_id 
                 AND (I.item_id, date) = any (
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
-                    FROM "App_price" P2  
-                    {max_date_sql}
+                    FROM "App_price" P2
+                    {min_date_sql}  
+                    AND {max_date_sql} 
                     GROUP BY item_id
                 )
             ORDER BY Change DESC, I.item_id
@@ -235,43 +239,26 @@ class DatabaseManagment():
     
 
     def get_item_metric_changes(self, item_id, change_metric, **kwargs):
-        max_date_sql = kwargs.get("max_date", "")
-        if max_date_sql != "":
-            max_date_sql = f"AND date <= '{max_date_sql}'"
+        min_date = kwargs.get("min_date", f"""(SELECT MIN(date) FROM "App_price" WHERE item_id = '{item_id}')""")     
+        max_date = kwargs.get("max_date", f"""(SELECT MAX(date) FROM "App_price" WHERE item_id = '{item_id}')""")      
+
 
         sql = f'''
-            SELECT ROUND(CAST( 
-                ((
-                SELECT {change_metric}
-                FROM "App_price" P2
-                WHERE P2.item_id = P1.item_id
-                    AND I.item_id = '{item_id}'
-                    AND date = (
-                        SELECT min(date)
-                        FROM "App_price"
-                        WHERE item_id = '{item_id}'
-                    ) 
-                ) - {change_metric}) *- 1.0 / ((
-                SELECT {change_metric}
-                FROM "App_price" P2
-                WHERE P2.item_id = P1.item_id
-                    AND I.item_id = '{item_id}'
-                    AND date = (
-                        SELECT min(date)
-                        FROM "App_price"
-                        WHERE item_id = '{item_id}'
-                    )
-            )+0.000001) *100 AS numeric), 2)
-
-            FROM "App_price" P1, "App_item" I
-            WHERE I.item_id = P1.item_id 
-                AND I.item_id = '{item_id}'
-                AND date = (
-                    SELECT max(date)
-                    FROM "App_price"
-                    WHERE item_id = '{item_id}'
-                    {max_date_sql}
-                ) 
+            SELECT ROUND(CAST((
+                (SELECT {change_metric}
+                    FROM "App_price" P2
+                    WHERE P2.ITEM_ID = P1.ITEM_ID
+                        AND I.ITEM_ID = '{item_id}'
+                        AND date = {min_date} ) - {change_metric}) * - 1.0 /
+                NULLIF((SELECT {change_metric}
+                    FROM "App_price" P2
+                    WHERE P2.ITEM_ID = P1.ITEM_ID
+                        AND I.ITEM_ID = '{item_id}'
+                        AND date = {min_date}), 0) * 100 AS numeric),2)
+            FROM "App_price" P1,"App_item" I
+            WHERE I.ITEM_ID = P1.ITEM_ID
+                AND I.ITEM_ID = '{item_id}'
+                AND date = {max_date}
             '''
         return self.SELECT(sql, fetchone=True)[0]
 
@@ -318,7 +305,7 @@ class DatabaseManagment():
                         FROM "App_price"
                         WHERE item_id = '{item_id}'
                     ) 
-                ) - ({change_metric}) *-1.0) / ((
+                ) - ({change_metric}) *-1.0) / NULLIF((
                 SELECT {change_metric}
                 FROM "App_price" P2
                 WHERE P2.item_id = P1.item_id
@@ -328,7 +315,7 @@ class DatabaseManagment():
                         FROM "App_price"
                         WHERE item_id = '{item_id}'
                     )
-            ) + 0.01) * 100
+            ) * 100, 0)
 
             FROM "App_price" P1, "App_item" I
             WHERE I.item_id = P1.item_id 
@@ -375,10 +362,11 @@ class DatabaseManagment():
 
     def add_theme_details(self, theme_details, item_type) -> None:
         for item in theme_details[item_type]:
-            self.cursor.execute(f'''
-                INSERT INTO "App_theme" ('theme_path', 'item_id') VALUES ('{theme_details["path"]}', '{item}')
-            ''')
-            self.con.commit()
+            if theme_details["path"] not in self.get_item_themes(item):
+                self.cursor.execute(f'''
+                    INSERT INTO "App_theme" ("theme_path", "item_id") VALUES ('{theme_details["path"]}', '{item}')
+                ''')
+                self.con.commit()
 
 
     def get_user_items(self, user_id, view) -> list[str]:
@@ -591,15 +579,15 @@ class DatabaseManagment():
             WHERE item_id LIKE 'sw%' 
                 AND item_type = 'M'
         '''
-        return self.SELECT(sql)
+        return [_item[0] for _item in self.SELECT(sql)]
 
 
     def insert_item_info(self, item_info) -> None:
         type_convert = {"MINIFIG":"M", "SET":"S"}
         self.cursor.execute(f'''
             INSERT INTO "App_item"
-            ('item_id', 'item_name', 'year_released', 'item_type')
-            VALUES ('{item_info["no"]}', '{item_info["name"].replace("'", "")}', '{item_info["year_released"]}', '{type_convert[item_info["type"]]}')
+            ("item_id", "item_name", "year_released", "item_type", "views")
+            VALUES ('{item_info["no"]}', '{item_info["name"].replace("'", "")}', '{item_info["year_released"]}', '{type_convert[item_info["type"]]}', 0)
         ''')
         self.con.commit()
 
@@ -697,6 +685,15 @@ class DatabaseManagment():
 
         '''
         return self.SELECT(sql)
+        
+
+    def get_item_themes(self, item_id):
+        sql = f'''
+            SELECT theme_path
+            FROM "App_theme"
+            WHERE item_id = '{item_id}'
+        '''
+        return [theme[0] for theme in self.SELECT(sql)]
 
 
     def sub_themes(self, user_id:int, theme_path:str, view:str, metric:str) -> list[str]:

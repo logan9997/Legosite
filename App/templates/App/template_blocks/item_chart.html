@@ -25,7 +25,7 @@
     <script>
         var dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
         if (window.location.href.includes("trending")) {
-            dates = dates.slice(0, onload_slider_value)
+            dates = dates.slice(onload_slider_value_start, onload_slider_value_end)
         }
         var metric_data = [
             {
@@ -61,11 +61,11 @@
         var new_data = []
         for (let i = 0; i < metric_data.length; i++) {
             if (metric_data[i].id != '') {
-                metric_data[i].data = JSON.parse(document.getElementById(metric_data[i].id).textContent)
+                metric_data[i].data = JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(onload_slider_value_start, onload_slider_value_end)
+                console.log(metric_data[i].data)
                 new_data.push(metric_data[i])
             } 
         }
-
         
         var graph_data = {
             labels:dates,

@@ -43,12 +43,9 @@ from my_scripts.responses import *
 from my_scripts.database import *
 
 
-
 def search_item(request, current_view):
     #get a list of all item ids that exist inside the database 
     item_ids = Item.objects.all().values_list("item_id",flat=True)
-
-    # [print(item_id) for item_id in list(item_ids) if "sw125" in item_id]
     
     #get item from the search bar, if it exists redirect to that items info page
     selected_item = request.POST.get("item_id")
@@ -173,7 +170,6 @@ def item(request, item_id):
         in_watchlist = "No"
 
     item_themes = Theme.objects.filter(item_id=item_id).distinct("theme_path").values_list("theme_path")
-    print("aAA", item_themes)
 
     similar_items = format_item_info(get_similar_items(item_info["item_name"], item_info["item_type"], item_info["item_id"]))
 
@@ -220,11 +216,17 @@ def trending_POST(request):
     request.session["current_page"] = current_page
 
     dates = list(Price.objects.distinct("date").values_list("date", flat=True))
-    slider_value = int(options.get("slider", len(dates))) -1
-    date = dates[slider_value].strftime('%Y-%m-%d')
 
-    request.session["slider_date"] = date
-    request.session["slider_value"] = slider_value
+    slider_start_value = int(options.get("slider_start", 1)) -1 
+    slider_end_value = int(options.get("slider_end", len(dates))) -1
+
+    print("VALUES", slider_start_value, slider_end_value)
+
+    request.session["slider_start_date"] = dates[slider_start_value].strftime('%Y-%m-%d')
+    request.session["slider_start_value"] = slider_start_value
+
+    request.session["slider_end_date"] = dates[slider_end_value].strftime('%Y-%m-%d')
+    request.session["slider_end_value"] = slider_end_value
 
     return redirect("trending")
 
@@ -240,10 +242,13 @@ def trending(request):
     dates = list(Price.objects.distinct("date").values_list("date", flat=True))
     dates = [date.strftime('%Y-%m-%d') for date in dates]
 
-    max_date = str(request.session.get("slider_date", dates[-1]))
-    slider_value = request.session.get("slider_value", len(dates) -1) 
+    max_date = str(request.session.get("slider_end_date"))
+    min_date = str(request.session.get("slider_start_date"))
 
-    items = DB.get_biggest_trends(trending_order.split("-")[0], max_date=max_date)
+    slider_start_value = request.session.get("slider_start_value", len(dates) -1) 
+    slider_end_value = request.session.get("slider_end_value", len(dates) -1)
+
+    items = DB.get_biggest_trends(trending_order.split("-")[0], max_date=max_date, min_date=min_date)
 
     #remove trending items if % change (-1) is equal to None (0.00)
     items = [_item for _item in items if _item[-1] != None]
@@ -255,8 +260,7 @@ def trending(request):
     items = format_item_info(items, metric_trends=[trending_order.split("-")[0]], graph_data=[trending_order.split("-")[0]])
 
     for _item in items:
-        _item["metric_changes"] = get_metric_changes(_item["item_id"], max_date=max_date)
-
+        _item["metric_changes"] = get_metric_changes(_item["item_id"], max_date=f"'{max_date}'", min_date=f"'{min_date}'")
 
     context = {
         "items":items,
@@ -266,8 +270,11 @@ def trending(request):
         "num_pages":num_pages,
         "current_page":current_page,
         "dates":dates,
-        "slider_value":slider_value +1,
-        "max_slider_value":len(dates) ,
+        "slider_start_value":slider_start_value +1,
+        "slider_end_value":slider_end_value +1,
+        "max_slider_start_value":slider_end_value,
+        "max_slider_end_value":len(dates),
+        "min_slider_end_value":slider_start_value + 2,
         "metric_data":trending_order.split("-")[0]
     }
 

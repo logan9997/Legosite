@@ -29,6 +29,28 @@ h2 {
     text-align: center;
 }
 
+#slider-container form {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+}
+
+input[type=range] {
+    overflow: hidden;
+    outline: none;
+    position: absolute;
+    width: 10rem;
+}
+
+
+#slider_start {
+    margin-right: 9.5rem;
+}
+
+#slider_end {
+    margin-left: 9.5rem;
+}
+
 #items-container {
     display: flex;
     justify-content: center;
