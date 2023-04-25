@@ -72,7 +72,7 @@ def index(request):
     recently_viewed_ids = request.session["recently-viewed"][:RECENTLY_VIEWED_ITEMS_NUM]
     recently_viewed = [DB.get_item_info(item_id, "avg_price")[0] for item_id in recently_viewed_ids]
 
-    recently_viewed = format_item_info(recently_viewed, graph_data=[graph_metric], user_id=user_id)
+    # recently_viewed = format_item_info(recently_viewed, graph_data=[graph_metric], user_id=user_id)
     popular_items = format_item_info(DB.get_popular_items()[:10], weekly_views=8, item_group="_popular_items", graph_data=[graph_metric])
     new_items = format_item_info(DB.get_new_items()[:10], item_group="_new_items", graph_data=[graph_metric])[:10]
 
@@ -80,7 +80,7 @@ def index(request):
     last_week = last_week.strftime('%Y-%m-%d')
 
     for popular_item in popular_items:
-        popular_item["change"] = round(DB.get_weekly_item_metric_change(popular_item["item_id"], last_week, graph_metric), 2)
+        popular_item["change"] = DB.get_weekly_item_metric_change(popular_item["item_id"], last_week, graph_metric)[0] 
 
     username = User.objects.filter(user_id=user_id).values_list("username", flat=True)
 
@@ -90,7 +90,7 @@ def index(request):
         "last_week":last_week,
         "popular_items":popular_items,
         "new_items":new_items,
-        "recently_viewed":recently_viewed,
+        # "recently_viewed":recently_viewed,
         "show_graph":False,
         "metric":graph_metric,
     }
@@ -114,7 +114,7 @@ def item(request, item_id):
 
     #[0] since list with one element (being the item)
     item_info = format_item_info(
-        DB.get_item_info(item_id, metric), graph_data=ALL_METRICS, view="item"
+        DB.get_item_info(item_id, metric), graph_data=ALL_METRICS
     )
 
     if item_info != []:
@@ -199,7 +199,7 @@ def item(request, item_id):
         "sub_sets":format_sub_sets(sub_sets),
         "super_sets":format_super_sets(super_sets),
         "metric_changes":metric_changes,
-        "most_recent_set_appearance":DB.most_recent_set_appearance(item_id),
+        "most_recent_set_appearance":DB.most_recent_set_appearance(item_id)
     }
 
     return render(request, "App/item.html", context=context)
@@ -275,7 +275,7 @@ def trending(request):
         "max_slider_start_value":slider_end_value,
         "max_slider_end_value":len(dates),
         "min_slider_end_value":slider_start_value + 2,
-        "metric_data":trending_order.split("-")[0],
+        "metric_data":trending_order.split("-")[0]
     }
 
     clear_session_url_params(request, "graph_metric", "trending_order", "current_page")

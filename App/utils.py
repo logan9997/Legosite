@@ -121,7 +121,7 @@ def add_graph_data(item_dict:dict, **kwargs):
 
     for metric in kwargs.get("graph_data", []):
         item_dict.update({
-            f"{metric}_graph":append_item_graph_info(item_dict['item_id'], metric, **kwargs),
+            f"{metric}_graph":append_item_graph_info(item_dict['item_id'], graph_metric=metric, user_id=kwargs.get("user_id", -1))[0],
             f"{metric}_id":f"{item_dict['item_id']}_{metric}" + f"{kwargs.get('home_view', '')}",
         })
     return item_dict
@@ -201,11 +201,13 @@ def biggest_theme_trends():
             "change":theme[1]
         } 
         for theme in themes]
-    
+
     losers_and_winners = {
         "biggest_winners":sorted(themes_formated[:5], key=lambda x:x["change"]),
         "biggest_losers":sorted(themes_formated[-5:][::-1], key=lambda x:x["change"], reverse=True)
     }
+
+    print(losers_and_winners)
 
     return losers_and_winners 
 
@@ -270,6 +272,8 @@ def get_sub_themes(user_id:int, parent_themes:list[str], themes:list[dict], inde
     for theme in parent_themes:
         sub_themes = DB.sub_themes(user_id, theme[0], view, metric)
         sub_themes = [theme_path for theme_path in sub_themes if theme_path.count("~") == indent]
+
+        print(theme)
 
         # if theme[0] in [theme["theme_path"] for theme in themes]:
         #     break
@@ -355,36 +359,17 @@ def slice_num_pages(list_len:int, current_page:int, items_per_page:int):
     return num_pages
 
 
-def condence_list(_list:list, limit:int) -> list:
-
-    if len(_list) > limit:
-
-        first = _list[0]
-        last = _list[-1]
-
-        remove_gap = math.ceil(len(_list) / limit)
-        _list = [data for i, data in enumerate(_list, 1) if (i+1) % remove_gap == 0]
-
-        _list[0] = first
-        _list[-1] = last
-
-    return _list
-
-
 def append_item_graph_info(item_id:str, graph_metric:str, **kwargs):
-    metric_data = []
-    
-    for metric_info in DB.get_item_graph_info(item_id, graph_metric, **kwargs):
-        metric_data.append(metric_info[0])
-
-    return metric_data
+    prices = [] ; dates = []
+    for price_date_info in DB.get_item_graph_info(item_id, graph_metric, view=kwargs.get("view"), user_id=kwargs.get("user_id")):
+        prices.append(price_date_info[0])
+    return prices, dates
 
 
 def append_graph_dates(item_id, **kwargs):
     dates = []
-    for price_date_info in DB.get_item_graph_info(item_id, "avg_price", **kwargs):
+    for price_date_info in DB.get_item_graph_info(item_id, "avg_price", view=kwargs.get("view"), user_id=kwargs.get("user_id")):
         dates.append(price_date_info[1])
-
     return dates
 
 

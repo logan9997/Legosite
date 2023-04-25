@@ -227,25 +227,3 @@ function input_validation(input, type, add_new) {
         }
     }
 }
-
-function condence_list(_list) {
-    const max_graph_points = JSON.parse(document.getElementById("max_graph_points").textContent);
-    if (_list.length > max_graph_points) {
-        var first = _list[0]; 
-        var last = _list[_list.length-1]
-
-        var remove_gap = Math.ceil(_list.length / max_graph_points);
-
-        var condenced_list = [];
-        for (let i = 0; i <= _list.length; i += remove_gap) {
-            if (i != _list.length) {
-                condenced_list.push(_list[i])
-            }
-        }
-        condenced_list[0] = first;
-        condenced_list[condenced_list.length-1] = last;
-        return condenced_list
-    }
-    return _list
-    
-}

@@ -38,19 +38,18 @@ h2 {
 input[type=range] {
     overflow: hidden;
     outline: none;
-    position: relative;
+    position: absolute;
     width: 10rem;
-    display: inline-block;
 }
 
-input[type=range]::-webkit-slider-runnable-track {
-    z-index: 1;
+
+#slider_start {
+    margin-right: 9.5rem;
 }
 
-input[type=range]::-webkit-slider-thumb {
-    z-index: 10;
+#slider_end {
+    margin-left: 9.5rem;
 }
-
 
 #items-container {
     display: flex;

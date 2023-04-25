@@ -22,13 +22,6 @@ def check_login_status(context, request):
 
 
 @register.simple_tag
-def get_max_graph_points(request):
-    if "item" in request.get_full_path():
-        return MAX_GRAPH_POINTS_ITEM_VIEW
-    return MAX_GRAPH_POINTS
-
-
-@register.simple_tag
 def max_search_suggestions():
     return MAX_SEARCH_SUGGESTIONS
 

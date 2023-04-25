@@ -35,9 +35,7 @@
 
     {% item_names as item_names %}
     {{ item_names|json_script:"item_names" }}
-
-    {% get_max_graph_points request as max_graph_points  %}
-    {{ max_graph_points|json_script:"max_graph_points" }}
+    
     
     <nav>
         <ul>
