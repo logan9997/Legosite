@@ -21,12 +21,13 @@
         {{ item.dates|json_script:dates }}
     {% endwith %}
 
-
     <script>
         var dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
         if (window.location.href.includes("trending")) {
             dates = dates.slice(onload_slider_value_start, onload_slider_value_end)
         }
+        dates = condence_list(dates)
+        
         var metric_data = [
             {
                 id:'{{item.avg_price_id}}',
@@ -61,8 +62,11 @@
         var new_data = []
         for (let i = 0; i < metric_data.length; i++) {
             if (metric_data[i].id != '') {
-                metric_data[i].data = JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(onload_slider_value_start, onload_slider_value_end)
-                console.log(metric_data[i].data)
+                if (window.location.href.includes("trending")) {
+                    metric_data[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(onload_slider_value_start, onload_slider_value_end))
+                } else {
+                    metric_data[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent))
+                }
                 new_data.push(metric_data[i])
             } 
         }
