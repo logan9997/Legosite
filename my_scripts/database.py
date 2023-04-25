@@ -5,7 +5,7 @@ import os
 class DatabaseManagment():
 
     def __init__(self) -> None:
-        DEVELOPMENT = False
+        DEVELOPMENT = True
 
         if not DEVELOPMENT:
             file_name = "./heroku_database_credentials.txt"
@@ -67,11 +67,19 @@ class DatabaseManagment():
 
     def add_set_participation(self, info):
         sql = f'''
-            INSERT INTO "App_setparticipation" ('quantity', 'item_id', 'set_id')
+            INSERT INTO "App_setparticipation" ("quantity", "item_id", "set_id")
             VALUES ('{info["quantity"]}', '{info["item_id"]}', '{info["set_id"]}') 
         '''
         self.cursor.execute(sql)
         self.con.commit()
+
+
+    def get_set_participations(self):
+        sql = '''
+            SELECT item_id, set_id
+            FROM "App_setparticipation"
+        '''
+        return self.SELECT(sql)
 
 
     def get_all_piece_ids(self):
@@ -103,14 +111,10 @@ class DatabaseManagment():
 
     def get_item_supersets(self, item_id):
         sql = f'''
-            SELECT DISTINCT ON (I.item_id) I.item_id, item_name, year_released, quantity
-            FROM "App_item" I, "App_setparticipation" SP
-            WHERE I.item_id in (
-                SELECT set_id
-                FROM "App_setparticipation" SP 
-                WHERE item_id = '{item_id}'
-            )
-                AND SP.set_id = I.item_id
+            SELECT SP.set_id, item_name, year_released, quantity
+            FROM "App_item" I
+            JOIN  "App_setparticipation" SP ON I.item_id = SP.set_id
+            AND SP.item_id = '{item_id}'
         '''
         return self.SELECT(sql)
 

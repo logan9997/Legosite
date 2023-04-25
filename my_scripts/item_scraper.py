@@ -120,7 +120,7 @@ class Scraper():
         theme_details_list = []
 
         #loop through each item type
-        for item_type in ["M"]: #,'S' 
+        for item_type in ["S"]: #,'S' 
             #get the catalog page for each item type
             if item_type == "S":
                 self.driver.get(f'https://www.bricklink.com/catalogTree.asp?itemType=S#dacta')
@@ -178,11 +178,14 @@ class Scraper():
                 theme_details = self.get_item_ids(theme_links[index], item_type)
 
                 for item in theme_details[item_type]:
-                    print("Item ID - ", item)
+                    print(item)
                     if item not in DB.get_all_itemIDs():
-                        item_info = RESP.get_response_data(f"items/MINIFIG/{item}")
-                        print("INSERTING -", item_info)
-                        DB.insert_item_info(item_info)
+                        item_info = RESP.get_response_data(f"items/SET/{item}")
+                        print("INSERTING (item_info) -", item_info)
+                        try:
+                            DB.insert_item_info(item_info)
+                        except KeyError:
+                            print("KEY ERROR", item)
 
                 #add the theme path to dict containing S / M list
                 theme_details.update({
