@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'legosite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DEVELOPMENT = True
+DEVELOPMENT = False
 
 if not DEVELOPMENT:
     file_name = "./heroku_database_credentials.txt"
