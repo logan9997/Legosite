@@ -150,7 +150,7 @@ class DatabaseManagment():
     
         max_date_sql = kwargs.get("max_date", "")
         if "max_date" in kwargs:
-            max_date_sql = f"date <= '{max_date_sql}'"
+            max_date_sql = f"AND date <= '{max_date_sql}'"
         
         limit_sql = kwargs.get("limit", "")
         if "limit" in kwargs:
@@ -181,12 +181,13 @@ class DatabaseManagment():
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
                     FROM "App_price" P2
                     {min_date_sql}  
-                    AND {max_date_sql} 
+                    {max_date_sql} 
                     GROUP BY item_id
                 )
             ORDER BY Change DESC, I.item_id
             {limit_sql}
         '''
+        print(sql)
         return self.SELECT(sql)
     
 
