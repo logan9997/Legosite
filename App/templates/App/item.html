@@ -5,6 +5,12 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'App/item.css' %}">
 
+
+
+{% with max_graph_points_item_view as max_graph_points_item_view %}
+    {{ max_graph_points_item_view|json_script:"max_graph_points" }}
+{% endwith %}
+
 <section id="layer1" class="layers">
 
     <section id="main-item-container">
@@ -193,6 +199,7 @@
 
 
 <script>
+    var dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
     var slider = document.getElementById("slider");
     var output = document.getElementById("slider-output");
     var index = document.getElementById("slider-index")
@@ -200,12 +207,12 @@
 
     //slider
     slider.oninput = function() {
-        mychart.data.labels = JSON.parse(document.getElementById('{{item.dates_id}}').textContent).slice(0, slider.value)
+        mychart.data.labels = condence_list(JSON.parse(document.getElementById('{{item.dates_id}}').textContent).slice(0, slider.value))
         for (let i = 0; i < checkboxes.length; i++) {
-            mychart.data.datasets[i].data = JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(0, slider.value)
+            mychart.data.datasets[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(0, slider.value))
             mychart.update()
-
         }
+        
         output.innerHTML = `Range : ${dates[0]} - ${dates[parseInt(slider.value)-1]}`
         index.innerHTML = slider.value -1
     }

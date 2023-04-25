@@ -5,7 +5,7 @@ import os
 class DatabaseManagment():
 
     def __init__(self) -> None:
-        DEVELOPMENT = False
+        DEVELOPMENT = True
 
         if not DEVELOPMENT:
             file_name = "./heroku_database_credentials.txt"
@@ -150,7 +150,7 @@ class DatabaseManagment():
     
         max_date_sql = kwargs.get("max_date", "")
         if "max_date" in kwargs:
-            max_date_sql = f"date <= '{max_date_sql}'"
+            max_date_sql = f"AND date <= '{max_date_sql}'"
         
         limit_sql = kwargs.get("limit", "")
         if "limit" in kwargs:
@@ -181,7 +181,7 @@ class DatabaseManagment():
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
                     FROM "App_price" P2
                     {min_date_sql}  
-                    AND {max_date_sql} 
+                    {max_date_sql} 
                     GROUP BY item_id
                 )
             ORDER BY Change DESC, I.item_id
@@ -617,14 +617,14 @@ class DatabaseManagment():
 
 
     def get_item_graph_info(self,item_id, metric, **kwargs) -> list[str]:
-        if kwargs.get("user_id") != -1 and kwargs.get("view") != None:
+        if kwargs.get("user_id") != -1 and kwargs.get("view", "item") != "item":
             sql = f'''
                 SELECT {metric}, date
-                FROM "App_price" P, "App_{kwargs.get("view")}" View, "App_item" I
-                WHERE user_id = {kwargs.get("user_id")}
+                FROM "App_price" P, "App_{kwargs.get("view")}" _view, "App_item" I
+                WHERE _view.user_id = {kwargs.get("user_id", -1)}
                     AND I.item_id = '{item_id}'
                     AND P.item_id = I.item_id
-                    AND I.item_id = View.item_id
+                    AND I.item_id = _view.item_id
                 GROUP BY I.item_id, P.date
                 ORDER BY date ASC
             '''
@@ -637,7 +637,6 @@ class DatabaseManagment():
                 GROUP BY {metric}, I.item_id, P.date
                 ORDER BY date ASC
                 '''        
-
         return self.SELECT(sql)
     
 
@@ -749,7 +748,10 @@ class DatabaseManagment():
         FROM "App_item"
         WHERE item_id = '{item_id}'
         '''
-        return self.SELECT(sql, fetchone=True)
+        result = self.SELECT(sql, fetchone=True)[0]
+        if result == None:
+            return 0
+        return result
     
     def get_new_items(self) -> list[str]:
         #REMOVE WHERE CLAUSE, only items where y_released = 1900 is stored in "App_price"
