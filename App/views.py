@@ -261,7 +261,7 @@ def trending(request):
 
     for _item in items:
         _item["metric_changes"] = get_metric_changes(_item["item_id"], max_date=f"'{max_date}'", min_date=f"'{min_date}'")
-
+    
     context = {
         "items":items,
         "show_graph":True,

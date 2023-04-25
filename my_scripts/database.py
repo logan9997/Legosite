@@ -5,7 +5,7 @@ import os
 class DatabaseManagment():
 
     def __init__(self) -> None:
-        DEVELOPMENT = True
+        DEVELOPMENT = False
 
         if not DEVELOPMENT:
             file_name = "./heroku_database_credentials.txt"
