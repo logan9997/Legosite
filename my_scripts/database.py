@@ -190,7 +190,6 @@ class DatabaseManagment():
             ORDER BY Change DESC, I.item_id
             {limit_sql}
         '''
-        print(sql)
         return self.SELECT(sql)
     
 
@@ -527,21 +526,15 @@ class DatabaseManagment():
                 SELECT {change_metric}
                 FROM "App_price" P2
                 WHERE P2.item_id = P1.item_id
-                    AND date = (
-                        SELECT min(date)
-                        FROM "App_price"
-                    ) 
-            ) - {change_metric}) *-1.0 /  (
-            (
+                    AND date = (SELECT min(date) FROM "App_price") 
+            ) - {change_metric}) *-1.0 /  
+            NULLIF((
                 SELECT {change_metric}
                 FROM "App_price" P2
                 WHERE P2.item_id = P1.item_id
-                    AND date = (
-                        SELECT min(date)
-                        FROM "App_price"
-                    ) 
-                ) + 0.00001) * 100
-            AS numeric) ,2)
+                    AND date = (SELECT min(date) FROM "App_price") 
+                ),0) * 100
+            AS numeric) ,2) AS Change
             FROM "App_price" P1, "App_item" I, "App_theme" T
             WHERE I.item_id = P1.item_id 
                 AND T.item_id = I.item_id
@@ -549,7 +542,7 @@ class DatabaseManagment():
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
                     FROM "App_price" P2  
                     GROUP BY item_id
-                )          
+                )        
         '''
         return self.SELECT(sql)
 
@@ -620,10 +613,10 @@ class DatabaseManagment():
         self.con.commit()
 
 
-    def get_item_graph_info(self,item_id, metric, **kwargs) -> list[str]:
+    def get_item_graph_info(self,item_id, metric_or_date, **kwargs) -> list[str]:
         if kwargs.get("user_id") != -1 and kwargs.get("view", "item") != "item":
             sql = f'''
-                SELECT {metric}, date
+                SELECT {metric_or_date}
                 FROM "App_price" P, "App_{kwargs.get("view")}" _view, "App_item" I
                 WHERE _view.user_id = {kwargs.get("user_id", -1)}
                     AND I.item_id = '{item_id}'
@@ -634,14 +627,14 @@ class DatabaseManagment():
             '''
         else:
             sql = f'''
-                SELECT {metric}, date
+                SELECT {metric_or_date}
                 FROM "App_price" P, "App_item" I
                 WHERE I.item_id = '{item_id}'
                     AND P.item_id = I.item_id
-                GROUP BY {metric}, I.item_id, P.date
+                GROUP BY {metric_or_date}, I.item_id, P.date
                 ORDER BY date ASC
                 '''        
-        return self.SELECT(sql)
+        return [result[0] for result in self.SELECT(sql)]
     
 
     def get_sub_theme_set(self ,theme_path:str, sub_theme_indent:int):

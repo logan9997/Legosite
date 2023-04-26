@@ -3,24 +3,6 @@ import time
 import itertools
 from datetime import datetime
 
-from .models import (
-    User,
-    Item, 
-    Theme,
-    Price,
-    Piece,
-    Portfolio,
-    PieceParticipation,
-    SetParticipation,
-    Watchlist
-)
-
-from django.db.models import (
-    Q,
-    Sum,
-    Count,
-) 
-
 from .config import *
 
 def timer(func):
@@ -105,7 +87,7 @@ def item_owned_quantity(item_dict:dict, **kwargs):
     return item_dict
 
 
-def add_metric_changes(metric_changes:list[str], item_dict:dict, **kwargs):
+def add_metric_changes(metric_changes:list[str], item_dict:dict):
     item_dict["metric_changes"] = {}
     for metric in metric_changes:
         item_dict["metric_changes"][metric] = DB.get_item_metric_changes(item_dict["item_id"], metric, kwargs.get("user_id", -1))
@@ -115,7 +97,7 @@ def add_metric_changes(metric_changes:list[str], item_dict:dict, **kwargs):
 def add_graph_data(item_dict:dict, **kwargs):
     item_dict.update({
         "chart_id":f"{item_dict['item_id']}_chart" + f"{kwargs.get('item_group', '')}",
-        "dates":append_graph_dates(item_dict['item_id']),
+        "dates":append_item_graph_info(item_dict['item_id'], 'date', **kwargs),
         "dates_id":f"{item_dict['item_id']}_dates" + f"{kwargs.get('item_group', '')}",
     })
 
@@ -193,8 +175,7 @@ def format_super_sets(sets):
     return set_dicts
 
 
-def biggest_theme_trends():
-    themes = DB.biggest_theme_trends("avg_price")
+def format_biggest_theme_trends(themes):
     themes_formated = [
         {
             "theme_path":theme[0],
@@ -202,31 +183,16 @@ def biggest_theme_trends():
         } 
         for theme in themes]
     
+    themes_formated = [theme for theme in themes_formated if theme["change"] != None]
+    
+    themes_formated = sorted(themes_formated, key=lambda x:x["change"], reverse=True)
+
     losers_and_winners = {
-        "biggest_winners":sorted(themes_formated[:5], key=lambda x:x["change"]),
-        "biggest_losers":sorted(themes_formated[-5:][::-1], key=lambda x:x["change"], reverse=True)
+        "biggest_winners":themes_formated[:5],
+        "biggest_losers":sorted(themes_formated[-5:], key=lambda x:x["change"])
     }
 
     return losers_and_winners 
-
-def get_current_page(request, portfolio_items:list, items_per_page) -> int:
-
-    current_page = int(request.GET.get("page", 1)) 
-
-    pages = math.ceil(len(portfolio_items) / items_per_page) 
-    #boundaries for next and back page
-    back_page = current_page - 1
-    next_page = current_page + 1
-
-    if current_page == pages: 
-        next_page = current_page
-    elif current_page == 1:
-        back_page = current_page
-
-    if back_page <= 0:
-        back_page = 1
-
-    return back_page, current_page, next_page
 
 
 def get_change_password_error_message(rules:list[dict[str, str]]) -> str:
@@ -264,15 +230,13 @@ def sort_dropdown_options(options:list[dict[str,str]], field:str) -> list[dict[s
     
     return options
 
+
 def get_sub_themes(user_id:int, parent_themes:list[str], themes:list[dict], indent:int, view:str, metric:str) -> list[str]:
 
     indent += 1
     for theme in parent_themes:
         sub_themes = DB.sub_themes(user_id, theme[0], view, metric)
         sub_themes = [theme_path for theme_path in sub_themes if theme_path.count("~") == indent]
-
-        # if theme[0] in [theme["theme_path"] for theme in themes]:
-        #     break
 
         themes.append({
             "theme_path":theme[0],
@@ -302,7 +266,7 @@ def clear_session_url_params(request, *keys:str, **sub_dict:dict):
     return request
 
 
-def check_page_boundaries(current_page, list_len:int, items_per_page:int):
+def check_page_boundaries(current_page, list_len:int, items_per_page:int) -> int:
 
     try:
         current_page = int(current_page)
@@ -355,38 +319,9 @@ def slice_num_pages(list_len:int, current_page:int, items_per_page:int):
     return num_pages
 
 
-def condence_list(_list:list, limit:int) -> list:
-
-    if len(_list) > limit:
-
-        first = _list[0]
-        last = _list[-1]
-
-        remove_gap = math.ceil(len(_list) / limit)
-        _list = [data for i, data in enumerate(_list, 1) if (i+1) % remove_gap == 0]
-
-        _list[0] = first
-        _list[-1] = last
-
-    return _list
-
-
-def append_item_graph_info(item_id:str, graph_metric:str, **kwargs):
-    metric_data = []
-    
-    for metric_info in DB.get_item_graph_info(item_id, graph_metric, **kwargs):
-        metric_data.append(metric_info[0])
-
+def append_item_graph_info(item_id:str, metric_or_date, **kwargs):
+    metric_data = DB.get_item_graph_info(item_id, metric_or_date, **kwargs)
     return metric_data
-
-
-def append_graph_dates(item_id, **kwargs):
-    dates = []
-    for price_date_info in DB.get_item_graph_info(item_id, "avg_price", **kwargs):
-        dates.append(price_date_info[1])
-
-    return dates
-
 
 
 def save_POST_params(request) -> tuple[dict, dict]:
@@ -413,8 +348,8 @@ def extend_remove_words(words:list, *args) -> list:
 
 
 
-def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, item_id:str, items:list[str], i:int) -> tuple[int, list]:
-    for sub in itertools.combinations(single_words, i):
+def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, item_id:str, items:list[str], combinations:int) -> tuple[int, list]:
+    for sub in itertools.combinations(single_words, combinations):
         sql_like = "AND " + ''.join([f"item_name LIKE '%{word}%' AND " for word in sub])[:-4]
         new_items = DB.get_similar_items(item_name, item_type, item_id, sql_like)
 
@@ -422,12 +357,22 @@ def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, 
             if len(items) < MAX_SIMILAR_ITEMS and item not in items:
                 items.append(item)
                 if len(items) >= MAX_SIMILAR_ITEMS:
-                    return i, list(dict.fromkeys(items))
+                    return combinations, list(dict.fromkeys(items))
 
         if len(sub) <= 3 and len(items) >= 3:
-            return i, items
+            return combinations, items
 
-    return i, []
+    return combinations, []
+
+
+def shorten_len_return_value(_list:list) -> int:
+    #shorten combinations if too many words to parse through
+    length_convert = {
+        len(_list) < 5:1,
+        len(_list) >= 5 and len(_list) < 9: 2,
+        len(_list) >= 9:3
+    }
+    return length_convert[True]
 
 
 def get_similar_items(item_name:str, item_type:str, item_id:str) -> list:
@@ -437,41 +382,37 @@ def get_similar_items(item_name:str, item_type:str, item_id:str) -> list:
     remove_words = extend_remove_words(remove_words, COLOURS, EXTRA_WORDS)
 
     single_words = [
-        ''.join(char for char in word if char not in REMOVE_CHARS) 
-        for word in item_name.split(" ")
-        if len(word) > 3 and ''.join(char for char in word if char not in REMOVE_CHARS) not in remove_words
+        word.translate(''.join(REMOVE_CHARS)) for word in item_name.split(" ") 
+        if len(word) > 3 and word.translate(''.join(REMOVE_CHARS)) not in remove_words
     ]
 
-    i = len(single_words) ; items = []
+    items = []
 
-    #shorten i if too many words to parse through
-    length_single_words_convert = {
-        len(single_words) < 5:1,
-        len(single_words) >= 5 and len(single_words) < 9: 2,
-        len(single_words) >= 9:3
-    }
-    i = i // length_single_words_convert[True]
+    combinations = len(single_words)
+    combinations = combinations // shorten_len_return_value(single_words)
     
-    if i > 3:
-        i = 3
+    #set limit for substring combinations
+    if combinations > 3:
+        combinations = 3
 
     while True:
-        i, items = similar_items_iterate(single_words, item_name, item_type, item_id, items, i)
+        combinations, items = similar_items_iterate(single_words, item_name, item_type, item_id, items, combinations)
 
-        if len(items) >= MAX_SIMILAR_ITEMS or i <= 1:
+        if len(items) >= MAX_SIMILAR_ITEMS or combinations <= 1:
             break
 
-        i -= 1
+        combinations -= 1
     return items[:MAX_SIMILAR_ITEMS]
 
 
-def get_metric_changes(item_id, **kwargs) -> list[dict]:
-
+def format_metric_changes(metrics) -> list[dict]:
     changes = [
         {
-            "metric" : " ".join(list(map(str.capitalize, metric_change.split("_")))), 
-            "change" : DB.get_item_metric_changes(item_id, metric_change, **kwargs)
+            "metric" : " ".join(list(map(
+                str.capitalize, ALL_METRICS[i].split("_")
+            ))), 
+            "change" : metric
         } 
-        for metric_change in ALL_METRICS
+        for i, metric in enumerate(metrics)
     ]
     return changes

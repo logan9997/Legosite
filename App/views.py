@@ -179,8 +179,8 @@ def item(request, item_id):
     sub_sets = DB.get_item_subsets(item_id)
     super_sets = DB.get_item_supersets(item_id)
 
-    metric_changes = get_metric_changes(item_id)
-
+    metric_changes = [DB.get_item_metric_changes(item_id, metric) for metric in ALL_METRICS]
+    metric_changes = format_metric_changes(metric_changes)
 
     context = {
         "show_year_released_availability":True,
@@ -233,8 +233,8 @@ def trending_POST(request):
 
 def trending(request):
 
-    trending_order = request.session.get("trending_order", "avg_price-desc") 
-    current_page = request.session.get("current_page", 1)
+    trending_order:str = request.session.get("trending_order", "avg_price-desc") 
+    current_page:int = request.session.get("current_page", 1)
 
     graph_options = sort_dropdown_options(get_graph_options(), trending_order.split("-")[0])
     trend_options = sort_dropdown_options(get_trending_options(), trending_order)
@@ -244,8 +244,6 @@ def trending(request):
 
     max_date = str(request.session.get("slider_end_date"))
     min_date = str(request.session.get("slider_start_date"))
-
-    print(min_date, max_date)
 
     slider_start_value = request.session.get("slider_start_value", len(dates) -1) 
     slider_end_value = request.session.get("slider_end_value", len(dates) -1)
@@ -262,7 +260,9 @@ def trending(request):
     items = format_item_info(items, metric_trends=[trending_order.split("-")[0]], graph_data=[trending_order.split("-")[0]])
 
     for _item in items:
-        _item["metric_changes"] = get_metric_changes(_item["item_id"], max_date=f"'{max_date}'", min_date=f"'{min_date}'")
+        metrics = [DB.get_item_metric_changes(_item["item_id"], metric) for metric in ALL_METRICS]
+        metrics = format_metric_changes(metrics)
+        _item["metric_changes"] = metrics
     
     context = {
         "items":items,
@@ -382,6 +382,10 @@ def search(request, theme_path='all'):
             field = theme_sort_option.split("-")[0]
             sub_themes = sort_themes(field, order, sub_themes)
 
+    biggest_theme_trends = DB.biggest_theme_trends("avg_price")
+
+    print(biggest_theme_trends)
+
     context = {
         "show_graph":True,
         "current_page":current_page,
@@ -392,7 +396,7 @@ def search(request, theme_path='all'):
         "theme_sort_options":theme_sort_options,
         "graph_options":graph_options,
         "sort_options":sort_options,
-        "biggest_theme_trends":biggest_theme_trends(),
+        "biggest_theme_trends":format_biggest_theme_trends(biggest_theme_trends),
         "theme_hrefs":theme_hrefs,
     }
     
