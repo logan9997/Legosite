@@ -5,7 +5,7 @@ import os
 class DatabaseManagment():
 
     def __init__(self) -> None:
-        DEVELOPMENT = False
+        DEVELOPMENT = True
 
         if not DEVELOPMENT:
             file_name = "./heroku_database_credentials.txt"
@@ -154,7 +154,7 @@ class DatabaseManagment():
     
         max_date_sql = kwargs.get("max_date", "")
         if "max_date" in kwargs:
-            max_date_sql = f"AND date <= '{max_date_sql}'"
+            max_date_sql = f"WHERE date <= '{max_date_sql}'"
         
         limit_sql = kwargs.get("limit", "")
         if "limit" in kwargs:
@@ -167,14 +167,14 @@ class DatabaseManagment():
                     SELECT {change_metric}
                     FROM "App_price" P2
                     WHERE P2.item_id = P1.item_id
-                        AND (I.item_id, date) = ANY (SELECT DISTINCT ON (item_id) item_id, min(date) FROM "App_price" GROUP BY item_id)  
+                        AND (I.item_id, date) = ANY (SELECT DISTINCT ON (item_id) item_id, min(date) FROM "App_price" {min_date_sql} GROUP BY item_id)  
                 ) 
                 - {change_metric}) *-1.0 /  NULLIF(
                 (
                     SELECT {change_metric}
                     FROM "App_price" P2
                     WHERE P2.item_id = P1.item_id
-                        AND (I.item_id, date) = ANY (SELECT DISTINCT ON (item_id) item_id, min(date) FROM "App_price" GROUP BY item_id) 
+                        AND (I.item_id, date) = ANY (SELECT DISTINCT ON (item_id) item_id, min(date) FROM "App_price" {min_date_sql} GROUP BY item_id) 
                 )
                 ,0) 
             AS numeric)* 100,2)) as Change
@@ -184,13 +184,13 @@ class DatabaseManagment():
                 AND (I.item_id, date) = any (
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
                     FROM "App_price" P2
-                    {min_date_sql}  
                     {max_date_sql} 
                     GROUP BY item_id
                 )
             ORDER BY Change DESC, I.item_id
             {limit_sql}
         '''
+        print(sql)
         return self.SELECT(sql)
     
 

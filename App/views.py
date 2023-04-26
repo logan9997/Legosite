@@ -245,6 +245,8 @@ def trending(request):
     max_date = str(request.session.get("slider_end_date"))
     min_date = str(request.session.get("slider_start_date"))
 
+    print(min_date, max_date)
+
     slider_start_value = request.session.get("slider_start_value", len(dates) -1) 
     slider_end_value = request.session.get("slider_end_value", len(dates) -1)
 
