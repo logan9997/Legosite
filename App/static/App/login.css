@@ -41,20 +41,15 @@ label {
     font-style:italic ;
 }
 
+.max-chars {
+    font-size: 0.7rem;
+}
+
 input[type=submit] {
-    width: 10rem;
+    width: 10.5rem;
     height: 3rem;
     border-radius: 1rem;
     background-color: orangered;
-}
-
-.background-img {
-    border: 0.1rem yellow solid;
-    border-radius: 1rem;
-    padding: 1rem;
-    width: 26rem;
-    height: auto;
-
 }
 
 #portfolio-sample {

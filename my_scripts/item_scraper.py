@@ -83,6 +83,7 @@ class Scraper():
                     themes[theme_index] = theme_name
                     break
 
+
     def split_theme_name_by_first_char(self, theme):
         #find first char in theme name to split.
         for char in theme:
@@ -120,7 +121,7 @@ class Scraper():
         theme_details_list = []
 
         #loop through each item type
-        for item_type in ["S"]: #,'S' 
+        for item_type in ["M"]: #,'S' 
             #get the catalog page for each item type
             if item_type == "S":
                 self.driver.get(f'https://www.bricklink.com/catalogTree.asp?itemType=S#dacta')
@@ -194,7 +195,10 @@ class Scraper():
                 print("theme_details - ", theme_details)
 
                 #ADD TO DATABASE
-                DB.add_theme_details(theme_details, item_type)
+                try:
+                    DB.add_theme_details(theme_details, item_type)
+                except:
+                    pass
 
                 #add path and id to the dict which already contains lists of sets and minifigs END OF LOOP
                 theme_details_list.append(theme_details)

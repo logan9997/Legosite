@@ -1,4 +1,5 @@
 from django import forms
+from .config import *
 
 class ItemSelect(forms.Form):
     item_id = forms.CharField(max_length=20)
@@ -21,15 +22,15 @@ class PortfolioItemsSort(forms.Form):
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=416)
-    password = forms.CharField(max_length=142)
+    username = forms.CharField(max_length=USERNAME_LENGTH)
+    password = forms.CharField(max_length=PASSWORD_LENGTH)
 
 
 class SignupFrom(forms.Form):
-    email = forms.CharField(max_length=60)
-    username = forms.CharField(max_length=16)
-    password = forms.CharField(max_length=22)
-    password_confirmation = forms.CharField(max_length=22)
+    email = forms.EmailField(max_length=EMAIL_LENGTH)
+    username = forms.CharField(max_length=USERNAME_LENGTH)
+    password = forms.CharField(max_length=PASSWORD_LENGTH)
+    password_confirmation = forms.CharField(max_length=PASSWORD_LENGTH)
 
 
 class AddOrRemovePortfolioItem(forms.Form):
@@ -42,20 +43,20 @@ class AddOrRemovePortfolioItem(forms.Form):
 
 
 class ChangePassword(forms.Form):
-    old_password = forms.CharField(max_length=22)
-    new_password = forms.CharField(max_length=22)
-    confirm_password = forms.CharField(max_length=22)
+    old_password = forms.CharField(max_length=PASSWORD_LENGTH)
+    new_password = forms.CharField(max_length=PASSWORD_LENGTH)
+    confirm_password = forms.CharField(max_length=PASSWORD_LENGTH)
 
 
 class EmailPreferences(forms.Form):
-    email = forms.CharField(max_length=64)
+    email = forms.CharField(max_length=EMAIL_LENGTH)
     preference = forms.MultipleChoiceField(choices=(
         ("Never", "Never"), ("Occasional", "Occasional"), ("All", "All")
     ))
 
 
 class PersonalInfo(forms.Form):
-    username = forms.CharField(max_length=16)
+    username = forms.CharField(max_length=USERNAME_LENGTH)
 
 
 class SearchSort(forms.Form):

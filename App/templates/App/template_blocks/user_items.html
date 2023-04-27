@@ -20,6 +20,7 @@
 
     <section id="tool-bar">
             {% if request.GET.item != None%}
+
                 <div class="tool-bar-div" id="stats">
                     <h3>Stats</h3>
                     <p>Total Market Value : £{{total_market_value|two_decimals}}</p>
@@ -37,6 +38,24 @@
                     <br>
                 </div>
             {% else %}
+
+            <div class="tool-bar-div" id="filters">
+                <h3>Filters</h3>
+                <form action="{% url 'view_POST' view %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="form-type" value="theme-filter">
+                    {% for theme in themes %}
+                    <div class="theme-checkbox-container">
+                        <label for="{{theme.theme_path}}">{{theme.theme_path|count_theme_indent}}</label>
+                        {% if theme.theme_path in filtered_themes %}
+                            <input type="checkbox" name="theme-path" value="{{theme.theme_path}}" checked onchange="form.submit()">
+                        {% else %}
+                            <input type="checkbox" name="theme-path" value="{{theme.theme_path}}" onchange="form.submit()">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </form>
+            </div>
 
             <div class="tool-bar-div" id="stats">
                 <h3>Stats</h3>
@@ -146,7 +165,11 @@
                 <div id="metric-change-container">
                     <h3>Trends</h3>
                     {% for trend in metric_changes %}
-                        <p>{{trend.metric|capitalise_split_words}} : (%) {{trend.change}}</p>
+                        {% if trend.change >= 0 %}
+                            <p style="color:green">{{trend.metric|capitalise_split_words}} : (%) {{trend.change}}</p>
+                        {% else %}
+                            <p style="color:red">{{trend.metric|capitalise_split_words}} : (%) {{trend.change}}</p>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>

@@ -1,7 +1,6 @@
 import math
 import time
 import itertools
-from datetime import datetime
 
 from .config import *
 
@@ -13,6 +12,7 @@ def timer(func):
         print(f"\n<{func.__name__.upper()}> finished in {finish} seconds.\n")
         return result 
     return inner
+
 
 def base_url(request) -> str:
     return request.get_host().strip(" ")
@@ -109,6 +109,11 @@ def add_graph_data(item_dict:dict, **kwargs):
     return item_dict
 
 
+def append_item_graph_info(item_id:str, metric_or_date, **kwargs):
+    metric_data = DB.get_item_graph_info(item_id, metric_or_date, **kwargs)
+    return metric_data
+
+
 def format_portfolio_items(items):
     item_dicts = []
     for _item in items:
@@ -148,7 +153,7 @@ def format_theme_items(theme_items):
 
 
 def format_sub_sets(pieces):
-    set_dicts = []
+    pieces_dicts = []
     for piece in pieces:
         set_dict = {
             "piece_id":piece[0],
@@ -157,8 +162,8 @@ def format_sub_sets(pieces):
             "quantity":piece[3],
             "img_path":f"App/pieces/{piece[2]}_{piece[0]}.png",
         }
-        set_dicts.append(set_dict)
-    return set_dicts
+        pieces_dicts.append(set_dict)
+    return pieces_dicts
 
 
 def format_super_sets(sets):
@@ -184,7 +189,6 @@ def format_biggest_theme_trends(themes):
         for theme in themes]
     
     themes_formated = [theme for theme in themes_formated if theme["change"] != None]
-    
     themes_formated = sorted(themes_formated, key=lambda x:x["change"], reverse=True)
 
     losers_and_winners = {
@@ -214,6 +218,27 @@ def sort_themes(field:str, order:str, sub_themes:list[str]) -> list[str]:
     #else:
 
 
+def get_login_error_message(form):
+    error = str(form.errors)
+    errors = list(filter(lambda x:x != "</ul>", error.split("</li>")))
+    print(errors)
+
+    if "Enter a valid email address" in error:
+        error_msg = "Invalid Email"
+
+    elif "Ensure this value has at most" in error:
+        max_chars = error.split("Ensure this value has at most ")[1].split(" characters")[0]
+        field = error.split('<ul class="errorlist"><li>')[1]
+        error_msg = f"{field.capitalize()} has a maximum length of {max_chars} characters."
+    else:
+        error_msg = "Please fill in all required fields (*)"
+    return error_msg
+
+
+def validate_username(username):
+    pass
+
+
 def sort_items(items, sort , **order) -> list[dict]:
     sort_field = sort.split("-")[0]
     order = {"asc":False, "desc":True}[sort.split("-")[1]]
@@ -223,8 +248,15 @@ def sort_items(items, sort , **order) -> list[dict]:
 
 def sort_dropdown_options(options:list[dict[str,str]], field:str) -> list[dict[str,str]]:
     #loop through all options. If options["value"] matches to desired sort field, assign to variable
-    selected_field = [option for option in options if option["value"] == field][0]
+    selected_field = [option for option in options if option["value"] == field]
 
+    #default, if code above fails 
+    if selected_field == []:
+        print("\n\nFAILS - <sort_dropdown_options>\n\n")
+        selected_field = options[0]
+    else:
+        selected_field = selected_field[0]
+    
     #push selected element to front of list, remove its old position
     options.insert(0, options.pop(options.index(selected_field)))
     
@@ -319,9 +351,7 @@ def slice_num_pages(list_len:int, current_page:int, items_per_page:int):
     return num_pages
 
 
-def append_item_graph_info(item_id:str, metric_or_date, **kwargs):
-    metric_data = DB.get_item_graph_info(item_id, metric_or_date, **kwargs)
-    return metric_data
+
 
 
 def save_POST_params(request) -> tuple[dict, dict]:
@@ -405,14 +435,14 @@ def get_similar_items(item_name:str, item_type:str, item_id:str) -> list:
     return items[:MAX_SIMILAR_ITEMS]
 
 
+def split_capitalize(string:str, split_value:str):
+    return " ".join(list(map(str.capitalize, string.split(split_value))))
+
+
 def format_metric_changes(metrics) -> list[dict]:
-    changes = [
-        {
-            "metric" : " ".join(list(map(
-                str.capitalize, ALL_METRICS[i].split("_")
-            ))), 
-            "change" : metric
-        } 
-        for i, metric in enumerate(metrics)
-    ]
+    changes = {
+        split_capitalize(ALL_METRICS[i], "_") : change
+    for i, change in enumerate(metrics)}
+
     return changes
+

@@ -9,6 +9,12 @@ from .config import *
 RESP = Response()
 DB = DatabaseManagment()
 
+#forms
+USERNAME_LENGTH = 16
+PASSWORD_LENGTH = 22
+EMAIL_LENGTH = 50
+
+
 RECENTLY_VIEWED_ITEMS_NUM = 6
 PAGE_NUM_LIMIT = 8
 SEARCH_ITEMS_PER_PAGE = 50
@@ -21,6 +27,7 @@ MAX_GRAPH_POINTS_ITEM_VIEW = 40
 ALL_METRICS = ["avg_price", "min_price", "max_price", "total_quantity"]
 
 REMOVE_CHARS = ["(", ")"]
+INVALID_USERNAME_CHARS = []
 
 COLOURS = [
     "aqua", "black", "blue", "green", "orange",

@@ -60,7 +60,7 @@
                     {% for theme in biggest_theme_trends.biggest_winners %}
                     <tr>
                         <td class="theme-path">{{theme.theme_path|replace_space_substitute}}</td>
-                        <td class="change">%{{theme.change|absolute_value}}</td>
+                        <td class="change">%{{theme.change}}</td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -72,7 +72,7 @@
                 {% for theme in biggest_theme_trends.biggest_losers %}
                 <tr>
                     <td class="theme-path">{{theme.theme_path|replace_space_substitute}}</td>
-                    <td class="change">%{{theme.change|absolute_value}}</td>
+                    <td class="change">%{{theme.change}}</td>
                 </tr>
                 {% endfor %}
                 </table>

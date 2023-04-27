@@ -29,20 +29,36 @@ class DatabaseManagment():
 
     def add_pieces(self, info):
         sql = f'''
-            INSERT INTO "App_piece"('piece_name', 'piece_id', 'type') 
+            INSERT INTO "App_piece"("piece_name", "piece_id", "type") 
             VALUES ('{info["piece_name"]}', '{info["piece_id"]}', '{info["type"]}')
         '''
-        self.cursor.execute(sql)
+        self.cursor.execute(sql)   
         self.con.commit()
+
+
+    def get_pieces(self):
+        sql = '''
+            SELECT piece_id
+            FROM "App_piece"
+        '''
+        return [piece[0] for piece in self.SELECT(sql)]
+    
+
+    def get_piece_participations(self):
+        sql = '''
+            SELECT piece_id, item_id
+            FROM "App_pieceparticipation"
+        '''
+        return self.SELECT(sql)
 
 
     def add_piece_participation(self, info):
         sql = f'''
-            INSERT INTO "App_pieceparticipation" ('item_id', 'piece_id', 'quantity', 'colour_id') 
+            INSERT INTO "App_pieceparticipation" ("item_id", "piece_id", "quantity", "colour_id") 
             VALUES ('{info["item_id"]}', '{info["piece_id"]}', '{info["quantity"]}', '{info["colour_id"]}')
         '''
-        self.cursor.execute(sql)
-        self.con.commit()   
+        self.cursor.execute(sql)  
+        self.con.commit() 
 
 
     def add_price_info(self, item) -> None:
@@ -160,24 +176,28 @@ class DatabaseManagment():
         if "limit" in kwargs:
             limit_sql = f"LIMIT {limit_sql}"
 
+        change_calculation_sql = f'''
+        ROUND(CAST(
+            ((
+                SELECT {change_metric}
+                FROM "App_price" P2
+                WHERE P2.item_id = P1.item_id
+                    AND (I.item_id, date) = ANY (SELECT DISTINCT ON (item_id) item_id, min(date) FROM "App_price" {min_date_sql} GROUP BY item_id)  
+            ) 
+            - {change_metric}) *-1.0 /  NULLIF(
+            (
+                SELECT {change_metric}
+                FROM "App_price" P2
+                WHERE P2.item_id = P1.item_id
+                    AND (I.item_id, date) = ANY (SELECT DISTINCT ON (item_id) item_id, min(date) FROM "App_price" {min_date_sql} GROUP BY item_id) 
+            )
+            ,0) 
+        AS numeric)* 100,2)
+        '''
+
         sql = f'''
-            SELECT DISTINCT ON (I.item_id, Change) I.item_id, item_name, year_released, item_type, avg_price, 
-            min_price, max_price, total_quantity, ABS(ROUND(CAST(
-                ((
-                    SELECT {change_metric}
-                    FROM "App_price" P2
-                    WHERE P2.item_id = P1.item_id
-                        AND (I.item_id, date) = ANY (SELECT DISTINCT ON (item_id) item_id, min(date) FROM "App_price" {min_date_sql} GROUP BY item_id)  
-                ) 
-                - {change_metric}) *-1.0 /  NULLIF(
-                (
-                    SELECT {change_metric}
-                    FROM "App_price" P2
-                    WHERE P2.item_id = P1.item_id
-                        AND (I.item_id, date) = ANY (SELECT DISTINCT ON (item_id) item_id, min(date) FROM "App_price" {min_date_sql} GROUP BY item_id) 
-                )
-                ,0) 
-            AS numeric)* 100,2)) as Change
+            SELECT  I.item_id, item_name, year_released, item_type, avg_price, 
+            min_price, max_price, total_quantity, {change_calculation_sql}  
 
             FROM "App_price" P1, "App_item" I
             WHERE I.item_id = P1.item_id 
@@ -187,7 +207,7 @@ class DatabaseManagment():
                     {max_date_sql} 
                     GROUP BY item_id
                 )
-            ORDER BY Change DESC, I.item_id
+            ORDER BY ABS({change_calculation_sql}) DESC
             {limit_sql}
         '''
         return self.SELECT(sql)
@@ -242,9 +262,19 @@ class DatabaseManagment():
     
 
     def get_item_metric_changes(self, item_id, change_metric, **kwargs):
-        min_date = kwargs.get("min_date", f"""(SELECT MIN(date) FROM "App_price" WHERE item_id = '{item_id}')""")     
-        max_date = kwargs.get("max_date", f"""(SELECT MAX(date) FROM "App_price" WHERE item_id = '{item_id}')""")      
+        min_date = kwargs.get("min_date", "")     
+        max_date = kwargs.get("max_date", "") 
 
+        min_date_sql = ""
+        if min_date != "":
+            min_date_sql = f"AND date >= '{min_date}'" 
+
+        max_date_sql = ""
+        if max_date != "":
+            max_date_sql = f"AND date <= '{max_date}'"     
+
+        min_date_sql = f"""(SELECT MIN(date) FROM "App_price" WHERE item_id = '{item_id}' {min_date_sql})"""
+        max_date_sql = f"""(SELECT MAX(date) FROM "App_price" WHERE item_id = '{item_id}' {max_date_sql})"""
 
         sql = f'''
             SELECT ROUND(CAST((
@@ -252,16 +282,16 @@ class DatabaseManagment():
                     FROM "App_price" P2
                     WHERE P2.ITEM_ID = P1.ITEM_ID
                         AND I.ITEM_ID = '{item_id}'
-                        AND date = {min_date} ) - {change_metric}) * - 1.0 /
+                        AND date = {min_date_sql} ) - {change_metric}) * - 1.0 /
                 NULLIF((SELECT {change_metric}
                     FROM "App_price" P2
                     WHERE P2.ITEM_ID = P1.ITEM_ID
                         AND I.ITEM_ID = '{item_id}'
-                        AND date = {min_date}), 0) * 100 AS numeric),2)
+                        AND date = {min_date_sql}), 0) * 100 AS numeric),2)
             FROM "App_price" P1,"App_item" I
             WHERE I.ITEM_ID = P1.ITEM_ID
                 AND I.ITEM_ID = '{item_id}'
-                AND date = {max_date}
+                AND date = {max_date_sql}
             '''
         return self.SELECT(sql, fetchone=True)[0]
 

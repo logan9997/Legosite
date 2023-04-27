@@ -220,8 +220,6 @@ def trending_POST(request):
     slider_start_value = int(options.get("slider_start", 1)) -1 
     slider_end_value = int(options.get("slider_end", len(dates))) -1
 
-    print("VALUES", slider_start_value, slider_end_value)
-
     request.session["slider_start_date"] = dates[slider_start_value].strftime('%Y-%m-%d')
     request.session["slider_start_value"] = slider_start_value
 
@@ -234,9 +232,10 @@ def trending_POST(request):
 def trending(request):
 
     trending_order:str = request.session.get("trending_order", "avg_price-desc") 
+    trending_metric = trending_order.split("-")[0]
     current_page:int = request.session.get("current_page", 1)
 
-    graph_options = sort_dropdown_options(get_graph_options(), trending_order.split("-")[0])
+    graph_options = sort_dropdown_options(get_graph_options(), trending_metric)
     trend_options = sort_dropdown_options(get_trending_options(), trending_order)
 
     dates = list(Price.objects.distinct("date").values_list("date", flat=True))
@@ -248,7 +247,7 @@ def trending(request):
     slider_start_value = request.session.get("slider_start_value", len(dates) -1) 
     slider_end_value = request.session.get("slider_end_value", len(dates) -1)
 
-    items = DB.get_biggest_trends(trending_order.split("-")[0], max_date=max_date, min_date=min_date)
+    items = DB.get_biggest_trends(trending_metric, max_date=max_date, min_date=min_date)
 
     #remove trending items if % change (-1) is equal to None (0.00)
     items = [_item for _item in items if _item[-1] != None]
@@ -257,13 +256,15 @@ def trending(request):
     num_pages = slice_num_pages(len(items), current_page, TRENDING_ITEMS_PER_PAGE)
 
     items = items[(current_page-1) * TRENDING_ITEMS_PER_PAGE : (current_page) * TRENDING_ITEMS_PER_PAGE]
-    items = format_item_info(items, metric_trends=[trending_order.split("-")[0]], graph_data=[trending_order.split("-")[0]])
+    items = format_item_info(items, metric_trends=[trending_metric], graph_data=[trending_metric])
 
     for _item in items:
-        metrics = [DB.get_item_metric_changes(_item["item_id"], metric) for metric in ALL_METRICS]
+        metrics = [DB.get_item_metric_changes(_item["item_id"], metric, max_date=max_date, min_date=min_date) for metric in ALL_METRICS]
         metrics = format_metric_changes(metrics)
         _item["metric_changes"] = metrics
-    
+
+    metric = split_capitalize(trending_metric, "_")
+ 
     context = {
         "items":items,
         "show_graph":True,
@@ -277,7 +278,7 @@ def trending(request):
         "max_slider_start_value":slider_end_value,
         "max_slider_end_value":len(dates),
         "min_slider_end_value":slider_start_value + 2,
-        "metric_data":trending_order.split("-")[0],
+        "metric_data":trending_metric,
     }
 
     clear_session_url_params(request, "graph_metric", "trending_order", "current_page")
@@ -297,7 +298,6 @@ def search_POST(request):
     request.session["graph_metric"] = graph_metric
     request.session["sort_field"] = sort_field
     request.session["current_page"] = current_page
-    print(f"{base_url(request)}/search/{theme_path}")
     return redirect(f"http://{base_url(request)}/search/{theme_path}")
 
 
@@ -333,7 +333,8 @@ def search(request, theme_path='all'):
         #add in
 
         if len(theme_items) == 0:
-            redirect_path = "".join([f"{sub_theme}/" for sub_theme in theme_path.split("/")][:-1])
+            pass
+            #redirect_path = "".join([f"{sub_theme}/" for sub_theme in theme_path.split("/")][:-1])
             #return redirect(f"http://{base_url(request)}/search/{redirect_path}")
     
         sub_theme_indent = request.path.replace("/search/", "").count("/")
@@ -384,8 +385,6 @@ def search(request, theme_path='all'):
 
     biggest_theme_trends = DB.biggest_theme_trends("avg_price")
 
-    print(biggest_theme_trends)
-
     context = {
         "show_graph":True,
         "current_page":current_page,
@@ -403,8 +402,12 @@ def search(request, theme_path='all'):
     return render(request, "App/search.html", context=context)
 
 
+@timer
 def login(request):
-    context = {}
+    context = {
+        "username_max_chars":USERNAME_LENGTH,
+        "password_max_chars":PASSWORD_LENGTH
+    }
 
     if "user_id" in request.session:
         if request.session["user_id"] != -1:
@@ -473,6 +476,7 @@ def login(request):
     return render(request, "App/login.html", context=context)
 
 
+@timer
 def logout(request):
     #when logging out delete user_id. 
 
@@ -484,9 +488,14 @@ def logout(request):
     return redirect("login")
 
 
+@timer
 def join(request):
 
-    context = {}
+    context = {
+        "username_max_chars":USERNAME_LENGTH,
+        "email_max_chars":EMAIL_LENGTH,
+        "password_max_chars":PASSWORD_LENGTH
+    }
 
     if "user_id" in request.session:
         if request.session["user_id"] != -1:
@@ -532,12 +541,13 @@ def join(request):
                 context["signup_message"] = "Email already exists"
 
         else:
-            context["signup_message"] = "Please fill in all required fields (*)"
+            context["signup_message"] = get_login_error_message(form)
                
     #add the username to context which can only happen if the user is logged in
     return render(request, "App/join.html", context=context)
 
 
+@timer
 def user_items(request, view, user_id):
 
     if view not in request.META.get('HTTP_REFERER', ""):
@@ -569,7 +579,7 @@ def user_items(request, view, user_id):
 
     total_unique_items = len(items)
     metric_total = {
-        "metric":' '.join(list(map(str.capitalize, graph_metric.split("_")))),
+        "metric":split_capitalize(graph_metric, "_"),
         "total":DB.user_items_total_price(user_id, graph_metric, view) 
         }
 
@@ -591,11 +601,15 @@ def user_items(request, view, user_id):
         "current_page":current_page,
         "show_graph":True,
         "user_id":user_id,
+        "filtered_themes":request.session.get("filtered_themes", [])
     }
+
+    print(context["filtered_themes"])
 
     return context
 
 
+@timer
 def portfolio(request, item_id=None):
 
     if "user_id" not in request.session or request.session["user_id"] == -1:
@@ -650,6 +664,18 @@ def view_POST(request, view):
         request.session["graph_metric"] = request.POST.get("graph-metric", "avg_price")
         request.session["graph_options"] = sort_dropdown_options(get_graph_options(), request.POST.get("graph-metric", "avg_price"))
         return redirect(request.META.get('HTTP_REFERER'))
+    
+
+    if request.POST.get("form-type") == "theme-filter":
+        selected_theme = request.POST.get("theme-path", {})
+
+        if view not in request.META.get('HTTP_REFERER'):
+            pass
+
+        filtered_themes = request.session.get("filtered_themes", [])
+        filtered_themes.append(selected_theme)
+        request.session["filtered_themes"] = filtered_themes
+
 
     if "user_id" not in request.session or request.session["user_id"] == -1:
         return redirect("index")
@@ -827,8 +853,6 @@ def profile(request):
             form = PersonalInfo(request.POST)
             if form.is_valid():
                 username = form.cleaned_data["username"]
-
-                #update username is database
                 User.objects.filter(user_id=user_id).update(username=username)
 
     #USER INFO

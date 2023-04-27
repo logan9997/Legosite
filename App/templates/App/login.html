@@ -13,12 +13,12 @@
     <form action="{% url 'login' %}" method="post">
         {% csrf_token %}
         <div class="input-label-container">
-            <label for="username">Username: *</label>
+            <label for="username">Username: * <br><span class="max-chars"> Max chars - ({{username_max_chars}})</span></label>
             <input type="text" name="username">
         </div>
         <div class="input-label-container">
-            <label for="password">Password: *</label>
-            <input type="text" name="password">
+            <label for="password">Password: * <br><span class="max-chars"> Max chars - ({{password_max_chars}})</span></label>
+            <input type="password" name="password">
         </div>
         <input type="submit" value="Login!">
     </form>

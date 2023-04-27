@@ -26,17 +26,15 @@
                     <span class="tool-tip-icon">?</span>
                     <p class="tool-tip-text">% change since oldest record</p>
                 </div>
-                {% for metric_change in metric_changes %}
-                    {% if metric_change.change < 0 %}
-                        <p class="metric-change"> {{metric_change.metric}} Change (%) <span style="color:red;" >{{ metric_change.change|postivie_or_negative_sign }}</span> </p>
+                {% for metric, change in metric_changes.items %}
+                    {% if change < 0 %}
+                        <p class="metric-change"> {{metric}} Change (%) <span style="color:red;" >{{ change|postivie_or_negative_sign }}</span> </p>
                     {% else %}
-                        <p class="metric-change"> {{metric_change.metric}} Change (%) <span style="color: green;" >{{ metric_change.change|postivie_or_negative_sign }}</span> </p>
+                        <p class="metric-change"> {{metric}} Change (%) <span style="color: green;" >{{ change|postivie_or_negative_sign }}</span> </p>
                     {% endif %}
                 {% endfor %}
                 </div>
-
-
-        </div>
+            </div>
 
         <div class="info-block">
             <h3>Sets and Pieces</h3>

@@ -31,7 +31,11 @@
                 <input type="range" id="slider_start" name="slider_start" min="1" max="{{max_slider_start_value}}" value="{{slider_start_value}}">
                 <input type="range" id="slider_end" name="slider_end" min="{{min_slider_end_value}}" max="{{max_slider_end_value}}" value="{{slider_end_value}}">
             </form>
-            <p id="slider-value">{{dates|iterable_index:slider_start_value}}&nbsp;&nbsp;&nbsp;&nbsp;Range&nbsp;&nbsp;&nbsp;&nbsp;{{dates|iterable_index:slider_end_value}}</p>
+            <p id="slider-value">
+                {{dates|iterable_index:slider_start_value}}
+                {% for i in "01234"|make_list %}&nbsp;{% endfor %}Range{% for i in "01234"|make_list %}&nbsp;{% endfor %}
+                {{dates|iterable_index:slider_end_value}}
+            </p>
         </div>
     </div>
 
@@ -42,11 +46,11 @@
                 {% include 'App/template_blocks/item_container.html' %}
             </div>
             <div class="metric-changes-container">
-                {% for change in item.metric_changes %}
-                    {% if change.change >= 0 %}
-                        <p style="color: green;">{{change.metric}} (%) {{change.change}}</p>
+                {% for metric, change in item.metric_changes.items %}
+                    {% if change >= 0 %}
+                        <p style="color: green;">{{metric}} (%) {{change}}</p>
                     {% else %}
-                        <p style="color: red;">{{change.metric}} (%) {{change.change}}</p>
+                        <p style="color: red;">{{metric}} (%) {{change}}</p>
                     {% endif %}
                 {% endfor %}
             </div>
@@ -75,7 +79,10 @@
 
         var slider_end = document.getElementById("slider_end")
         var slider_end_value = slider_end.value - 1
-        slider_output.textContent = `${items[0].dates[slider_start_value]}\xa0\xa0\xa0\xa0Range\xa0\xa0\xa0\xa0${items[0].dates[slider_end_value]}`
+
+        var string_spaces = '\xa0'.repeat(6)
+
+        slider_output.textContent = `${items[0].dates[slider_start_value]}${string_spaces}Range${string_spaces}${items[0].dates[slider_end_value]}`
     }
 
     submit_form = function() {
