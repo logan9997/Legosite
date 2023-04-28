@@ -35,18 +35,20 @@ def max_search_suggestions():
 
 @register.simple_tag
 def item_ids():
-    return list(Item.objects.filter(
+    return list(map(str.lower, Item.objects.filter(
         item_type="M", theme__theme_path__contains="Star_Wars", 
         item_id__contains="sw"
-        ).values_list("item_id", flat=True).distinct("item_id"))
+        ).values_list("item_id", flat=True).distinct("item_id")))
+
 
 @register.simple_tag
 def item_names():
-    return list(Item.objects.filter(
+    names = list(map(str.lower, Item.objects.filter(
         item_type="M", theme__theme_path__contains="Star_Wars", 
         item_id__contains="sw"
-    ).values_list("item_name", flat=True).distinct("item_id"))
+    ).values_list("item_name", flat=True).distinct("item_id")))
 
+    return ["".join([char for char in name if char not in [")", "(", ",", "-", ""]]) for name in names]
 
 
 @register.filter
@@ -175,6 +177,33 @@ def item_themes(string:str):
     if "~" in string:
         string = "-- " + string.split("~")[1]
     return string
+
+
+@register.filter
+def split(string:str, split_value:str):
+    return string.split(split_value)
+
+
+@register.filter()
+def append(_list:list, value):
+    return _list.append(value)
+
+
+@register.filter
+def strip(string:str, sub_string:str):
+    return string.strip(sub_string)
+
+
+@register.filter
+def replace(string:str, replace_args:str):
+
+    replace_args = replace_args.split("|")
+    if len(replace_args) != 2:
+        return string.replace(replace_args[0])
+    
+    old_str, new_str = replace_args
+
+    return string.replace(old_str, new_str)
 
 
 @register.filter

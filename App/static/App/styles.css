@@ -145,7 +145,7 @@ nav ul li:hover .dropdown-content {
     background-color: white;
     border-bottom: 0.1rem whitesmoke solid; 
     text-decoration: none;
-    color: black;   
+    color: rgb(168, 159, 159);   
 }
 
 .search-suggestion:hover {

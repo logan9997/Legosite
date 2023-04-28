@@ -11,9 +11,9 @@
     <p id="important-info">Only theme with data <a href="{% url 'search' %}Star_Wars">Star Wars</a></p>
 
     <div id="theme-path-container">
-        {% for theme in theme_hrefs %}
-            <a href="{% url 'search' %}{{theme.theme_url}}">{{theme.theme|replace_underscore}}</a>
-            {% if theme_hrefs|index:theme != theme_hrefs|length %}<span>/</span>{% endif %}
+        {% for theme in theme_paths %}
+            <a href="{% url 'search' %}{{theme.url}}">{{theme.theme|replace:"_| "|replace:"/| / "}}</a>
+            {% if theme_paths|index:theme != theme_paths|length %}<span>/</span>{% endif %}
         {% endfor %}
     </div>
 
@@ -25,7 +25,7 @@
         {% for theme in sub_themes %}
         <a class="theme-container" href="{% url 'search' theme_path %}{{theme.sub_theme}}/">
             <h3>{{theme.sub_theme|replace_underscore}}</h3>
-            <img src="{% static theme.img_path %}" alt="{{theme.img_path}}" loading="lazy">
+            <img src="{% static theme.img_path %}" loading="lazy">
         </a>
         {% endfor %}
     </section>
@@ -59,7 +59,7 @@
                 <table>
                     {% for theme in biggest_theme_trends.biggest_winners %}
                     <tr>
-                        <td class="theme-path">{{theme.theme_path|replace_space_substitute}}</td>
+                        <td class="theme-path"><a href="{% url 'search' theme.theme_path %}">{{theme.theme_path|replace:"_| "|replace:"~| "}}</a></td>
                         <td class="change">%{{theme.change}}</td>
                     </tr>
                     {% endfor %}
@@ -71,7 +71,7 @@
                 <table>
                 {% for theme in biggest_theme_trends.biggest_losers %}
                 <tr>
-                    <td class="theme-path">{{theme.theme_path|replace_space_substitute}}</td>
+                    <td class="theme-path"><a href="">{{theme.theme_path|replace_space_substitute}}</a></td>
                     <td class="change">%{{theme.change}}</td>
                 </tr>
                 {% endfor %}

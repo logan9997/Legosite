@@ -33,26 +33,29 @@ function search_suggestions(input) {
 
     var suggestion_boxes_container = document.getElementById("search-suggestions");
 
-
     var matches = 0;
     for (let i = 0; i < item_ids.length; i ++) {
         if (
             (
-            item_ids[i].slice(0,input.length).toLowerCase() == input || 
-            item_names[i].slice(0, input.length).toLowerCase() == input
+            item_ids[i].slice(0,input.length) == input || 
+            item_names[i].includes(input)
             ) && input != ""
         ) {
+
+            name_part1 = item_names[i].split(input)[0]
+            name_part2 = item_names[i].split(input)[1]
+
             //create each box for every item
             html_block = document.createElement("a");
             html_block.setAttribute("href", `/item/${item_ids[i]}`)
             html_block.setAttribute("class", "search-suggestion")
             html_block.innerHTML = `
                     <div class="item-id-img-container">
-                        <a href="/item/${item_ids[i]}" onclick="clear_search_suggestions()" class="item-id">${item_ids[i]}</a>
+                        <a href="/item/${item_ids[i]}" onclick="clear_search_suggestions()" class="item-id">${item_ids[i].replaceAll(input, `<span style="color:black">${input}</span>`)}</a>
                         <img class="item-img" src="/static/App/minifigures/${item_ids[i]}.png">
                     </div>
                     <div class="item-name-contianer">
-                        <p class="item-name">${item_names[i]}</p>
+                        <p class="item-name">${item_names[i].replaceAll(input, `<span style="color:black">${input}</span>`)}</p>
                     </div>
             `
             suggestion_boxes_container.appendChild(html_block)
