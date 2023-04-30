@@ -1,11 +1,13 @@
-window.onload = function() {
+
+function maintain_scroll_pos(elememt_id) {
+    var elem = document.getElementById(elememt_id)
     document.addEventListener("DOMContentLoaded", function(event) { 
-        var scrollpos = localStorage.getItem('scrollpos');
-        if (scrollpos) window.scrollTo(0, scrollpos);
+        var elem_scroll_pos = localStorage.getItem('elem_scroll_pos');
+        if (elem_scroll_pos) elem.scrollTo(0, elem_scroll_pos);
     });
 
     window.onbeforeunload = function(e) {
-        localStorage.setItem('scrollpos', window.scrollY);
+        localStorage.setItem('elem_scroll_pos', elem.scrollTop);
     };
 }
 

@@ -261,6 +261,17 @@ class DatabaseManagment():
         return self.SELECT(sql)
     
 
+    def filter_items_by_theme(self, themes, view, user_id):
+        sql = f'''
+            SELECT TH.item_id
+            FROM "App_{view}" _view, "App_theme" TH
+            WHERE _view.item_id = TH.item_id
+                AND user_id = {user_id}
+                AND theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
+        '''
+        return [result[0] for result in self.SELECT(sql)]
+    
+
     def get_item_metric_changes(self, item_id, change_metric, **kwargs):
         min_date = kwargs.get("min_date", "")     
         max_date = kwargs.get("max_date", "") 

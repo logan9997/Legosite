@@ -59,8 +59,8 @@
                 <table>
                     {% for theme in biggest_theme_trends.biggest_winners %}
                     <tr>
-                        <td class="theme-path"><a href="{% url 'search' theme.theme_path %}">{{theme.theme_path|replace:"_| "|replace:"~| "}}</a></td>
-                        <td class="change">%{{theme.change}}</td>
+                        <td class="theme-path"><a href="{% url 'search' theme.theme_path|replace:'~|/' %}">{{theme.theme_path|replace:"_| "|replace:"~|, "}}</a></td>
+                        <td class="change">%{{theme.change|postivie_or_negative_sign}}</td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -71,7 +71,7 @@
                 <table>
                 {% for theme in biggest_theme_trends.biggest_losers %}
                 <tr>
-                    <td class="theme-path"><a href="">{{theme.theme_path|replace_space_substitute}}</a></td>
+                    <td class="theme-path"><a href="">{{theme.theme_path|replace:"_| "|replace:"~|, "}}</a></td>
                     <td class="change">%{{theme.change}}</td>
                 </tr>
                 {% endfor %}

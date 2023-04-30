@@ -24,7 +24,14 @@ TRENDING_ITEMS_PER_PAGE = 20
 MAX_SEARCH_SUGGESTIONS = 16
 MAX_GRAPH_POINTS = 12
 MAX_GRAPH_POINTS_ITEM_VIEW = 40
+MAX_LOGIN_ATTEMPTS = 5
 ALL_METRICS = ["avg_price", "min_price", "max_price", "total_quantity"]
+METRIC_INPUT_STEPS = {
+    "avg_price":0.01,
+    "min_price":0.01,
+    "max_price":0.01,
+    "total_quantity":1
+}
 
 REMOVE_CHARS = ["(", ")"]
 INVALID_USERNAME_CHARS = []

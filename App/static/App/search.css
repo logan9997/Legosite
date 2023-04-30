@@ -14,10 +14,10 @@
     margin-bottom: 2rem;
 }
 
-#theme-path-container a {
+a {
     padding: 0 0.4rem 0;
     color:blue;
-
+    text-decoration: none;
 }
 
 #theme-path-container span {
@@ -82,7 +82,6 @@
 }
 
 .theme-container img {
-    background-color: red;
     width:88%;
     height: 62%;
 }

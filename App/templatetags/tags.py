@@ -48,12 +48,14 @@ def item_names():
         item_id__contains="sw"
     ).values_list("item_name", flat=True).distinct("item_id")))
 
-    return ["".join([char for char in name if char not in [")", "(", ",", "-", ""]]) for name in names]
+    return ["".join([char for char in name if char not in [")", "(", ",", "-", "."]]) for name in names]
 
 
 @register.filter
 def iterable_index(list:list, i:int):
-    return list[i-1]
+    if i == len(list):
+        return list[i-1]
+    return list[i]
 
 
 @register.filter
@@ -204,6 +206,17 @@ def replace(string:str, replace_args:str):
     old_str, new_str = replace_args
 
     return string.replace(old_str, new_str)
+
+
+@register.filter
+def get_item(_dict:dict, key:str):
+    return _dict.get(key)
+
+
+@register.filter
+def get_indent_colour(theme_path:str):
+    indent = theme_path.count("~") + 1
+    return f"rgb(255, {45 * indent}, {10 * indent * indent})"
 
 
 @register.filter

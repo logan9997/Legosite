@@ -24,7 +24,7 @@
     <script>
         var dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
         if (window.location.href.includes("trending")) {
-            dates = dates.slice(onload_slider_value_start, onload_slider_value_end)
+            dates = dates.slice(onload_slider_value_start+1, onload_slider_value_end+1)
         }
         dates = condence_list(dates)
         
@@ -63,7 +63,8 @@
         for (let i = 0; i < metric_data.length; i++) {
             if (metric_data[i].id != '') {
                 if (window.location.href.includes("trending")) {
-                    metric_data[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(onload_slider_value_start, onload_slider_value_end))
+                    metric_data[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(onload_slider_value_start+1, onload_slider_value_end+1))
+                    console.log(metric_data[i].data)
                 } else {
                     metric_data[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent))
                 }

@@ -351,9 +351,6 @@ def slice_num_pages(list_len:int, current_page:int, items_per_page:int):
     return num_pages
 
 
-
-
-
 def save_POST_params(request) -> tuple[dict, dict]:
     if "url_params" in request.session:
         for k, v in request.POST.items():
@@ -377,6 +374,15 @@ def extend_remove_words(words:list, *args) -> list:
     return words
 
 
+def shorten_len_return_value(_list:list) -> int:
+    #shorten combinations if too many words to parse through
+    length_convert = {
+        len(_list) < 5:1,
+        len(_list) >= 5 and len(_list) < 9: 2,
+        len(_list) >= 9:3
+    }
+    return length_convert[True]
+
 
 def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, item_id:str, items:list[str], combinations:int) -> tuple[int, list]:
     for sub in itertools.combinations(single_words, combinations):
@@ -393,16 +399,6 @@ def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, 
             return combinations, items
 
     return combinations, []
-
-
-def shorten_len_return_value(_list:list) -> int:
-    #shorten combinations if too many words to parse through
-    length_convert = {
-        len(_list) < 5:1,
-        len(_list) >= 5 and len(_list) < 9: 2,
-        len(_list) >= 9:3
-    }
-    return length_convert[True]
 
 
 def get_similar_items(item_name:str, item_type:str, item_id:str) -> list:
@@ -445,4 +441,20 @@ def format_metric_changes(metrics) -> list[dict]:
     for i, change in enumerate(metrics)}
 
     return changes
+
+
+def filter_out_metric_filters(metric_filters, items) -> list:
+    for metric in metric_filters:
+        for limit in ["min", "max"]:
+            if limit == "min" and metric_filters[metric][limit] != -1:
+                items = list(filter(lambda x:x[metric] > metric_filters[metric][limit], items))
+            elif limit == "max" and metric_filters[metric][limit] != -1:
+                items = list(filter(lambda x:x[metric] < metric_filters[metric][limit], items)) 
+    return items 
+
+
+def set_default_metric_filters(request):
+    request.session["metric_filters"] = {metric :  {"min":-1, "max":-1} for metric in ALL_METRICS}
+    return request
+
 
