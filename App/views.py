@@ -207,11 +207,29 @@ def trending_POST(request):
     return redirect("trending")
 
 
+def filters_POST(request, view):
+    if request.POST.get("form-type") == "theme-filter":
+        request = process_theme_filters(request)
+
+    elif request.POST.get("form-type") == "metric-filter":
+        request = process_metric_filters(request)
+
+    if request.POST.get("clear-form") == "clear-metric-filters":
+        request = set_default_metric_filters(request)
+    
+    elif request.POST.get("clear-form") == "clear-theme-filters":
+        request.session["filtered_themes"] = []
+    return redirect(view)
+
+
+@timer
 def trending(request):
+
+    user_id = request.session.get("user_id", -1)
 
     trending_order:str = request.session.get("trending_order", "avg_price-desc") 
     trending_metric = trending_order.split("-")[0]
-    current_page:int = request.session.get("current_page", 1)
+    current_page = int(request.session.get("current_page", 1))
 
     graph_options = sort_dropdown_options(get_graph_options(), trending_metric)
     trend_options = sort_dropdown_options(get_trending_options(), trending_order)
@@ -222,26 +240,41 @@ def trending(request):
     slider_start_value = int(request.session.get("slider_start_value", 0))
     slider_end_value = int(request.session.get("slider_end_value", len(dates)-1))
 
-
     min_date = dates[slider_start_value]
     max_date = dates[slider_end_value]
 
     items = DB.get_biggest_trends(trending_metric, max_date=max_date, min_date=min_date)
 
-    #remove trending items if % change (-1) is equal to None (0.00)
-    items = [_item for _item in items if _item[-1] != None]
+    all_items_len = len(items)
+    
+    current_page = check_page_boundaries(current_page, all_items_len, TRENDING_ITEMS_PER_PAGE)
 
-    current_page = check_page_boundaries(current_page, len(items), TRENDING_ITEMS_PER_PAGE)
+    themes = list(Theme.objects.filter(item_id__in=DB.get_starwars_ids()).values_list("theme_path", flat=True).distinct("theme_path"))
+    themes = [{"theme_path":theme} for theme in themes]
+
+    filter_results = process_filters(request, items, user_id, "item", themes)
+    items = filter_results["items"]
+    request = filter_results["request"]
+
     num_pages = slice_num_pages(len(items), current_page, TRENDING_ITEMS_PER_PAGE)
 
     items = items[(current_page-1) * TRENDING_ITEMS_PER_PAGE : (current_page) * TRENDING_ITEMS_PER_PAGE]
+    #remove trending items if % change (-1) is equal to None (0.00)
+    items = [_item for _item in items if _item[-1] != None]
+
+
     items = format_item_info(items, metric_trends=[trending_metric], graph_data=[trending_metric])
+
 
     for _item in items:
         metrics = [DB.get_item_metric_changes(_item["item_id"], metric, max_date=max_date, min_date=min_date) for metric in ALL_METRICS]
         metrics = format_metric_changes(metrics)
         _item["metric_changes"] = metrics
+
  
+    request.session["themes"] = themes
+
+
     context = {
         "items":items,
         "show_graph":True,
@@ -256,7 +289,13 @@ def trending(request):
         "slider_start_max_value":slider_end_value - 1,
         "slider_end_max_value":len(dates) -1,
         "slider_start_min_value":0,
-        "slider_end_min_value":slider_start_value + 1
+        "slider_end_min_value":slider_start_value + 1,
+        "filtered_themes":filter_results["filtered_themes"],
+        "no_items":filter_results["no_items"],
+        "all_metrics":ALL_METRICS,
+        "metric_input_steps":METRIC_INPUT_STEPS,
+        "metric_filters":filter_results["metric_filters"],
+        "themes":themes,
     }
 
     clear_session_url_params(request, "graph_metric", "trending_order", "current_page")
@@ -487,24 +526,16 @@ def user_items(request, view, user_id):
     current_page = int(options.get("page", 1))
     sort_field = options.get("sort-field", "avg_price-desc")
 
-    filtered_themes = request.session.get("filtered_themes", [])
-
     items = DB.get_user_items(user_id, view)
-    no_items = False
-    if len(items) == 0:
-        no_items = True
-
-    if filtered_themes != []:
-        items_to_filter_by_theme = DB.filter_items_by_theme(filtered_themes, view, user_id)
-        items = list(filter(lambda x:x[0] not in items_to_filter_by_theme, items))
-
     items = format_item_info(items, owned_quantity_new=8, owned_quantity_used=9, graph_data=[graph_metric], user_id=user_id)
 
-    if "metric_filters" not in request.session:
-        request.session["metric_filters"] = {metric :  {"min":-1, "max":-1} for metric in ALL_METRICS}
-    metric_filters = request.session["metric_filters"]
+    parent_themes = DB.parent_themes(user_id, view, graph_metric)
+    themes = get_sub_themes(user_id, parent_themes, [], -1, view, graph_metric)
+    print(themes)
 
-    items = filter_out_metric_filters(metric_filters, items)
+    filter_results = process_filters(request, items, user_id, view, graph_metric, [theme["theme_path"] for theme in themes])
+    items = filter_results["items"]
+    request = filter_results["request"]
 
     current_page = check_page_boundaries(current_page, len(items), USER_ITEMS_ITEMS_PER_PAGE)
     num_pages = slice_num_pages(len(items), current_page, USER_ITEMS_ITEMS_PER_PAGE)
@@ -525,10 +556,7 @@ def user_items(request, view, user_id):
 
     items = items[(current_page - 1) * USER_ITEMS_ITEMS_PER_PAGE : int(current_page) * USER_ITEMS_ITEMS_PER_PAGE]
 
-    parent_themes = DB.parent_themes(user_id, view, graph_metric)
-    themes = get_sub_themes(user_id, parent_themes, [], -1, view, graph_metric)
 
-    request.session["themes"] = [theme["theme_path"] for theme in themes]
 
     context = {
         "items":items,
@@ -543,11 +571,11 @@ def user_items(request, view, user_id):
         "current_page":current_page,
         "show_graph":True,
         "user_id":user_id,
-        "filtered_themes":filtered_themes,
-        "no_items":no_items,
+        "filtered_themes":filter_results["filtered_themes"],
+        "no_items":filter_results["no_items"],
         "all_metrics":ALL_METRICS,
         "metric_input_steps":METRIC_INPUT_STEPS,
-        "metric_filters":metric_filters,
+        "metric_filters":filter_results["metric_filters"],
         "years_released":years_released
     }
 
@@ -561,20 +589,6 @@ def view_POST(request, view):
         request.session["graph_options"] = sort_dropdown_options(get_graph_options(), request.POST.get("graph-metric", "avg_price"))
         return redirect(request.META.get('HTTP_REFERER'))
     
-
-
-    if request.POST.get("form-type") == "theme-filter":
-        request = process_theme_filters(request)
-
-    elif request.POST.get("form-type") == "metric-filter":
-        request = process_metric_filters(request)
-
-    if request.POST.get("clear-form") == "clear-metric-filters":
-        request = set_default_metric_filters(request)
-    
-    elif request.POST.get("clear-form") == "clear-theme-filters":
-        request.session["filtered_themes"] = []
-
     if "user_id" not in request.session or request.session["user_id"] == -1:
         return redirect("index")
     user_id = request.session["user_id"]
@@ -606,7 +620,6 @@ def view_POST(request, view):
     request = save_POST_params(request)[0]
     item_id = request.GET.get("item")
     if item_id != None:
-        
         return redirect(f"http://{base_url(request)}/{view}/?item={item_id}")
 
 

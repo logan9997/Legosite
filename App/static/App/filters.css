@@ -1,0 +1,100 @@
+#filters h3 {
+    text-align: center;
+    font-size: 1.4rem;
+    background-color: gainsboro;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    padding-bottom: 0.4rem;
+}
+
+#filters h4 {
+    text-align: center;
+    margin: 0 0 0.4rem;
+    font-style: italic;
+}
+
+#themes-filter {
+    max-height: 12rem;
+    overflow-y: auto;
+}
+
+#filters table {
+    width: 90%;
+    margin-left: 5%;
+    border-top: 0.1rem black solid;
+}
+
+#filters table .checkbox {
+    width: 15%;
+}
+
+#filters table .checkbox button {
+    height: 1.2rem;
+}
+
+#filters table .theme {
+    width: 85%;
+    text-align: left;
+}
+
+#metric-filters {
+    margin: 2rem 1rem 0;
+    border-top:none;
+}
+
+#metric-filters table {
+    border-bottom: 0.1rem black solid;
+}
+
+#metric-filters table tr th {
+    text-align: center;
+}
+
+#metric-filters .row-header {
+    background-color: gainsboro;
+}
+
+#metric-filters .min-max-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#metric-filters .min-max-container td {
+    margin: 0 1rem 0;
+    padding: 0.35rem;
+}
+
+#metric-filters label {
+    width: 6rem;  
+    font-style: italic;
+}
+
+#metric-filters input {
+    width: 4rem;
+}
+
+#metric-filters .metric-filter-submit button {
+    margin-top: 50%;
+    background-color: orangered;
+    width: 1.4rem;
+}
+
+#clear-theme-filters-button {
+    width: 4rem;
+    margin:0.4rem calc(50% - 2rem) 1rem;
+}
+
+#metric-filters-buttons-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.7rem;
+}
+
+#clear-metric-filter-button {
+    width: 4rem;
+}
+
+#metric-filters-submit-button {
+    background-color: orangered;
+}

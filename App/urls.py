@@ -20,4 +20,5 @@ urlpatterns = [
     path("logout/", views.logout, name="logout"),
     path('join/', views.join, name="join"),
     path('profile/', views.profile, name="profile"),
+    path('filters_POST/<str:view>', views.filters_POST, name="filters_POST")
 ]

@@ -21,6 +21,9 @@
 
 <section id="main-container">
     <h2>Trending</h2>
+
+    {% include 'App/template_blocks/filters.html' with action_view='trending_POST' view='trending' %}
+
     <div id="header">
         <div id="inputs-forms-container">
             {% include 'App/template_blocks/item_filters_and_sorts.html' with action_view='trending_POST' sub_view="" hide_graph_metric_options=True %}

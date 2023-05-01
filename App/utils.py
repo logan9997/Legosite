@@ -2,6 +2,8 @@ import math
 import time
 import itertools
 
+from datetime import datetime as dt
+
 from .config import *
 
 def timer(func):
@@ -267,9 +269,8 @@ def get_sub_themes(user_id:int, parent_themes:list[str], themes:list[dict], inde
 
     indent += 1
     for theme in parent_themes:
-        sub_themes = DB.sub_themes(user_id, theme[0], view, metric)
+        sub_themes = DB.sub_themes(user_id, theme[0], view, metric, metric_total=True, count=True)
         sub_themes = [theme_path for theme_path in sub_themes if theme_path.count("~") == indent]
-
         themes.append({
             "theme_path":theme[0],
             "count":theme[1],
@@ -444,12 +445,28 @@ def format_metric_changes(metrics) -> list[dict]:
 
 
 def filter_out_metric_filters(metric_filters, items) -> list:
+
+    if type(items[0]) == dict:
+        keys = {
+            "avg_price":"avg_price",
+            "min_price":"min_price",
+            "max_price":"max_price",
+            "total_quantity":"total_quantity",
+        }
+    else:
+        keys = {
+            "avg_price":4,
+            "min_price":5,
+            "max_price":6,
+            "total_quantity":7,
+        }
+
     for metric in metric_filters:
         for limit in ["min", "max"]:
             if limit == "min" and metric_filters[metric][limit] != -1:
-                items = list(filter(lambda x:x[metric] > metric_filters[metric][limit], items))
+                items = list(filter(lambda x:x[keys[metric]] > metric_filters[metric][limit], items))
             elif limit == "max" and metric_filters[metric][limit] != -1:
-                items = list(filter(lambda x:x[metric] < metric_filters[metric][limit], items)) 
+                items = list(filter(lambda x:x[keys[metric]] < metric_filters[metric][limit], items)) 
     return items 
 
 
@@ -458,3 +475,115 @@ def set_default_metric_filters(request):
     return request
 
 
+def process_theme_filters(request):
+    if "filtered_themes" not in request.session:
+        request.session["filtered_themes"] = []
+
+
+    themes = request.session.get("themes", [])
+    selected_theme = request.POST.get("theme-filter")
+
+    for sub_theme in themes[themes.index(selected_theme)+1:]:
+        if selected_theme in request.session["filtered_themes"]:
+            if selected_theme.count("~") < sub_theme.count("~"):
+                if sub_theme in request.session["filtered_themes"]:
+                    request.session["filtered_themes"].remove(sub_theme)
+            else:
+                break
+        else:
+            if selected_theme.count("~") < sub_theme.count("~"):
+                if sub_theme not in request.session["filtered_themes"]:
+                    request.session["filtered_themes"].append(sub_theme)
+            else:
+                break
+
+    if selected_theme not in request.session["filtered_themes"]:
+            request.session["filtered_themes"].append(selected_theme)
+    else:
+        request.session["filtered_themes"].remove(selected_theme)
+    return request
+
+
+def process_metric_filters(request):
+    if "metric_filters" not in request.session:
+        request = set_default_metric_filters(request)
+
+    for metric in ALL_METRICS:
+        for limit in ["min", "max"]:
+
+            if request.POST.get(f"{metric}_{limit}") != None and request.POST.get(f"{metric}_{limit}") != '':
+                try:
+                    _input = float(request.POST.get(f"{metric}_{limit}"))
+                except:
+                    _input = 0
+                request.session["metric_filters"][metric][limit] = _input
+                request.session.modified = True
+    return request
+
+
+def process_recently_viewed_items(request, item_id):
+    if "recently-viewed" not in request.session:
+        request.session["recently-viewed"] = [item_id]
+    else:
+        if item_id in request.session["recently-viewed"]:
+            request.session["recently-viewed"].remove(item_id)
+
+        request.session["recently-viewed"].insert(0, item_id)
+
+        if len(request.session["recently-viewed"]) > RECENTLY_VIEWED_ITEMS_NUM:
+            request.session["recently-viewed"].pop()
+
+        request.session.modified = True
+    return request
+
+
+def get_theme_paths(request):
+    url = request.get_full_path()
+    url = url.replace("/search/", "")
+    urls = url.split("/")
+    urls.insert(0, "All")
+    urls.remove('')
+
+    theme_paths = [{"theme":theme, "url":'/'.join([urls[x+1] for x in range(i)])} for i, theme in enumerate(urls)]  
+    return theme_paths
+
+
+def is_login_blocked(request, username):
+    login_blocked = False
+    if username in request.session.get("login_attempts") and request.session["login_attempts"][username]["login_retry_date"] != -1:
+        login_retry_date = datetime.datetime.strptime(request.session["login_attempts"][username]["login_retry_date"].strip('"'), '%Y-%m-%d %H:%M:%S')
+        if dt.today() > login_retry_date: 
+            login_blocked = False
+        else:
+            login_blocked = True
+    return login_blocked
+
+
+
+def process_filters(request, items, user_id, view, themes):
+    filtered_themes = request.session.get("filtered_themes", [])
+
+    no_items = False
+    if len(items) == 0:
+        no_items = True
+
+    if filtered_themes != []:
+
+        #set key if items have / have not been formatted into dict
+        if type(items[0]) == dict:
+            key = "item_id"
+        else:
+            key = 0
+
+        items_to_filter_by_theme = DB.filter_items_by_theme(filtered_themes, view, user_id)
+        items = list(filter(lambda x:x[key] not in items_to_filter_by_theme, items))
+    
+    if "metric_filters" not in request.session:
+        request.session["metric_filters"] = {metric :  {"min":-1, "max":-1} for metric in ALL_METRICS}
+    metric_filters = request.session["metric_filters"]
+
+    items = filter_out_metric_filters(metric_filters, items)
+    return {
+        "no_items":no_items, "request":request, "items":items, 
+        "filtered_themes":filtered_themes, "metric_filters":metric_filters
+    }

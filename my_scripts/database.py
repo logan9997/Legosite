@@ -21,9 +21,13 @@ class DatabaseManagment():
         
 
     def SELECT(self, sql, **kwargs):
+        if kwargs.get("print"):
+            print(sql)
         self.cursor.execute(sql)
         if kwargs.get("fetchone"):
             return self.cursor.fetchone()
+        if kwargs.get("flat"):
+            return [result[0] for result in self.cursor.fetchall()]
         return self.cursor.fetchall()
     
 
@@ -164,7 +168,7 @@ class DatabaseManagment():
 
     
     def get_biggest_trends(self, change_metric, **kwargs) -> list[str]:
-        min_date_sql = kwargs.get("min_date", "")
+        min_date_sql = kwargs.get("min_date")
         if "min_date" in kwargs:
             min_date_sql = f"WHERE date >= '{min_date_sql}'"
     
@@ -212,6 +216,15 @@ class DatabaseManagment():
         '''
         return self.SELECT(sql)
     
+    def get_items_parent_themes(self, item_ids):
+        item_ids = str(item_ids).replace("[", "(").replace("]", ")")
+        sql = f'''
+            SELECT theme_path
+            FROM "App_theme"
+            WHERE item_id IN {item_ids}
+        '''
+        return self.SELECT(sql)
+
 
     def get_parent_themes(self) -> list[str]:
         sql = '''
@@ -258,7 +271,7 @@ class DatabaseManagment():
                 AND theme_path = 'Star_Wars'
             GROUP BY I.item_id
         '''
-        return self.SELECT(sql)
+        return self.SELECT(sql, flat=True)
     
 
     def filter_items_by_theme(self, themes, view, user_id):
@@ -392,7 +405,7 @@ class DatabaseManagment():
             WHERE item_type = 'M'
                 AND item_id LIKE 'sw%'
         '''
-        return self.SELECT(sql)
+        return self.SELECT(sql, flat=True)
 
 
     def fetch_theme_details(self) -> list[str]:
@@ -704,20 +717,40 @@ class DatabaseManagment():
         return result
 
 
-    def parent_themes(self, user_id:int, view:str, metric:str) -> list[str]:           
+    def parent_themes(self, user_id:int, view:str, metric:str, **kwargs) -> list[str]: 
+
+        user_id_sql = f"AND user_id = {user_id}"
+        view_sql = f'"App_{view}" _view,'
+        link_sql = f"AND I.item_id = _view.item_id"
+
+        if user_id == -1 or view not in ["watchlist", "portfolio"]:
+            user_id_sql = ""
+            view_sql = ""
+            link_sql = ""
+
+        show_count = kwargs.get("count")
+        count_sql = ""
+        if show_count:
+            count_sql = ",COUNT(*)"
+
+        metric_total_sql = ""
+        metric_total = kwargs.get("metric_total")
+        if metric_total:
+            metric_total_sql = f",ROUND(CAST(SUM({metric}) AS numeric), 2)"
+
         sql = f'''
-            SELECT theme_path, COUNT(*), ROUND(CAST(SUM({metric}) AS numeric), 2)
-            FROM "App_price" P, "App_theme" T, "App_{view}" _view, "App_item" I
-            WHERE user_id = {user_id}
-                AND theme_path NOT LIKE '%~%'
+            SELECT theme_path {count_sql} {metric_total_sql}
+            FROM "App_price" P, "App_theme" T, {view_sql} "App_item" I
+            WHERE  theme_path NOT LIKE '%~%'
                 AND (I.item_id, date) = any (
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
                     FROM "App_price" P2  
                     GROUP BY item_id
                 )
                 AND I.item_id = P.item_id
-                AND I.item_id = _view.item_id
+                {link_sql}
                 AND I.item_id = T.item_id
+                {user_id_sql}
             GROUP BY theme_path
 
         '''
@@ -733,12 +766,33 @@ class DatabaseManagment():
         return [theme[0] for theme in self.SELECT(sql)]
 
 
-    def sub_themes(self, user_id:int, theme_path:str, view:str, metric:str) -> list[str]:
+    def sub_themes(self, user_id:int, theme_path:str, view:str, metric:str, **kwargs) -> list[str]:
+        
+        user_id_sql = f"AND user_id = {user_id}"
+        view_sql = f'"App_{view}" _view,'
+        link_sql = f"AND I.item_id = _view.item_id"
+
+        if user_id == -1 or view not in ["watchlist", "portfolio"]:
+            user_id_sql = ""
+            view_sql = ""
+            link_sql = ""
+
+        show_count = kwargs.get("count")
+        count_sql = ""
+        if show_count:
+            count_sql = ",COUNT(*)"
+
+        metric_total_sql = ""
+        metric_total = kwargs.get("metric_total")
+        if metric_total:
+            metric_total_sql = f",ROUND(CAST(SUM({metric}) AS numeric), 2)"
+
+        
+        
         sql = f'''
-            SELECT theme_path, COUNT(*), ROUND(CAST(SUM({metric}) AS numeric), 2)
-            FROM "App_price" P, "App_theme" T, "App_{view}" _view, "App_item" I
-            WHERE user_id = {user_id}
-                AND theme_path LIKE '{theme_path}%'
+            SELECT theme_path {count_sql} {metric_total_sql}
+            FROM "App_price" P, "App_theme" T, {view_sql} "App_item" I
+            WHERE theme_path LIKE '{theme_path}%'
                 AND theme_path != '{theme_path}'
                 AND (I.item_id, date) = any (
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
@@ -746,11 +800,12 @@ class DatabaseManagment():
                     GROUP BY item_id
                 )
                 AND I.item_id = P.item_id
-                AND I.item_id = _view.item_id
+                {link_sql}
                 AND I.item_id = T.item_id
+                {user_id_sql}
             GROUP BY theme_path
         '''
-        return self.SELECT(sql)
+        return self.SELECT(sql, print=True)
     
 
     def get_popular_items(self) -> list[str]:
