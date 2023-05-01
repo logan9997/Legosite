@@ -126,10 +126,7 @@ def item(request, item_id):
         return redirect(request.META.get('HTTP_REFERER'))
     item_info = item_info[0]
 
-    if "user_id" in request.session:
-        user_id = request.session["user_id"]
-    else:
-        user_id = -1
+    user_id = request.session.get("user_id", -1)
 
     #stops view count being increased on refresh
     if "item_id" not in request.session or request.session.get("item_id") != item_id:
@@ -139,28 +136,11 @@ def item(request, item_id):
     '''
     CHANGE IF USER IS LOGGED IN!!
     '''
-    #if no recently viewed items, add item on current page to recently viewed items
-    if "recently-viewed" not in request.session:
-        request.session["recently-viewed"] = [item_id]
-    else:
-        #if item is already in recently viewed then revome it (will be added to i=0)
-        if item_id in request.session["recently-viewed"]:
-            request.session["recently-viewed"].remove(item_id)
-
-        #add the item on the page to i=0
-        request.session["recently-viewed"].insert(0, item_id)
-
-        #if more than x recently-viewed items remove last / oldest item
-        if len(request.session["recently-viewed"]) > RECENTLY_VIEWED_ITEMS_NUM:
-            request.session["recently-viewed"].pop()
-
-        #list is mutable, to save the changes to session
-        request.session.modified = True
+    request = process_recently_viewed_items(request, item_id)
 
     graph_options = sort_dropdown_options(get_graph_options(), metric)
 
     in_portfolio = DB.is_item_in_user_items(user_id, "portfolio", item_id)
-    #convert tuple to dict 
     in_portfolio = [{"condition":{"N":"New", "U":"Used"}[_item[0]], "count":_item[1] } for _item in in_portfolio]
 
     in_watchlist = DB.is_item_in_user_items(user_id, "watchlist", item_id)
@@ -170,7 +150,6 @@ def item(request, item_id):
         in_watchlist = "No"
 
     item_themes = Theme.objects.filter(item_id=item_id).distinct("theme_path").values_list("theme_path")
-
     similar_items = format_item_info(get_similar_items(item_info["item_name"], item_info["item_type"], item_info["item_id"]))
 
     total_watchers = DB.get_total_owners_or_watchers("watchlist", item_id) 
@@ -217,16 +196,13 @@ def trending_POST(request):
 
     dates = list(Price.objects.distinct("date").values_list("date", flat=True))
 
-    slider_start_value = int(options.get("slider_start", 1)) 
-    slider_end_value = int(options.get("slider_end", len(dates)-1))
+    slider_start_value = request.POST.get("slider_start", 0)
+    slider_end_value = request.POST.get("slider_end", len(dates)-1)
 
-    print(f"slider_start_value {slider_start_value}\nslider_end_value {slider_end_value}")
-
-    request.session["slider_start_date"] = dates[slider_start_value].strftime('%Y-%m-%d')
     request.session["slider_start_value"] = slider_start_value
-
-    request.session["slider_end_date"] = dates[slider_end_value].strftime('%Y-%m-%d')
     request.session["slider_end_value"] = slider_end_value
+
+    print(slider_start_value, slider_end_value)
 
     return redirect("trending")
 
@@ -243,13 +219,12 @@ def trending(request):
     dates = list(Price.objects.distinct("date").values_list("date", flat=True))
     dates = [date.strftime('%Y-%m-%d') for date in dates]
 
-    max_date = str(request.session.get("slider_end_date"))
-    min_date = str(request.session.get("slider_start_date"))
+    slider_start_value = int(request.session.get("slider_start_value", 0))
+    slider_end_value = int(request.session.get("slider_end_value", len(dates)-1))
 
-    print(f"min date {min_date}\nmax date {max_date}")
 
-    slider_start_value = request.session.get("slider_start_value", len(dates) -1) 
-    slider_end_value = request.session.get("slider_end_value", len(dates) -1)
+    min_date = dates[slider_start_value]
+    max_date = dates[slider_end_value]
 
     items = DB.get_biggest_trends(trending_metric, max_date=max_date, min_date=min_date)
 
@@ -275,12 +250,13 @@ def trending(request):
         "num_pages":num_pages,
         "current_page":current_page,
         "dates":dates,
-        "slider_start_value":slider_start_value +1,
-        "slider_end_value":slider_end_value+1,
-        "max_slider_start_value":slider_end_value,
-        "max_slider_end_value":len(dates)-1,
-        "min_slider_end_value":slider_start_value + 2,
         "metric_data":trending_metric,
+        "slider_start_value":slider_start_value,
+        "slider_end_value":slider_end_value,
+        "slider_start_max_value":slider_end_value - 1,
+        "slider_end_max_value":len(dates) -1,
+        "slider_start_min_value":0,
+        "slider_end_min_value":slider_start_value + 1
     }
 
     clear_session_url_params(request, "graph_metric", "trending_order", "current_page")
@@ -347,29 +323,12 @@ def search(request, theme_path='all'):
     current_page = check_page_boundaries(current_page, total_theme_items, SEARCH_ITEMS_PER_PAGE)
     page_numbers = slice_num_pages(total_theme_items, current_page, SEARCH_ITEMS_PER_PAGE)
 
-    theme_sort_option = request.POST.get("sort-order", "theme_name-asc")
-    theme_sort_options = get_search_sort_options()
-    if theme_sort_option != None:
-        theme_sort_options = sort_dropdown_options(theme_sort_options, theme_sort_option)
-
     graph_options = sort_dropdown_options(get_graph_options(), graph_metric)
     sort_options = sort_dropdown_options(get_sort_options(), sort_field)
 
     theme_items = sort_items(theme_items,sort_field)
 
-    url = request.get_full_path()
-    url = url.replace("/search/", "")
-    urls = url.split("/")
-    urls.insert(0, "All")
-    urls.remove('')
-
-    theme_paths = [{"theme":theme, "url":'/'.join([urls[x+1] for x in range(i)])} for i, theme in enumerate(urls)]
-
-    if request.method == "POST": 
-        if request.POST.get("form-type") == "theme-url":
-            order = theme_sort_option.split("-")[1]
-            field = theme_sort_option.split("-")[0]
-            sub_themes = sort_themes(field, order, sub_themes)
+    theme_paths = get_theme_paths(request)
 
     biggest_theme_trends = DB.biggest_theme_trends("avg_price")
 
@@ -380,7 +339,6 @@ def search(request, theme_path='all'):
         "theme_path":theme_path,
         "sub_themes":sub_themes,
         "theme_items":theme_items,
-        "theme_sort_options":theme_sort_options,
         "graph_options":graph_options,
         "sort_options":sort_options,
         "biggest_theme_trends":format_biggest_theme_trends(biggest_theme_trends),
@@ -397,16 +355,17 @@ def login(request):
         "password_max_chars":PASSWORD_LENGTH
     }
 
-
     if request.session.get("user_id", -1) != -1:
         return redirect("index")
 
-    #analyse login form
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
+
+            if "login_attempts" not in request.session:
+                request.session["login_attempts"] = {}
 
             request.session["last_attempted_username"] = username
 
@@ -414,58 +373,45 @@ def login(request):
                 request.session["login_attempts"][username] = {"attempts":0, "login_retry_date":-1}
                 request.session.modified = True
 
-            #format login_retry_date into datetime format to compare with todays date
-            login_blocked = False
-            if username in request.session.get("login_attempts") and request.session["login_attempts"][username]["login_retry_date"] != -1:
-                login_retry_date = datetime.datetime.strptime(request.session["login_attempts"][username]["login_retry_date"].strip('"'), '%Y-%m-%d %H:%M:%S')
-                if dt.today() > login_retry_date: 
-                    login_blocked = False
-                else:
-                    login_blocked = True
+            login_blocked = is_login_blocked(request, username)
 
             #check if username and password match, create new user_id session, del login_attempts session
-            if len(User.objects.filter(username=username, password=password)) == 1:
-                #filter database to find user with corrisponding username and password
+            if (
+                len(User.objects.filter(username=username, password=password)) == 1  and 
+                request.session["login_attempts"][username]["login_retry_date"] == -1
+            ):
                 user = User.objects.filter(username=username, password=password)
-
-                #get the user_id field from user_id
                 user_id = user.values_list("user_id", flat=True)[0]
-
-                #set the user_id in session to the user that just logged in, reset login attempts
-                request.session["user_id"] = user_id
-                
-                #redirect to home page id login successful
+                request.session["user_id"] = user_id  
+                del request.session["login_attempts"][username]
                 return redirect("/")
             else:
-                #display login error message, increment login_attempts 
                 context.update({"login_message":"Username and Password do not match"})
                 request.session["login_attempts"][username]["attempts"] += 1
                 request.session.modified = True
 
-    #if max login attempts exceeded, then block user for 24hrs and display message on page
-    if request.session["login_attempts"][username]["attempts"] >= MAX_LOGIN_ATTEMPTS:
+    try:
+        login_attempts = request.session["login_attempts"][username]["attempts"]
+    except:
+        try:
+            login_attempts = request.session["login_attempts"]["last_attempted_username"]["attempts"]
+        except:
+            login_attempts = 0
+
+    if login_attempts >= MAX_LOGIN_ATTEMPTS:
         if not login_blocked:
-            #if the user does not have a login time restriction, create a new one
             tommorow = dt.strptime(str(dt.now() + timedelta(1)).split(".")[0], "%Y-%m-%d %H:%M:%S")
-            
-            #add the new date to session in json format otherwise serializer error
             request.session["login_attempts"][username]["login_retry_date"] = json.dumps(tommorow, default=str)
 
-        #if login block date already set then display login error message, showing when the user can try to login again
         login_retry_date = request.session["login_attempts"][username]["login_retry_date"]
         ''' ? EMAIL USER ? '''
         context.update({"login_message":["YOU HAVE ATTEMPTED LOGIN TOO MANY TIMES:", f"try again on {login_retry_date}"]})
-
-    #add the username to context which can only happen if the user is logged in
-    
 
     return render(request, "App/login.html", context=context)
 
 
 
 def logout(request):
-    #when logging out delete user_id. 
-
     '''
     rework sessions for specific user, need to associate recently viewed with a user_id
     otherwise recently viewed items still show after logging out
@@ -483,10 +429,7 @@ def join(request):
         "password_max_chars":PASSWORD_LENGTH
     }
 
-    if "user_id" in request.session:
-        if request.session["user_id"] != -1:
-            return redirect("index")
-    else:
+    if request.session.get("user_id", -1) != -1:
         return redirect("index")
 
     if request.method == 'POST':
@@ -497,25 +440,20 @@ def join(request):
             password = form.cleaned_data["password"]
             password_confirmation = form.cleaned_data["password_confirmation"]
             
-            #check if passwords match other wise need to display message showing it
             if password == password_confirmation:
 
-                #check if the username / email already exists inside the database, cannot be duplicates
                 if len(User.objects.filter(Q(username=username) | Q(email=email))) == 0:
-                    #if the username or email does not already exist, add the new users details to database
                     new_user = User(
                         username=username,email=email,password=password,
                         email_preference="All", region="None"
                     )
                     new_user.save()
 
-                    #get the new users id to add to session
                     user = User.objects.filter(username=username, password=password)
                     user_id = user.values_list("user_id", flat=True)[0]
                     request.session["user_id"] = user_id
                     request.session.modified = True
                     return redirect("/")
-                #set error messages depending on what the user did wrong in filling out the form
 
             else:
                 context["signup_message"] = "Passwords do not Match"
@@ -529,7 +467,6 @@ def join(request):
         else:
             context["signup_message"] = get_login_error_message(form)
                
-    #add the username to context which can only happen if the user is logged in
     return render(request, "App/join.html", context=context)
 
 
@@ -550,12 +487,9 @@ def user_items(request, view, user_id):
     current_page = int(options.get("page", 1))
     sort_field = options.get("sort-field", "avg_price-desc")
 
-    #del request.session["filtered_themes"]
-
     filtered_themes = request.session.get("filtered_themes", [])
 
     items = DB.get_user_items(user_id, view)
-
     no_items = False
     if len(items) == 0:
         no_items = True
@@ -566,13 +500,18 @@ def user_items(request, view, user_id):
 
     items = format_item_info(items, owned_quantity_new=8, owned_quantity_used=9, graph_data=[graph_metric], user_id=user_id)
 
+    if "metric_filters" not in request.session:
+        request.session["metric_filters"] = {metric :  {"min":-1, "max":-1} for metric in ALL_METRICS}
+    metric_filters = request.session["metric_filters"]
+
+    items = filter_out_metric_filters(metric_filters, items)
+
     current_page = check_page_boundaries(current_page, len(items), USER_ITEMS_ITEMS_PER_PAGE)
     num_pages = slice_num_pages(len(items), current_page, USER_ITEMS_ITEMS_PER_PAGE)
 
     items = sort_items(items, sort_field)
     #keep selected sort field option as first <option> tag
     sort_options = sort_dropdown_options(sort_options, sort_field)
-
     graph_options = sort_dropdown_options(graph_options, graph_metric)
 
     total_unique_items = len(items)
@@ -590,12 +529,6 @@ def user_items(request, view, user_id):
     themes = get_sub_themes(user_id, parent_themes, [], -1, view, graph_metric)
 
     request.session["themes"] = [theme["theme_path"] for theme in themes]
-
-    if "metric_filters" not in request.session:
-        request.session["metric_filters"] = {metric :  {"min":-1, "max":-1} for metric in ALL_METRICS}
-    metric_filters = request.session["metric_filters"]
-
-    items = filter_out_metric_filters(metric_filters, items)
 
     context = {
         "items":items,
@@ -628,48 +561,13 @@ def view_POST(request, view):
         request.session["graph_options"] = sort_dropdown_options(get_graph_options(), request.POST.get("graph-metric", "avg_price"))
         return redirect(request.META.get('HTTP_REFERER'))
     
-    if "metric_filters" not in request.session:
-        request = set_default_metric_filters(request)
+
 
     if request.POST.get("form-type") == "theme-filter":
-
-        if "filtered_themes" not in request.session:
-            request.session["filtered_themes"] = []
-
-        themes = request.session.get("themes", [])
-        selected_theme = request.POST.get("theme-filter")
-
-        for sub_theme in themes[themes.index(selected_theme)+1:]:
-            if selected_theme in request.session["filtered_themes"]:
-                if selected_theme.count("~") < sub_theme.count("~"):
-                    if sub_theme in request.session["filtered_themes"]:
-                        request.session["filtered_themes"].remove(sub_theme)
-                else:
-                    break
-            else:
-                if selected_theme.count("~") < sub_theme.count("~"):
-                    if sub_theme not in request.session["filtered_themes"]:
-                        request.session["filtered_themes"].append(sub_theme)
-                else:
-                    break
-
-        if selected_theme not in request.session["filtered_themes"]:
-                request.session["filtered_themes"].append(selected_theme)
-        else:
-            request.session["filtered_themes"].remove(selected_theme)
+        request = process_theme_filters(request)
 
     elif request.POST.get("form-type") == "metric-filter":
-
-        for metric in ALL_METRICS:
-            for limit in ["min", "max"]:
-
-                if request.POST.get(f"{metric}_{limit}") != None and request.POST.get(f"{metric}_{limit}") != '':
-                    try:
-                        _input = float(request.POST.get(f"{metric}_{limit}"))
-                    except:
-                        _input = 0
-                    request.session["metric_filters"][metric][limit] = _input
-                    request.session.modified = True
+        request = process_metric_filters(request)
 
     if request.POST.get("clear-form") == "clear-metric-filters":
         request = set_default_metric_filters(request)

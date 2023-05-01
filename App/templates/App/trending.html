@@ -28,8 +28,8 @@
         <div id="slider-container">
             <form action="{% url 'trending_POST' %}" method="post">
                 {% csrf_token %}
-                <input type="range" id="slider_start" name="slider_start" min="0" max="{{max_slider_start_value}}" value="{{slider_start_value}}">
-                <input type="range" id="slider_end" name="slider_end" min="{{min_slider_end_value}}" max="{{max_slider_end_value}}" value="{{slider_end_value}}">
+                <input type="range" id="slider_start" min="{{slider_start_min_value}}" max="{{slider_start_max_value}}" name="slider_start" value="{{slider_start_value}}">
+                <input type="range" id="slider_end" min="{{slider_end_min_value}}" max="{{slider_end_max_value}}" name="slider_end" value="{{slider_end_value}}">
             </form>
             <p id="slider-value">
                 {{dates|iterable_index:slider_start_value}}
@@ -78,7 +78,7 @@
         var slider_start_value = parseInt(slider_start.value) 
 
         var slider_end = document.getElementById("slider_end") 
-        var slider_end_value = parseInt(slider_end.value) + 1 
+        var slider_end_value = parseInt(slider_end.value) 
 
         var string_spaces = '\xa0'.repeat(6)
 
