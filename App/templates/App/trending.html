@@ -22,7 +22,10 @@
 <section id="main-container">
     <h2>Trending</h2>
 
-    {% include 'App/template_blocks/filters.html' with action_view='trending_POST' view='trending' %}
+    <section id="filters-container">
+        <button id="collapse-filters-button" onclick="hide_unhide('filters')">Show Filters</button>
+        {% include 'App/template_blocks/filters.html' with action_view='trending_POST' view='trending' %}
+    </section>
 
     <div id="header">
         <div id="inputs-forms-container">
@@ -31,6 +34,7 @@
         <div id="slider-container">
             <form action="{% url 'trending_POST' %}" method="post">
                 {% csrf_token %}
+                <input type="hidden" name="form-type" value="sliders-form">
                 <input type="range" id="slider_start" min="{{slider_start_min_value}}" max="{{slider_start_max_value}}" name="slider_start" value="{{slider_start_value}}">
                 <input type="range" id="slider_end" min="{{slider_end_min_value}}" max="{{slider_end_max_value}}" name="slider_end" value="{{slider_end_value}}">
             </form>
@@ -97,6 +101,14 @@
 
     slider_start.onchange = submit_form
     slider_end.onchange = submit_form
+
+    document.addEventListener("DOMContentLoaded", function() {
+        display = localStorage.getItem("cached")
+        console.log("reload", display)
+        document.getElementById('filters').style.display = display
+    })
+
+    window.onload = maintain_scroll_pos("theme-filters-form-container")
 
 </script>
 

@@ -107,7 +107,6 @@ def index(request):
 
 
 def item(request, item_id):
-    print(len(DB.get_theme_sets("Star_Wars")))
     request, options = save_POST_params(request)
 
     metric = options.get("graph-metric", "avg_price")
@@ -116,8 +115,6 @@ def item(request, item_id):
     item_info = format_item_info(
         DB.get_item_info(item_id, metric), graph_data=ALL_METRICS, view="item"
     )
-
-    print(item_info)
 
     if item_info != []:
         #convert first and last item into new format so on window load slider max value is not Day, Month, Year format 
@@ -161,7 +158,6 @@ def item(request, item_id):
     total_owners = DB.get_total_owners_or_watchers("portfolio", item_id)
 
     sub_sets = DB.get_item_subsets(item_id)
-    super_sets = DB.get_item_supersets(item_id)
 
     metric_changes = [DB.get_item_metric_changes(item_id, metric) for metric in ALL_METRICS]
     metric_changes = format_metric_changes(metric_changes)
@@ -180,11 +176,16 @@ def item(request, item_id):
         "total_watchers":total_watchers,
         "total_owners":total_owners,
         "graph_checkboxes":get_graph_checkboxes(),
-        "sub_sets":format_sub_sets(sub_sets),
-        "super_sets":format_super_sets(super_sets),
+        "sub_sets":sub_sets,
         "metric_changes":metric_changes,
-        "most_recent_set_appearance":DB.most_recent_set_appearance(item_id),
+        
     }
+
+    if item_info["item_type"] == "M":
+        context["super_sets"] = format_super_sets(DB.get_item_supersets(item_id))
+        context["most_recent_set_appearance"]:DB.most_recent_item_appearance(item_id)
+    else:
+        context["figures"] = format_item_info(DB.get_set_items(item_id), quantity=8)
 
     return render(request, "App/item.html", context=context)
 
@@ -354,7 +355,9 @@ def search(request, theme_path='all'):
         
         theme_items = [] 
     else:
-        theme_items = DB.get_theme_items(theme_path.replace("/", "~"), sort_field.split("-"))[(current_page-1) * SEARCH_ITEMS_PER_PAGE : (current_page) * SEARCH_ITEMS_PER_PAGE] #return all sets for theme        
+        theme_items = DB.get_theme_items(theme_path.replace("/", "~"), sort_field.split("-"))
+        current_page = check_page_boundaries(current_page, len(theme_items), SEARCH_ITEMS_PER_PAGE)
+        theme_items = theme_items[(current_page-1) * SEARCH_ITEMS_PER_PAGE : (current_page) * SEARCH_ITEMS_PER_PAGE]        
         theme_items = format_item_info(theme_items,graph_data=[graph_metric] ,user_id=user_id)
 
         if len(theme_items) == 0:

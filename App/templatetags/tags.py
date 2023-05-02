@@ -34,18 +34,18 @@ def max_search_suggestions():
 
 
 @register.simple_tag
-def item_ids():
-    return list(map(str.lower, Item.objects.filter(
-        item_type="M", theme__theme_path__contains="Star_Wars", 
-        item_id__contains="sw"
-        ).values_list("item_id", flat=True).distinct("item_id")))
+def item_details_search_suggestions():
+    details = list(Item.objects.filter(
+        theme__theme_path__contains="Star_Wars", 
+        ).values_list("item_id", "item_name", "item_type").distinct("item_id"))
+    
+    return [{"item_id":detail[0].lower(), "item_name":detail[1].lower(), "item_type":ITEM_TYPE_CONVERT[detail[2]]} for detail in details]
 
 
 @register.simple_tag
 def item_names():
     names = list(map(str.lower, Item.objects.filter(
-        item_type="M", theme__theme_path__contains="Star_Wars", 
-        item_id__contains="sw"
+        theme__theme_path__contains="Star_Wars", 
     ).values_list("item_name", flat=True).distinct("item_id")))
 
     return ["".join([char for char in name if char not in [")", "(", ",", "-", "."]]) for name in names]
@@ -211,6 +211,11 @@ def replace(string:str, replace_args:str):
 @register.filter
 def get_item(_dict:dict, key:str):
     return _dict.get(key)
+
+
+@register.filter
+def count(string:str, sub_string:str) -> int:
+    return string.count(sub_string)
 
 
 @register.filter

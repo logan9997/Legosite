@@ -12,9 +12,39 @@ function maintain_scroll_pos(elememt_id) {
 }
 
 
+function hide_unhide(elem_id) {
+    var elem_style = document.getElementById(elem_id).style.display
+    var button = document.getElementById('collapse-filters-button')
+    var cached = localStorage.getItem("cached", elem_style)
+
+    if (elem_style == "block") {
+        document.getElementById(elem_id).style.display = "none"
+        button.innerHTML = "Show Filters"
+    } else {
+        document.getElementById(elem_id).style.display = "block"
+        button.innerHTML = "Hide Filters"
+    }
+    localStorage.setItem('cached', document.getElementById(elem_id).style.display);
+
+}
+
+
+function dict_item_to_list(dict_key, list) {
+    var items = []
+    for (let i = 0; i < list.length; i ++) {
+        items.push(list[i][dict_key])
+    }
+    return items
+}
+
+
 function search_suggestions(input) {
-    var item_ids = JSON.parse(document.getElementById("item_ids").textContent);
-    var item_names = JSON.parse(document.getElementById("item_names").textContent);
+    var item_details = JSON.parse(document.getElementById("item_details").textContent);
+
+    var item_names = dict_item_to_list("item_name", item_details)
+    var item_ids = dict_item_to_list("item_id", item_details)
+    var item_types = dict_item_to_list("item_type", item_details)
+
     var input = document.getElementById("item-id-input").value.toLowerCase();
     const max_search_suggestions = JSON.parse(document.getElementById("max_search_suggestions").textContent)
     const main_container = document.getElementById("search-logout-suggestions-container")
@@ -37,12 +67,7 @@ function search_suggestions(input) {
 
     var matches = 0;
     for (let i = 0; i < item_ids.length; i ++) {
-        if (
-            (
-            item_ids[i].slice(0,input.length) == input || 
-            item_names[i].includes(input)
-            ) && input != ""
-        ) {
+        if ((item_ids[i].slice(0,input.length) == input || item_names[i].includes(input)) && input != "") {
 
             name_part1 = item_names[i].split(input)[0]
             name_part2 = item_names[i].split(input)[1]
@@ -54,7 +79,7 @@ function search_suggestions(input) {
             html_block.innerHTML = `
                     <div class="item-id-img-container">
                         <a href="/item/${item_ids[i]}" onclick="clear_search_suggestions()" class="item-id">${item_ids[i].replaceAll(input, `<span style="color:black">${input}</span>`)}</a>
-                        <img class="item-img" src="/static/App/minifigures/${item_ids[i]}.png">
+                        <img class="item-img" src="/static/App/${item_types[i]}s/${item_ids[i]}.png">
                     </div>
                     <div class="item-name-contianer">
                         <p class="item-name">${item_names[i].replaceAll(input, `<span style="color:black">${input}</span>`)}</p>

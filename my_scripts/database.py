@@ -165,6 +165,17 @@ class DatabaseManagment():
                 AND item_type = 'S'
         '''
         return self.SELECT(sql)
+    
+
+    def get_theme_sets(self, theme):
+        sql = f'''
+            SELECT DISTINCT ON (I.item_id) I.item_id 
+            FROM "App_item" I, "App_theme" TH
+            WHERE I.item_id = TH.item_id
+                AND item_type = 'S'
+                AND theme_path like '{theme}%'
+        '''
+        return self.SELECT(sql, flat=True)
 
     
     def get_biggest_trends(self, change_metric, **kwargs) -> list[str]:
@@ -250,7 +261,6 @@ class DatabaseManagment():
             WHERE T.item_id = I.item_id
                 AND I.item_id = P1.item_id
                 AND theme_path = '{theme_path}'
-                AND item_type = 'M'
                 AND (I.item_id, date) = any (
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
                     FROM "App_price" P2  
@@ -260,6 +270,17 @@ class DatabaseManagment():
         '''
         return self.SELECT(sql)      
 
+
+    def get_set_items(self, set_id):
+        sql = f'''
+            SELECT DISTINCT ON (I.item_id) I.item_id, item_name, year_released, item_type, avg_price, 
+            min_price, max_price, total_quantity, quantity
+            FROM "App_setparticipation" SP, "App_item" I, "App_price" PR
+            WHERE SP.item_id = I.item_id 
+                AND I.item_id = PR.item_id
+                AND set_id = '{set_id}'
+        '''
+        return self.SELECT(sql)
 
 
     def get_star_wars_sets(self):
@@ -279,16 +300,22 @@ class DatabaseManagment():
             if user_id != -1 and view in ["portfolio", "watchlist"]:
                 sql = f'''
                     SELECT DISTINCT ON (TH.item_id) TH.item_id
-                    FROM "App_{view}" _view, "App_theme" TH
-                    WHERE _view.item_id = TH.item_id
+                    FROM "App_{view}" _view, "App_theme" TH, "App_item" I
+                    WHERE I.item_id = TH.item_id
+                        AND TH.item_id = _view.item_id
                         AND user_id = {user_id}
+                        AND item_type = 'M'
+                        AND theme_path LIKE 'Star_Wars%'
                         AND theme_path NOT IN {str(themes).replace("[", "(").replace("]", ")")}
                 '''
             else:
                 sql = f'''
                     SELECT TH.item_id
-                    FROM "App_theme" TH
+                    FROM "App_theme" TH, "App_item" I
                     WHERE theme_path NOT IN {str(themes).replace("[", "(").replace("]", ")")}
+                        AND theme_path LIKE 'Star_Wars%'
+                        AND I.item_type = 'M'
+                        AND I.item_id = TH.item_id
                 '''
             return self.SELECT(sql, flat=True)
         return []
@@ -328,7 +355,7 @@ class DatabaseManagment():
         return self.SELECT(sql, fetchone=True)[0]
 
 
-    def most_recent_set_appearance(self, item_id):
+    def most_recent_item_appearance(self, item_id):
         sql = f'''
             SELECT year_released
             FROM "App_setparticipation" SP, "App_item" I
@@ -342,6 +369,7 @@ class DatabaseManagment():
             AND SP.item_id = '{item_id}'
             GROUP BY I.item_id
         '''
+
         result = self.SELECT(sql, fetchone=True)
         if result == None:
             return None
@@ -627,16 +655,16 @@ class DatabaseManagment():
             GROUP BY date
         '''
         return self.SELECT(sql)
-
+    
 
     def get_all_itemIDs(self) -> list[str]:
-        sql = '''
+        sql = f'''
             SELECT item_id
             FROM "App_item"
             WHERE item_id LIKE 'sw%' 
                 AND item_type = 'M'
         '''
-        return [_item[0] for _item in self.SELECT(sql)]
+        return self.SELECT(sql, flat=True)
 
 
     def insert_item_info(self, item_info) -> None:

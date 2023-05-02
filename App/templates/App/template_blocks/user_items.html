@@ -9,7 +9,9 @@
     <div id="tool-bar-header" class="headers">
         <h2>Overview</h2>
     </div>
-    
+
+
+
     <div id="items-header" class="headers">
         {% include 'App/template_blocks/item_filters_and_sorts.html' with action_view='view_POST' sub_view=view item_id=item_id %}
     </div>
@@ -20,7 +22,8 @@
 
     <section id="tool-bar">
             {% if request.GET.item != None%}
-
+                <h3>Return to <a href="{% url view %}">{{view|capitalise}}</a></h3>
+        
                 <div class="tool-bar-div" id="stats">
                     <h3>Stats</h3>
                     <p>Total Market Value : £{{total_market_value|two_decimals}}</p>
@@ -177,9 +180,5 @@
     </section>
     {% endif %}
 </section>
-
-<script>
-    window.onload = maintain_scroll_pos("themes-filter")
-</script>
 
 {% endblock%}

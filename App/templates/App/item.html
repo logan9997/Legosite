@@ -8,7 +8,7 @@
 <section id="layer1" class="layers">
 
     <section id="main-item-container">
-        {% include 'App/template_blocks/item_container.html' %}
+        {% include 'App/template_blocks/item_container.html' with show_availability=True show_year_released=True %}
     </section>
 
     <section id="info-overview">
@@ -37,9 +37,15 @@
             </div>
 
         <div class="info-block">
+            {% if item.item_type == 'M' %}
             <h3>Sets and Pieces</h3>
             <p>Pieces : {{sub_sets|length}}</p>
             <p>Sets : {{super_sets|length}}</p>
+            {% else %}
+            <h3>Minifigures and Pieces</h3>
+            <p>Pieces : {{sub_sets|length}}</p>
+            <p>Unique Figures : {{figures|length}}</p>
+            {% endif %}
         </div>
 
         <div class="info-block">
@@ -47,8 +53,10 @@
             <br>
             <p>Owned By : {{total_owners}}</p>
             <p>Watched By : {{total_watchers}}</p>
+            {% if item.item_type == 'M' %}
             <br>
             <p>Last Appearance : {{most_recent_set_appearance}}</p>
+            {% endif %}
 
             <div id="item-themes-container">
                 <h4>Themes</h4>
@@ -138,7 +146,7 @@
 </section>
 
 <section id="layer3" class="layers">
-    
+    {% if item.item_type == "M" %}
     <section id="super-sets-container">
         <h3>Sets</h3>
         <div class="sub-super-set-container">
@@ -149,7 +157,7 @@
                 </div>
 
                 <div class="set-info-container">
-                    <p>{{set.set_id}}</p>
+                    <a href="{% url 'item' set.set_id %}">{{set.set_id}}</a>
                     <p>{{set.set_name}}</p>
                     <p>Year Released : {{set.year_released}}</p>
                     <p>Quantity : {{set.quantity}}</p>
@@ -158,6 +166,18 @@
         {% endfor %}
         </div>
     </section>
+
+    {% else %}
+
+    <section id="figures-container">
+        <h3>Minifigures</h3>
+        <div class="sub-super-set-container">
+        {% for figure in figures %}
+            {% include 'App/template_blocks/item_container.html' with item=figure quantity=figure.quantity show_year_released=True %}
+        {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 
     <section id="sub-sets-container">
         <h3>Pieces</h3>
@@ -180,7 +200,7 @@
         <div id="similar-items-container">
             {% for item in similar_items %}
             <div class="similar-item-container">
-                {% include 'App/template_blocks/item_container.html' with item=item scroll_to_top=True %} 
+                {% include 'App/template_blocks/item_container.html' with item=item scroll_to_top=True show_year_released=True show_availability=True %} 
             </div>
             {% endfor %}
         </div>

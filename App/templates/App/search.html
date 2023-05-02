@@ -34,7 +34,15 @@
     
     {% endif %}
 
-    {% if theme_items|length > 0 %}
+    
+    {% if request.get_full_path|count:"/" != 2 %}
+    <section id="filters-container">
+        <button id="collapse-filters-button" onclick="hide_unhide('filters')">Show Filters</button>
+        {% include 'App/template_blocks/filters.html' with action_view='trending_POST' view='search' %}
+    </section>
+    {% endif %}
+
+    {% if theme_items|length > 0 and request.get_full_path|count:"/" != 2 %}
 
     <section id="theme-items-container">
         <!-- item sorting, graph data, page buttons -->
@@ -80,6 +88,17 @@
         </div>
     </section>
     {% endif %}
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        display = localStorage.getItem("cached")
+        console.log("reload", display)
+        document.getElementById('filters').style.display = display
+    })
+
+    window.onload = maintain_scroll_pos("theme-filters-form-container")
+
+    </script>
 
 {% endblock %}
 

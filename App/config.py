@@ -26,6 +26,10 @@ MAX_GRAPH_POINTS = 12
 MAX_GRAPH_POINTS_ITEM_VIEW = 40
 MAX_LOGIN_ATTEMPTS = 5
 ALL_METRICS = ["avg_price", "min_price", "max_price", "total_quantity"]
+ALL_ITEM_FIELDS = [
+    "item__item_id", "item__item_name", "item__year_released", "item__item_type", 
+    "price__avg_price", "price__min_price", "price__max_price", "price__total_quantity"
+]
 METRIC_INPUT_STEPS = {
     "avg_price":0.01,
     "min_price":0.01,

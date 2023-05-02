@@ -36,9 +36,16 @@
         </div> 
         {% endif %}
 
-        {% if show_year_released_availability %}
+        {% if show_year_released %}
             <p class="year-released">Year Released : {{item.year_released}}</p>
+        {% endif %}
+
+        {% if show_availability %}
             <p class="availablilty">Availablilty : -</p>
+        {% endif %}
+
+        {% if quantity != None %}
+            <p>Qty : {{quantity}}</p>
         {% endif %}
     </div>
 

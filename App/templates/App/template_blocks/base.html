@@ -30,8 +30,8 @@
     {% check_login_status request %}
     {% add_username_email_to_context request %}
 
-    {% item_ids as item_ids %}
-    {{ item_ids|json_script:"item_ids" }}
+    {% item_details_search_suggestions as item_details %}
+    {{ item_details|json_script:"item_details" }}
 
     {% item_names as item_names %}
     {{ item_names|json_script:"item_names" }}

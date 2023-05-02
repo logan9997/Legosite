@@ -34,6 +34,7 @@ def check_http_response(func):
 def update_prices():
     DB = DatabaseManagment()
     sw_ids = DB.get_all_itemIDs()
+    sw_ids.extend(DB.get_theme_sets("Star_Wars"))
 
     #update keys if outdated
     recorded_ids = [_item[0] for _item in DB.get_todays_price_records()]
@@ -42,7 +43,7 @@ def update_prices():
         if item not in recorded_ids:
             print(item)
 
-            item_info = RESP.get_response_data(f"items/MINIFIG/{item}/price")
+            item_info = RESP.get_response_data(f"items/SET/{item}/price")
 
             try:
                 DB.add_price_info(item_info)

@@ -4,19 +4,21 @@
     background-color: gainsboro;
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
-    padding-bottom: 0.4rem;
+    padding:0.5rem 0 0.4rem;
 }
 
 #filters h4 {
     text-align: center;
-    margin: 0 0 0.4rem;
+    margin: 1rem 0 0.4rem;
     font-style: italic;
 }
 
-#themes-filter {
-    max-height: 12rem;
+
+#theme-filters-form-container {
+    max-height: 15.5rem;
     overflow-y: auto;
 }
+
 
 #filters table {
     width: 90%;
@@ -80,6 +82,11 @@
     width: 1.4rem;
 }
 
+.clear-button {
+    background-color: orangered;
+    border-radius: 0.5rem;
+}
+
 #clear-theme-filters-button {
     width: 4rem;
     margin:0.4rem calc(50% - 2rem) 1rem;
@@ -97,4 +104,5 @@
 
 #metric-filters-submit-button {
     background-color: orangered;
+    border-radius: 0.5rem;
 }

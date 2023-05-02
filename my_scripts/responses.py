@@ -65,10 +65,8 @@ class Response():
     def write_new_request_count(self):
         with open(self._request_count_file, "w") as file:
             if self._request_count == 0:
-                print("==0")
                 write_time = str(time.time())
             else:
-                print("!=0")
                 write_time = str(self._recorded_time)
 
             file.write(f"{str(self._request_count)}\n{write_time}")
@@ -95,11 +93,3 @@ class Response():
         else:
             return {"ERROR":self.response}
         
-
-def main():
-
-    resp = Response()
-    resp.get_response_data(f"items/MINIFIG/sw0001a/price")
-        
-if __name__ == "__main__":
-    main()

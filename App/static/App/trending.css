@@ -4,6 +4,47 @@
     border-radius: 1rem;
 }
 
+#filters {
+    display: none;
+    border: 0.1rem black solid;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+#filters h3 {
+    margin: 0;
+}
+
+#filters-flex-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    margin-bottom: 1rem;
+}
+
+.filter-container {
+    width: 48%;
+    margin: 0 !important;
+    min-height: 20rem !important;
+}
+
+#collapse-filters-button {
+    background-color: orangered;
+    border-radius: 0.5rem;
+    box-shadow: 0.2rem 0.2rem 0.2rem black;
+    width: 6rem;
+    margin-left: calc(50% - 3rem);
+    margin-bottom: 1rem;
+}
+
+#themes-filter {
+    border-bottom: 0.1rem black solid;
+}
+
+#metric-filters table {
+    height: 18.6rem;
+}
+
 h2 {
     font-size: 2rem;
     text-align: center;
