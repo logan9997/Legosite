@@ -565,7 +565,7 @@ def is_login_blocked(request, username):
 
 
 
-def process_filters(request, items, user_id, view, themes):
+def process_filters(request, items, user_id, view):
     filtered_themes = request.session.get("filtered_themes", [])
 
     no_items = False

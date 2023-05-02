@@ -252,7 +252,7 @@ def trending(request):
     themes = list(Theme.objects.filter(item_id__in=DB.get_starwars_ids()).values_list("theme_path", flat=True).distinct("theme_path"))
     themes_formatted = [{"theme_path":theme} for theme in themes]
 
-    filter_results = process_filters(request, items, user_id, "item", themes)
+    filter_results = process_filters(request, items, user_id, "item")
     items = filter_results["items"]
     request = filter_results["request"]
 
@@ -533,7 +533,7 @@ def user_items(request, view, user_id):
     themes = get_sub_themes(user_id, parent_themes, [], -1, view, graph_metric)
     print(themes)
 
-    filter_results = process_filters(request, items, user_id, view, graph_metric, [theme["theme_path"] for theme in themes])
+    filter_results = process_filters(request, items, user_id, view)
     items = filter_results["items"]
     request = filter_results["request"]
 
