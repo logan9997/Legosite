@@ -278,17 +278,17 @@ class DatabaseManagment():
         if themes != []:
             if user_id != -1 and view in ["portfolio", "watchlist"]:
                 sql = f'''
-                    SELECT TH.item_id
+                    SELECT DISTINCT ON (TH.item_id) TH.item_id
                     FROM "App_{view}" _view, "App_theme" TH
                     WHERE _view.item_id = TH.item_id
                         AND user_id = {user_id}
-                        AND theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
+                        AND theme_path NOT IN {str(themes).replace("[", "(").replace("]", ")")}
                 '''
             else:
                 sql = f'''
                     SELECT TH.item_id
                     FROM "App_theme" TH
-                    WHERE theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
+                    WHERE theme_path NOT IN {str(themes).replace("[", "(").replace("]", ")")}
                 '''
             return self.SELECT(sql, flat=True)
         return []
@@ -435,8 +435,6 @@ class DatabaseManagment():
 
 
     def get_user_items(self, user_id, view) -> list[str]:
-
-        print(view)
         sql_select = "SELECT DISTINCT ON (I.item_id) _view1.item_id, item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity"
         if view == "portfolio":
             sql_select += f''',
@@ -794,7 +792,7 @@ class DatabaseManagment():
                 {user_id_sql}
             GROUP BY theme_path
         '''
-        return self.SELECT(sql, print=True)
+        return self.SELECT(sql)
     
 
     def get_popular_items(self) -> list[str]:
