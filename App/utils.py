@@ -58,7 +58,7 @@ def format_item_info(items:tuple, **kwargs) -> list[dict]:
         "min_price":item[5],
         "max_price":item[6],
         "total_quantity":item[7],
-        "img_path":f"App/minifigures/{item[0]}.png",
+        "img_path":f"App/{ITEM_TYPE_CONVERT[item[3]]}s/{item[0]}.png",
         }
     
         if "metric_changes" in kwargs:
@@ -147,7 +147,7 @@ def format_theme_items(theme_items):
         {
             "item_id":item[0],
             "item_type":item[1],
-            "img_path":f"App/sets/{item[0]}.png",
+            "img_path":f"App/{ITEM_TYPE_CONVERT[item[1]]}/{item[0]}.png",
         } for item in theme_items
     ]
 
@@ -572,7 +572,7 @@ def process_filters(request, items, user_id, view):
     if len(items) == 0:
         no_items = True
 
-    if filtered_themes != []:
+    if filtered_themes != [] and len(items) != 0:
 
         #set key if items have / have not been formatted into dict
         if type(items[0]) == dict:
@@ -581,7 +581,7 @@ def process_filters(request, items, user_id, view):
             key = 0
 
         items_to_filter_by_theme = DB.filter_items_by_theme(filtered_themes, view, user_id)
-        items = list(filter(lambda x:x[key] not in items_to_filter_by_theme, items))
+        items = list(filter(lambda x:x[key] in items_to_filter_by_theme, items))
     
     if "metric_filters" not in request.session:
         request.session["metric_filters"] = {metric :  {"min":-1, "max":-1} for metric in ALL_METRICS}
@@ -592,3 +592,11 @@ def process_filters(request, items, user_id, view):
         "no_items":no_items, "request":request, "items":items, 
         "filtered_themes":filtered_themes, "metric_filters":metric_filters
     }
+
+
+def clear_filters(request, view):
+    if view not in request.META.get('HTTP_REFERER', ""):
+        request = set_default_metric_filters(request)
+        request.session["filtered_themes"] = []
+    request.session.modified = True
+    return request

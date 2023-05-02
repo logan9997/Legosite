@@ -107,7 +107,7 @@ def index(request):
 
 
 def item(request, item_id):
-
+    print(len(DB.get_theme_sets("Star_Wars")))
     request, options = save_POST_params(request)
 
     metric = options.get("graph-metric", "avg_price")
@@ -117,10 +117,15 @@ def item(request, item_id):
         DB.get_item_info(item_id, metric), graph_data=ALL_METRICS, view="item"
     )
 
+    print(item_info)
+
     if item_info != []:
         #convert first and last item into new format so on window load slider max value is not Day, Month, Year format 
-        item_info[0]["dates"][-1] = item_info[0]["dates"][-1].strftime('%Y-%m-%d')
-        item_info[0]["dates"][0] = item_info[0]["dates"][0].strftime('%Y-%m-%d')
+        if len(item_info[0]["dates"]) >= 2:
+            item_info[0]["dates"][-1] = item_info[0]["dates"][-1].strftime('%Y-%m-%d')
+            item_info[0]["dates"][0] = item_info[0]["dates"][0].strftime('%Y-%m-%d')
+        else:
+            item_info[0]["dates"][0] = item_info[0]["dates"][0].strftime('%Y-%m-%d')
 
     if item_info == []:
         return redirect(request.META.get('HTTP_REFERER'))
@@ -184,25 +189,28 @@ def item(request, item_id):
     return render(request, "App/item.html", context=context)
 
 def trending_POST(request):
-    request, options = save_POST_params(request)
 
-    graph_metric = options.get("graph-metric", "avg_price")
-    trending_order = options.get("sort-field", "avg_price-desc")
-    current_page = options.get("page", 1)
+    if request.POST.get("form-type") == "graph-metric-form":    
+        graph_metric = request.POST.get("graph-metric")
+        request.session["graph_metric"] = graph_metric
 
-    request.session["graph_metric"] = graph_metric
-    request.session["trending_order"] = trending_order
-    request.session["current_page"] = current_page
+    elif request.POST.get("form-type") == "sort-form":
+        trending_order = request.POST.get("sort-field")
+        request.session["trending_order"] = trending_order
 
-    dates = list(Price.objects.distinct("date").values_list("date", flat=True))
+    elif request.POST.get("form-type") == "page-buttons-form":
+        current_page = request.POST.get("page")
+        request.session["current_page"] = current_page
 
-    slider_start_value = request.POST.get("slider_start", 0)
-    slider_end_value = request.POST.get("slider_end", len(dates)-1)
 
-    request.session["slider_start_value"] = slider_start_value
-    request.session["slider_end_value"] = slider_end_value
+    elif request.POST.get("form-type") == "sliders-form":
+        dates = list(Price.objects.distinct("date").values_list("date", flat=True))
 
-    print(slider_start_value, slider_end_value)
+        slider_start_value = request.POST.get("slider_start", 0)
+        slider_end_value = request.POST.get("slider_end", len(dates)-1)
+
+        request.session["slider_start_value"] = slider_start_value
+        request.session["slider_end_value"] = slider_end_value
 
     return redirect("trending")
 
@@ -219,6 +227,10 @@ def filters_POST(request, view):
     
     elif request.POST.get("clear-form") == "clear-theme-filters":
         request.session["filtered_themes"] = []
+
+    if view == "search":
+        return redirect(request.META.get('HTTP_REFERER'))
+
     return redirect(view)
 
 
@@ -230,6 +242,8 @@ def trending(request):
     trending_order:str = request.session.get("trending_order", "avg_price-desc") 
     trending_metric = trending_order.split("-")[0]
     current_page = int(request.session.get("current_page", 1))
+
+    request = clear_filters(request, "trending")
 
     graph_options = sort_dropdown_options(get_graph_options(), trending_metric)
     trend_options = sort_dropdown_options(get_trending_options(), trending_order)
@@ -245,10 +259,6 @@ def trending(request):
 
     items = DB.get_biggest_trends(trending_metric, max_date=max_date, min_date=min_date)
 
-    all_items_len = len(items)
-    
-    current_page = check_page_boundaries(current_page, all_items_len, TRENDING_ITEMS_PER_PAGE)
-
     themes = list(Theme.objects.filter(item_id__in=DB.get_starwars_ids()).values_list("theme_path", flat=True).distinct("theme_path"))
     themes_formatted = [{"theme_path":theme} for theme in themes]
 
@@ -256,24 +266,22 @@ def trending(request):
     items = filter_results["items"]
     request = filter_results["request"]
 
+    current_page = check_page_boundaries(current_page, len(items), TRENDING_ITEMS_PER_PAGE)
+
     num_pages = slice_num_pages(len(items), current_page, TRENDING_ITEMS_PER_PAGE)
 
     items = items[(current_page-1) * TRENDING_ITEMS_PER_PAGE : (current_page) * TRENDING_ITEMS_PER_PAGE]
     #remove trending items if % change (-1) is equal to None (0.00)
     items = [_item for _item in items if _item[-1] != None]
 
-
     items = format_item_info(items, metric_trends=[trending_metric], graph_data=[trending_metric])
-
-
+    
     for _item in items:
         metrics = [DB.get_item_metric_changes(_item["item_id"], metric, max_date=max_date, min_date=min_date) for metric in ALL_METRICS]
         metrics = format_metric_changes(metrics)
         _item["metric_changes"] = metrics
 
- 
     request.session["themes"] = themes
-
 
     context = {
         "items":items,
@@ -298,7 +306,7 @@ def trending(request):
         "themes":themes_formatted,
     }
 
-    clear_session_url_params(request, "graph_metric", "trending_order", "current_page")
+    #clear_session_url_params(request, "graph_metric", "trending_order", "current_page")
 
     return render(request, "App/trending.html", context=context)
 
@@ -323,6 +331,8 @@ def search(request, theme_path='all'):
 
     request.session["theme_path"] = theme_path
 
+    request = clear_filters(request, "search")
+
     if 'all' in request.path:
         return redirect(request.path.replace("all/", ""))
 
@@ -332,22 +342,20 @@ def search(request, theme_path='all'):
 
     graph_metric = request.session.get("graph_metric", "avg_price")
     sort_field = request.session.get("sort_field", "avg_price-desc")
-    current_page = request.session.get("current_page",1)  
+    current_page = int(request.session.get("current_page",1)) 
 
     if "user_id" in request.session:
         user_id = request.session["user_id"]
     else:
         user_id = -1
 
-    
     if theme_path == 'all':
         sub_themes = [{"sub_theme":theme[0], "img_path":f"App/sets/{theme[1]}.png"} for theme in DB.get_sub_theme_set('', 0)]
         
         theme_items = [] 
     else:
-        theme_items = DB.get_theme_items(theme_path.replace("/", "~"), sort_field.split("-"))[(current_page-1) * SEARCH_ITEMS_PER_PAGE : (current_page) * SEARCH_ITEMS_PER_PAGE] #return all sets for theme
+        theme_items = DB.get_theme_items(theme_path.replace("/", "~"), sort_field.split("-"))[(current_page-1) * SEARCH_ITEMS_PER_PAGE : (current_page) * SEARCH_ITEMS_PER_PAGE] #return all sets for theme        
         theme_items = format_item_info(theme_items,graph_data=[graph_metric] ,user_id=user_id)
-        #add in
 
         if len(theme_items) == 0:
             pass
@@ -357,7 +365,19 @@ def search(request, theme_path='all'):
         sub_theme_indent = request.path.replace("/search/", "").count("/")
         sub_themes = [{"sub_theme":theme[0].split("~")[sub_theme_indent], "img_path":f"App/sets/{theme[1]}.png"} for theme in DB.get_sub_theme_set(theme_path.replace("/", "~"), sub_theme_indent)]
 
+    filter_results = process_filters(request, theme_items, user_id, "item")
+    request = filter_results["request"]
+    theme_items = filter_results["items"]
+
     total_theme_items = Theme.objects.filter(theme_path=theme_path.replace("/", "~"), item__item_type="M").count()
+
+    #remove first theme (parent theme)
+    themes = list(Theme.objects.filter(
+        item_id__in=DB.get_starwars_ids(),
+        theme_path__contains=theme_path.replace("/", "~")
+    ).values_list("theme_path", flat=True).distinct("theme_path"))[1:]
+
+    themes_formatted = [{"theme_path":theme} for theme in themes]
 
     current_page = check_page_boundaries(current_page, total_theme_items, SEARCH_ITEMS_PER_PAGE)
     page_numbers = slice_num_pages(total_theme_items, current_page, SEARCH_ITEMS_PER_PAGE)
@@ -381,7 +401,14 @@ def search(request, theme_path='all'):
         "graph_options":graph_options,
         "sort_options":sort_options,
         "biggest_theme_trends":format_biggest_theme_trends(biggest_theme_trends),
-        "theme_paths":theme_paths
+        "theme_paths":theme_paths,
+        "filtered_themes":filter_results["filtered_themes"],
+        "no_items":filter_results["no_items"],
+        "all_metrics":ALL_METRICS,
+        "metric_input_steps":METRIC_INPUT_STEPS,
+        "metric_filters":filter_results["metric_filters"],
+        "themes":themes_formatted,
+        "base_url":f"{base_url(request)}/search"
     }
     
     return render(request, "App/search.html", context=context)
@@ -531,7 +558,6 @@ def user_items(request, view, user_id):
 
     parent_themes = DB.parent_themes(user_id, view, graph_metric)
     themes = get_sub_themes(user_id, parent_themes, [], -1, view, graph_metric)
-    print(themes)
 
     filter_results = process_filters(request, items, user_id, view)
     items = filter_results["items"]
@@ -649,8 +675,11 @@ def portfolio(request, item_id=None):
 
         if "graph_metric" in request.session:
             context["graph_metric"] = request.session["graph_metric"]
+            del request.session["graph_metric"]
+
+        if "graph_options" in request.session:
             context["graph_options"] = request.session["graph_options"]
-            del request.session["graph_metric"] ; del request.session["graph_options"]
+            del request.session["graph_options"]
       
         items = Portfolio.objects.filter(item_id=item_id, user_id=user_id).values_list("condition", "bought_for", "sold_for", "date_added", "date_sold", "notes", "portfolio_id")
         items = format_portfolio_items(items)

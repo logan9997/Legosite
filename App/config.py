@@ -33,6 +33,11 @@ METRIC_INPUT_STEPS = {
     "total_quantity":1
 }
 
+ITEM_TYPE_CONVERT = {
+    "M":"minifigure",
+    "S":"set"
+}
+
 REMOVE_CHARS = ["(", ")"]
 INVALID_USERNAME_CHARS = []
 
