@@ -250,7 +250,7 @@ def trending(request):
     current_page = check_page_boundaries(current_page, all_items_len, TRENDING_ITEMS_PER_PAGE)
 
     themes = list(Theme.objects.filter(item_id__in=DB.get_starwars_ids()).values_list("theme_path", flat=True).distinct("theme_path"))
-    themes = [{"theme_path":theme} for theme in themes]
+    themes_formatted = [{"theme_path":theme} for theme in themes]
 
     filter_results = process_filters(request, items, user_id, "item", themes)
     items = filter_results["items"]
@@ -295,7 +295,7 @@ def trending(request):
         "all_metrics":ALL_METRICS,
         "metric_input_steps":METRIC_INPUT_STEPS,
         "metric_filters":filter_results["metric_filters"],
-        "themes":themes,
+        "themes":themes_formatted,
     }
 
     clear_session_url_params(request, "graph_metric", "trending_order", "current_page")

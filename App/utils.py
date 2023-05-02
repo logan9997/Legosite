@@ -223,7 +223,6 @@ def sort_themes(field:str, order:str, sub_themes:list[str]) -> list[str]:
 def get_login_error_message(form):
     error = str(form.errors)
     errors = list(filter(lambda x:x != "</ul>", error.split("</li>")))
-    print(errors)
 
     if "Enter a valid email address" in error:
         error_msg = "Invalid Email"
@@ -446,6 +445,9 @@ def format_metric_changes(metrics) -> list[dict]:
 
 def filter_out_metric_filters(metric_filters, items) -> list:
 
+    if len(items) == 0:
+        return []
+    
     if type(items[0]) == dict:
         keys = {
             "avg_price":"avg_price",
@@ -476,12 +478,14 @@ def set_default_metric_filters(request):
 
 
 def process_theme_filters(request):
+    #el request.session["filtered_themes"]
     if "filtered_themes" not in request.session:
         request.session["filtered_themes"] = []
 
 
     themes = request.session.get("themes", [])
     selected_theme = request.POST.get("theme-filter")
+
 
     for sub_theme in themes[themes.index(selected_theme)+1:]:
         if selected_theme in request.session["filtered_themes"]:
@@ -498,9 +502,10 @@ def process_theme_filters(request):
                 break
 
     if selected_theme not in request.session["filtered_themes"]:
-            request.session["filtered_themes"].append(selected_theme)
+        request.session["filtered_themes"].append(selected_theme)
     else:
         request.session["filtered_themes"].remove(selected_theme)
+    request.session.modified = True
     return request
 
 
