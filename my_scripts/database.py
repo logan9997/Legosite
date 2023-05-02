@@ -275,15 +275,23 @@ class DatabaseManagment():
     
 
     def filter_items_by_theme(self, themes, view, user_id):
-        sql = f'''
-            SELECT TH.item_id
-            FROM "App_{view}" _view, "App_theme" TH
-            WHERE _view.item_id = TH.item_id
-                AND user_id = {user_id}
-                AND theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
-        '''
-        return [result[0] for result in self.SELECT(sql)]
-    
+        if themes != []:
+            if user_id != -1 and view in ["portfolio", "watchlist"]:
+                sql = f'''
+                    SELECT TH.item_id
+                    FROM "App_{view}" _view, "App_theme" TH
+                    WHERE _view.item_id = TH.item_id
+                        AND user_id = {user_id}
+                        AND theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
+                '''
+            else:
+                sql = f'''
+                    SELECT TH.item_id
+                    FROM "App_theme" TH
+                    WHERE theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
+                '''
+            return self.SELECT(sql, flat=True)
+        return []
 
     def get_item_metric_changes(self, item_id, change_metric, **kwargs):
         min_date = kwargs.get("min_date", "")     
@@ -719,28 +727,9 @@ class DatabaseManagment():
 
     def parent_themes(self, user_id:int, view:str, metric:str, **kwargs) -> list[str]: 
 
-        user_id_sql = f"AND user_id = {user_id}"
-        view_sql = f'"App_{view}" _view,'
-        link_sql = f"AND I.item_id = _view.item_id"
-
-        if user_id == -1 or view not in ["watchlist", "portfolio"]:
-            user_id_sql = ""
-            view_sql = ""
-            link_sql = ""
-
-        show_count = kwargs.get("count")
-        count_sql = ""
-        if show_count:
-            count_sql = ",COUNT(*)"
-
-        metric_total_sql = ""
-        metric_total = kwargs.get("metric_total")
-        if metric_total:
-            metric_total_sql = f",ROUND(CAST(SUM({metric}) AS numeric), 2)"
-
         sql = f'''
-            SELECT theme_path {count_sql} {metric_total_sql}
-            FROM "App_price" P, "App_theme" T, {view_sql} "App_item" I
+            SELECT theme_path, COUNT(*) ,ROUND(CAST(SUM({metric}) AS numeric), 2)
+            FROM "App_price" P, "App_theme" T, "App_{view}" _view, "App_item" I
             WHERE  theme_path NOT LIKE '%~%'
                 AND (I.item_id, date) = any (
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
@@ -748,9 +737,9 @@ class DatabaseManagment():
                     GROUP BY item_id
                 )
                 AND I.item_id = P.item_id
-                {link_sql}
+                AND I.item_id = _view.item_id
                 AND I.item_id = T.item_id
-                {user_id_sql}
+                AND user_id = {user_id}
             GROUP BY theme_path
 
         '''
