@@ -11,11 +11,9 @@ function maintain_scroll_pos(elememt_id) {
     };
 }
 
-
 function hide_unhide(elem_id) {
     var elem_style = document.getElementById(elem_id).style.display
     var button = document.getElementById('collapse-filters-button')
-    var cached = localStorage.getItem("cached", elem_style)
 
     if (elem_style == "block") {
         document.getElementById(elem_id).style.display = "none"
@@ -24,8 +22,7 @@ function hide_unhide(elem_id) {
         document.getElementById(elem_id).style.display = "block"
         button.innerHTML = "Hide Filters"
     }
-    localStorage.setItem('cached', document.getElementById(elem_id).style.display);
-
+    localStorage.setItem('filters_display', document.getElementById(elem_id).style.display);
 }
 
 

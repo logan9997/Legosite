@@ -13,6 +13,7 @@ class Item(models.Model):
     views = models.IntegerField()
 
 
+
 class Price(models.Model):
     price_record = models.AutoField(primary_key=True)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)

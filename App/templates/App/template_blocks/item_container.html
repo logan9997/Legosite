@@ -27,10 +27,10 @@
                 </tr>
 
                 <tr>
-                    <td>£{{item.avg_price|shorten_long_number|two_decimals}}</td>
-                    <td>£{{item.min_price|shorten_long_number}}</td>
-                    <td>£{{item.max_price|shorten_long_number}}</td>
-                    <td>{{item.total_quantity|shorten_long_number}}</td>
+                    <td>£{{item.avg_price|shorten_long_number|two_decimals|large_num_commas}}</td>
+                    <td>£{{item.min_price|shorten_long_number|large_num_commas}}</td>
+                    <td>£{{item.max_price|shorten_long_number|large_num_commas}}</td>
+                    <td>{{item.total_quantity|shorten_long_number|large_num_commas}}</td>
                 </tr>
             </table>
         </div> 

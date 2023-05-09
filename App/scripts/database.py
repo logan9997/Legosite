@@ -211,12 +211,12 @@ class DatabaseManagment():
         '''
 
         sql = f'''
-            SELECT  I.item_id, item_name, year_released, item_type, avg_price, 
+            SELECT I.item_id, item_name, year_released, item_type, avg_price, 
             min_price, max_price, total_quantity, {change_calculation_sql}  
 
             FROM "App_price" P1, "App_item" I
             WHERE I.item_id = P1.item_id 
-                AND (I.item_id, date) = any (
+                AND (I.item_id, date) = ANY (
                     SELECT DISTINCT ON (item_id) item_id, max(date) 
                     FROM "App_price" P2
                     {max_date_sql} 
@@ -242,7 +242,6 @@ class DatabaseManagment():
             SELECT REPLACE(REPLACE(theme_path, '/', ''), ' ', '-')
             FROM "App_item", "App_theme"
             WHERE theme_path NOT LIKE '%~%'
-                AND item_type = 'M'
                 AND "App_item".item_id = "App_theme".item_id
             GROUP BY theme_path
         '''
@@ -304,17 +303,15 @@ class DatabaseManagment():
                     WHERE I.item_id = TH.item_id
                         AND TH.item_id = _view.item_id
                         AND user_id = {user_id}
-                        AND item_type = 'M'
                         AND theme_path LIKE 'Star_Wars%'
-                        AND theme_path NOT IN {str(themes).replace("[", "(").replace("]", ")")}
+                        AND theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
                 '''
             else:
                 sql = f'''
-                    SELECT TH.item_id
+                    SELECT DISTINCT ON (TH.item_id) TH.item_id
                     FROM "App_theme" TH, "App_item" I
-                    WHERE theme_path NOT IN {str(themes).replace("[", "(").replace("]", ")")}
+                    WHERE theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
                         AND theme_path LIKE 'Star_Wars%'
-                        AND I.item_type = 'M'
                         AND I.item_id = TH.item_id
                 '''
             return self.SELECT(sql, flat=True)

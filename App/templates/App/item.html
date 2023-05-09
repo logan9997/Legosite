@@ -16,9 +16,9 @@
             <h3>Prices & Quantity</h3>
             <div id="current-metrics-container">
                 <p>Total Quantity Available {{item.total_quantity}}</p>
-                <p>Avg Price £{{item.avg_price|two_decimals}}</p>
-                <p>Min Price £{{item.min_price|two_decimals}}</p>
-                <p>Max Price £  {{item.max_price|two_decimals}}</p>
+                <p>Avg Price £{{item.avg_price|two_decimals|large_num_commas}}</p>
+                <p>Min Price £{{item.min_price|two_decimals|large_num_commas}}</p>
+                <p>Max Price £{{item.max_price|two_decimals }}</p>
             </div>
             
             <div id="metric-change-container">
@@ -51,8 +51,8 @@
         <div class="info-block">
             <h3>General Info</h3>
             <br>
-            <p>Owned By : {{total_owners}}</p>
-            <p>Watched By : {{total_watchers}}</p>
+            <p>Owned By : {{total_owners|large_num_commas}}</p>
+            <p>Watched By : {{total_watchers|large_num_commas}}</p>
             {% if item.item_type == 'M' %}
             <br>
             <p>Last Appearance : {{most_recent_set_appearance}}</p>

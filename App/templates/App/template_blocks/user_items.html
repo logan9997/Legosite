@@ -33,11 +33,11 @@
                     {% if total_profit < 0 %}
                         <p>Total Loss £{{total_profit|times_negative_one|large_num_commas|two_decimals}}</p>
                     {% else %}
-                        <p>Total Profit : £{{total_profit|two_decimals|large_num_commas }}</p>
+                        <p>Total Profit : £{{total_profit|two_decimals|large_num_commas}}</p>
                     {% endif %}
                     <br>
-                    <p>Total Owners : {{total_owners}}</p>
-                    <p>Total Watchers : {{total_watchers}}</p>
+                    <p>Total Owners : {{total_owners|large_num_commas}}</p>
+                    <p>Total Watchers : {{total_watchers|large_num_commas}}</p>
                     <br>
                 </div>
             {% else %}
@@ -48,26 +48,26 @@
                 <h3>Stats</h3>
                     
                 {% if request.path == "/portfolio/" %}
-                    <p>Total of {{ total_items }} items in your portfolio.</p>
+                    <p>Total of {{ total_items|large_num_commas }} items in your portfolio.</p>
                 {% endif %}
 
-                <p>Total of {{ total_unique_items }} unique items in your {{ view }}.</p>
+                <p>Total of {{ total_unique_items|large_num_commas }} unique items in your {{ view }}.</p>
 
                 {% if metric_total.metric != 'Total Quantity'%}
-                    <p>Total {{metric_total.metric}} £{{metric_total.total | two_decimals}}</p>
+                    <p>Total {{metric_total.metric}} £{{metric_total.total|two_decimals|large_num_commas}}</p>
                 {% else %}
-                    <p>{{metric_total.metric}} {{metric_total.total | remove_decimals}}</p>
+                    <p>{{metric_total.metric}} {{metric_total.total|remove_decimals|large_num_commas}}</p>
                 {% endif %}
 
                 <br>
 
                 {% if request.path == "/portfolio/" %}
-                    <p>Total Price Bought For : £{{total_bought_price|two_decimals}}</p>
-                    <p>Total Price Sold For : £{{total_sold_price|two_decimals}}</p>
+                    <p>Total Price Bought For : £{{total_bought_price|two_decimals|large_num_commas}}</p>
+                    <p>Total Price Sold For : £{{total_sold_price|two_decimals|large_num_commas}}</p>
                     {% if total_profit < 0 %}
-                        <p>Total Loss £{{total_profit|times_negative_one|two_decimals}}</p>
+                        <p>Total Loss £{{total_profit|times_negative_one|two_decimals|large_num_commas}}</p>
                     {% else %}
-                        <p>Total Profit : £{{total_profit|two_decimals}}</p>
+                        <p>Total Profit : £{{total_profit|two_decimals|large_num_commas}}</p>
                     {% endif %}
                 {% endif %}
 
@@ -77,9 +77,9 @@
                 <h3>Themes - <span id="themes-header-metric">({{metric_total.metric}})</span></h3>
                 {% for theme in themes %}
                     {% if metric_total.metric != 'Total Quantity' %}
-                        <p>{{theme.theme_path | count_theme_indent }} ({{theme.count}}) : £{{theme.metric_total | two_decimals}}</p>
+                        <p>{{theme.theme_path | count_theme_indent }} ({{theme.count|large_num_commas}}) : £{{theme.metric_total |two_decimals|large_num_commas}}</p>
                     {% else %}
-                        <p>{{theme.theme_path | count_theme_indent }} ({{theme.count}}) : {{theme.metric_total | remove_decimals}}</p>
+                        <p>{{theme.theme_path | count_theme_indent }} ({{theme.count|large_num_commas}}) : {{theme.metric_total |remove_decimals|large_num_commas}}</p>
                     {% endif %}
                 {% endfor %}
                 <br>
@@ -89,9 +89,6 @@
     </section>
     {% if request.GET.item == None %}
         <section id="items-container">
-            {% if no_items %}
-                <p>No items in {{view}}</p>
-            {% else %}
             <div id="items">
             {% for item in items %}
 
@@ -100,11 +97,11 @@
                 <div class="items-options">
                     <div class="qty-condition-container">      
                         {% if item.owned_quantity_new != None %} 
-                            <p>{{item.owned_quantity_new}} (N)</p>
+                            <p>{{item.owned_quantity_new|large_num_commas}} (N)</p>
                         {% endif %}
 
                         {% if item.owned_quantity_used != None %}
-                            <p>{{item.owned_quantity_used}} (U)</p>
+                            <p>{{item.owned_quantity_used|large_num_commas}} (U)</p>
                         {% endif %}
                     </div>
 
@@ -131,7 +128,6 @@
                 </div>
                 {% endfor %}
             </div>  
-            {% endif%}     
         </section>
         
 
@@ -139,7 +135,7 @@
     <section id="items-container">
             <div id="entry-item-container">
                 <div id="item-profile">
-                    {% include 'App/template_blocks/item_container.html' with item=item show_graph=False show_year_released_availability=True %}
+                    {% include 'App/template_blocks/item_container.html' with item=item show_graph=False show_year_released=True show_availability=True %}
                 </div>
 
                 <div id="chart-container">
@@ -153,9 +149,9 @@
                     <h3>Trends</h3>
                     {% for trend in metric_changes %}
                         {% if trend.change >= 0 %}
-                            <p style="color:green">{{trend.metric|capitalise_split_words}} : (%) {{trend.change}}</p>
+                            <p style="color:green">{{trend.metric|capitalise_split_words}} : (%) {{trend.change|large_num_commas}}</p>
                         {% else %}
-                            <p style="color:red">{{trend.metric|capitalise_split_words}} : (%) {{trend.change}}</p>
+                            <p style="color:red">{{trend.metric|capitalise_split_words}} : (%) {{trend.change|large_num_commas}}</p>
                         {% endif %}
                     {% endfor %}
                 </div>

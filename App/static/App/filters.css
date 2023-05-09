@@ -106,3 +106,26 @@
     background-color: orangered;
     border-radius: 0.5rem;
 }
+
+#radio-button-filter-divs-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.radio-button-filters-container {
+    width: 10rem;
+    margin: 0 1rem;
+}
+
+.radio-button-filters-container h4 {
+    padding-bottom: 0.4rem;
+    border-bottom: 0.1rem black solid;
+}
+
+.radio-button-filters-container table {
+    border: none !important;
+}
+
+#winners-or-losers-filter {
+    margin-top: 3rem;
+}

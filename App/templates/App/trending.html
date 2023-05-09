@@ -13,6 +13,8 @@
     {{ max_graph_points|json_script:"max_graph_points" }}
 {% endwith %}
 
+{{dates|json_script:"dates"}}
+
 
 <script>
     var onload_slider_value_start = JSON.parse(document.getElementById("slider_start_value").textContent) -1
@@ -24,7 +26,7 @@
 
     <section id="filters-container">
         <button id="collapse-filters-button" onclick="hide_unhide('filters')">Show Filters</button>
-        {% include 'App/template_blocks/filters.html' with action_view='trending_POST' view='trending' %}
+        {% include 'App/template_blocks/filters.html' with view='trending' show_winners_or_losers=True  %}
     </section>
 
     <div id="header">
@@ -70,6 +72,7 @@
 
 <script>
     var items = JSON.parse(document.getElementById("items_id").textContent)
+    var dates = JSON.parse(document.getElementById('dates').textContent)
 
     var slider_start = document.getElementById("slider_start") 
     var slider_start_value = parseInt(slider_start.value) 
@@ -89,7 +92,9 @@
 
         var string_spaces = '\xa0'.repeat(6)
 
-        slider_output.textContent = `${items[0].dates[slider_start_value]}${string_spaces}Range${string_spaces}${items[0].dates[slider_end_value]}`
+        console.log("dates", dates)
+
+        slider_output.textContent = `${dates[slider_start_value]}${string_spaces}Range${string_spaces}${dates[slider_end_value]}`
     }
 
     submit_form = function() {
@@ -109,7 +114,7 @@
     })
 
     window.onload = maintain_scroll_pos("theme-filters-form-container")
-
+    
 </script>
 
 {% endblock%}

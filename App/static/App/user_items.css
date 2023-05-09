@@ -375,3 +375,8 @@ textarea {
 #entries-items-loop-container::-webkit-scrollbar {
     display: none;
 }
+
+
+#item-type-filter {
+    width: 90%;
+}

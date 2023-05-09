@@ -1,5 +1,9 @@
 from django import forms
-from .config import *
+from config import (
+    USERNAME_LENGTH,
+    PASSWORD_LENGTH,
+    EMAIL_LENGTH
+)
 
 class ItemSelect(forms.Form):
     item_id = forms.CharField(max_length=20)

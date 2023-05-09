@@ -1,15 +1,4 @@
-import sys
-
-sys.path.insert(1, r"C:\Users\logan\OneDrive\Documents\Programming\Python\apis\Heroku")
-
-from my_scripts.database import *
-from my_scripts.responses import *
-from .config import *
-
-RESP = Response()
-DB = DatabaseManagment()
-
-#forms
+#FORMS
 USERNAME_LENGTH = 16
 PASSWORD_LENGTH = 22
 EMAIL_LENGTH = 50

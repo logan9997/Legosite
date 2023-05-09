@@ -2,9 +2,13 @@ from django import template
 from django.utils.safestring import mark_safe
 from ..models import User, Item, Theme
 
+from config import (
+    MAX_GRAPH_POINTS_ITEM_VIEW,
+    MAX_GRAPH_POINTS,
+    MAX_SEARCH_SUGGESTIONS,
+    ITEM_TYPE_CONVERT
+)
 import json
-
-from ..config import *
 
 register = template.Library()
 
@@ -67,11 +71,19 @@ def large_num_commas(number):
     else:
         num_int = number
         num_decimal = ""
-    
+
     sections = []
-    for i,c in enumerate(num_int):
-        if (i+1) % 3 == 0:
+
+    remainder = len(num_int) % 3
+    if remainder != 0:
+        sections.append(num_int[:remainder])
+        num_int = num_int[remainder:]
+
+    for i in range(len(num_int)):
+        if (i % 3) == 0:
             sections.append(num_int[i:i+3])
+
+    number = ",".join(sections)+num_decimal
     return number
 
 @register.simple_tag(takes_context=True)
@@ -210,7 +222,7 @@ def replace(string:str, replace_args:str):
 
 @register.filter
 def get_item(_dict:dict, key:str):
-    return _dict.get(key)
+    return dict(_dict).get(key)
 
 
 @register.filter

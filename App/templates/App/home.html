@@ -127,8 +127,8 @@
                 </div>
 
                 <div class="info-container">
-                    <p class="view-count">Weekly Views<br>{{item.weeklu_views}}</p>
-                    <p class="weeks-price-trend">{{metric|capitalise_split_words}} Change since {{last_week}} : <br> {{item.change}}</p>
+                    <p class="view-count">Weekly Views<br>{{item.weekly_views}}</p>
+                    <p class="weeks-price-trend">{{metric|capitalise_split_words}} Change since {{last_week}} : <br>{% if metric != "total_quantity" %}(£){% endif %} {{item.change|postivie_or_negative_sign}}</p>
                 </div>
             </div>
             {% endfor %}
