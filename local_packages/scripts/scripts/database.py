@@ -38,7 +38,7 @@ class DatabaseManagment():
             SELECT piece_id
             FROM "App_piece"
         '''
-        return [piece[0] for piece in self.SELECT(sql)]
+        return self.SELECT(sql, flat=True)
     
 
     def get_piece_participations(self):
