@@ -11,12 +11,11 @@ import json
 from datetime import datetime as dt
 from datetime import timedelta 
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scripts.database import DatabaseManagment
 
-from utils.item_format import Formatter
-from utils.general import General 
-from config import (
+from project_utils.item_format import Formatter
+from project_utils.general import General 
+from config.config import (
     USERNAME_LENGTH,
     PASSWORD_LENGTH,
     MAX_LOGIN_ATTEMPTS

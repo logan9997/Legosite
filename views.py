@@ -1,79 +1,3 @@
-from datetime import (
-    datetime as dt, 
-    timedelta
-)
-
-from django.shortcuts import render, redirect
-from ..config import *
-from ..utils._utils import *
-
-from .forms import (
-    AddItemToPortfolio, 
-    PortfolioItemsSort, 
-    LoginForm,
-    SignupFrom,
-    AddOrRemovePortfolioItem,
-    ChangePassword,
-    EmailPreferences,
-    PersonalInfo,
-    SearchSort,
-)
-
-from .models import (
-    User,
-    Item, 
-    Theme,
-    Price,
-    Piece,
-    Portfolio,
-    PieceParticipation,
-    SetParticipation,
-    Watchlist
-)
-
-from django.db.models import (
-    Q,
-    Sum,
-    Count,
-    Max,
-    F,
-) 
-
-from scripts.responses import * 
-from scripts.database import *
-
-
-
-
-
-
-
-
-
-def filters_POST(request, view):
-    if request.POST.get("form-type") == "theme-filter":
-        request = process_theme_filters(request)
-
-    elif request.POST.get("form-type") == "metric-filter":
-        request = process_metric_filters(request)
-
-    elif request.POST.get("form-type") == "item-type-select":
-        request.session["item_type_filter"] = request.POST.get("item-type-select")
-
-    elif request.POST.get("form-type") == "winners-or-losers-filter":
-        request.session["winners_losers_filter"] = request.POST.get("winners-or-losers-filter", "All")
-
-
-    if request.POST.get("clear-form") == "clear-metric-filters":
-        request = set_default_metric_filters(request)
-    
-    elif request.POST.get("clear-form") == "clear-theme-filters":
-        request.session["filtered_themes"] = []
-
-    if view == "search":
-        return redirect(request.META.get('HTTP_REFERER'))
-
-    return redirect(view)
 
 
 
@@ -88,13 +12,8 @@ def filters_POST(request, view):
 
 
 
-def logout(request):
-    '''
-    rework sessions for specific user, need to associate recently viewed with a user_id
-    otherwise recently viewed items still show after logging out
-    '''
-    del request.session["user_id"]
-    return redirect("login")
+
+
 
 
 

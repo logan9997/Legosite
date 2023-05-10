@@ -12,7 +12,7 @@
         <div id="themes-filter" class="filter-container">
             <h4>Themes</h4>
             <div id="theme-filters-form-container">
-                <form action="{% url 'filters_POST' view %}" method="post">
+                <form action="{% url 'update_filters_in_session' view %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="form-type" value="theme-filter">
                     {% for theme in themes %}
@@ -29,7 +29,7 @@
                     {% endfor %}
                 </form>
             </div>
-            <form action="{% url 'filters_POST' view %}" method="post">
+            <form action="{% url 'update_filters_in_session' view %}" method="post">
                 {% csrf_token %}
                 <button type="submit" name="clear-form" class="clear-button" value="clear-theme-filters" id="clear-theme-filters-button">Clear!</button>
             </form>
@@ -40,7 +40,7 @@
         <div id="metric-filters" class="filter-container">
             <h4>Prices & Quantity</h4>
             <table>
-            <form action="{% url 'filters_POST' view %}" method="post">
+            <form action="{% url 'update_filters_in_session' view %}" method="post">
                 {% for metric in all_metrics %}
                 <input type="hidden" name="form-type" value="metric-filter">
                 {% csrf_token %}
@@ -78,7 +78,7 @@
 
         <div id="item-type-filter" class="radio-button-filters-container">
             <h4>Item Type</h4>
-            <form action="{% url 'filters_POST' view %}" method="post">
+            <form action="{% url 'update_filters_in_session' view %}" method="post">
                 {% csrf_token %}
                 <table>
                     <input type="hidden" name="form-type" value="item-type-select">
@@ -101,7 +101,7 @@
         {% if show_winners_or_losers %}
         <div id="winners-or-losers-filter" class="radio-button-filters-container">
             <h4>Winners / Losers</h4>
-            <form action="{% url 'filters_POST' view %}" method="post">
+            <form action="{% url 'update_filters_in_session' view %}" method="post">
                 {% csrf_token %}
                 <table>
                     <input type="hidden" name="form-type" value="winners-or-losers-filter">

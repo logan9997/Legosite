@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./App/project_utils/build/lib"
+    ]
+}

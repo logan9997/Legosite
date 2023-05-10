@@ -7,12 +7,11 @@ from django.shortcuts import (
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scripts.database import DatabaseManagment
 
-from utils.item_format import Formatter
-from utils.general import General 
-from config import (
+from project_utils.item_format import Formatter
+from project_utils.general import General 
+from config.config import (
     USERNAME_LENGTH,
     EMAIL_LENGTH,
     PASSWORD_LENGTH

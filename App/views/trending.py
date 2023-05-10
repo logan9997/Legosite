@@ -3,20 +3,16 @@ from django.shortcuts import (
     render
 )
 
-import os
-import sys
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scripts.database import DatabaseManagment
 
-from utils.item_format import Formatter
-from utils.general import General 
-from utils.filters import (
+from project_utils.item_format import Formatter
+from project_utils.general import General 
+from project_utils.filters import (
     FilterOut, 
     ClearFilter, 
     ProcessFilter
 )
-from config import (
+from config.config import (
     METRIC_INPUT_STEPS,
     ALL_METRICS,
     TRENDING_ITEMS_PER_PAGE,

@@ -1,5 +1,5 @@
 from django import forms
-from config import (
+from config.config import (
     USERNAME_LENGTH,
     PASSWORD_LENGTH,
     EMAIL_LENGTH

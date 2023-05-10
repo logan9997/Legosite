@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 #
 from pathlib import Path
+from project_utils.environment_manager import Manager 
 import django_heroku
 import os
 
@@ -86,18 +87,9 @@ WSGI_APPLICATION = 'legosite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DEVELOPMENT = True
-
-if not DEVELOPMENT:
-    file_name = "./heroku_database_credentials.txt"
-else:
-    file_name = "./localhost_database_credentials.txt"
-
-with open(file_name, "r") as file:
-    credentials = {param.rstrip("\n").split("=")[0].upper() : param.rstrip("\n").split("=")[1]  for param in file.readlines()}
-
-credentials.update({'ENGINE': 'django.db.backends.postgresql_psycopg2'})
-credentials["NAME"] = credentials.pop("DBNAME")
+credentials = Manager().get_database_credentials('settings')
+print("EEE",credentials)
+credentials.update({'ENGINE':'django.db.backends.postgresql'})
 
 DATABASES = {
     'default': credentials

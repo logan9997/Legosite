@@ -2,7 +2,7 @@ from django import template
 from django.utils.safestring import mark_safe
 from ..models import User, Item, Theme
 
-from config import (
+from config.config import (
     MAX_GRAPH_POINTS_ITEM_VIEW,
     MAX_GRAPH_POINTS,
     MAX_SEARCH_SUGGESTIONS,
