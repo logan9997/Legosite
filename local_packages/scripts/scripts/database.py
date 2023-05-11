@@ -289,24 +289,14 @@ class DatabaseManagment():
 
     def filter_items_by_theme(self, themes, view, user_id):
         if themes != []:
-            if user_id != -1 and view in ["portfolio", "watchlist"]:
-                sql = f'''
-                    SELECT DISTINCT ON (TH.item_id) TH.item_id
-                    FROM "App_{view}" _view, "App_theme" TH, "App_item" I
-                    WHERE I.item_id = TH.item_id
-                        AND TH.item_id = _view.item_id
-                        AND user_id = {user_id}
-                        AND theme_path LIKE 'Star_Wars%'
-                        AND theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
-                '''
-            else:
-                sql = f'''
-                    SELECT DISTINCT ON (TH.item_id) TH.item_id
-                    FROM "App_theme" TH, "App_item" I
-                    WHERE theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
-                        AND theme_path LIKE 'Star_Wars%'
-                        AND I.item_id = TH.item_id
-                '''
+           
+            sql = f'''
+                SELECT DISTINCT ON (TH.item_id) TH.item_id
+                FROM "App_theme" TH, "App_item" I
+                WHERE theme_path IN {str(themes).replace("[", "(").replace("]", ")")}
+                    AND theme_path LIKE 'Star_Wars%'
+                    AND I.item_id = TH.item_id
+            '''
             return self.SELECT(sql, flat=True)
         return []
 

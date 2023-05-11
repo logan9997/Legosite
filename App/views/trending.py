@@ -37,9 +37,17 @@ PROCESS_FILTER = ProcessFilter()
 def trending(request):
     user_id = request.session.get("user_id", -1)
 
-    trending_order:str = request.session.get("trending_order", "avg_price-desc") 
+    post_params = ['sort-field', 'page', 'slider_start_value', 'slider_end_value']
+    current_url = f"{GENERAL.get_base_url(request)}{request.get_full_path()}"
+    previous_url = request.META.get('HTTP_REFERER', "").replace("http://", "")
+
+    if current_url != previous_url:
+        request = GENERAL.clear_post_params(request, post_params)
+    request = GENERAL.save_post_params(request, post_params)
+
+    trending_order:str = request.session.get("sort-field", "avg_price-desc") 
     trending_metric = trending_order.split("-")[0]
-    current_page = int(request.session.get("current_page", 1))
+    current_page = int(request.session.get("page", 1))
 
     request = CLEAR_FILTER.clear_filters(request)
 
@@ -107,29 +115,3 @@ def trending(request):
 
     return render(request, "App/trending.html", context=context)
 
-
-def trending_POST(request):
-
-    if request.POST.get("form-type") == "graph-metric-form":    
-        graph_metric = request.POST.get("graph-metric")
-        request.session["graph_metric"] = graph_metric
-
-    elif request.POST.get("form-type") == "sort-form":
-        trending_order = request.POST.get("sort-field")
-        request.session["trending_order"] = trending_order
-
-    elif request.POST.get("form-type") == "page-buttons-form":
-        current_page = request.POST.get("page")
-        request.session["current_page"] = current_page
-
-
-    elif request.POST.get("form-type") == "sliders-form":
-        dates = list(Price.objects.distinct("date").values_list("date", flat=True))
-
-        slider_start_value = request.POST.get("slider_start", 0)
-        slider_end_value = request.POST.get("slider_end", len(dates)-1)
-
-        request.session["slider_start_value"] = slider_start_value
-        request.session["slider_end_value"] = slider_end_value
-
-    return redirect("trending")

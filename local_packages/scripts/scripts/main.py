@@ -1,9 +1,8 @@
-from responses import *
-from database import *
-import key_updater  
-
 import time
 
+from scripts.database import DatabaseManagment
+from scripts.responses import Response
+from scripts import key_updater 
 
 DB = DatabaseManagment()
 RESP = Response()

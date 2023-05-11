@@ -14,12 +14,11 @@ class Response():
             'CONSUMER_KEY', 'CONSUMER_SECRET', 'TOKEN_VALUE', 'TOKEN_SECRET'
         )
 
-        print(self.keys)
         self.auth = OAuth1Session(
             self.keys['CONSUMER_KEY'], self.keys['CONSUMER_SECRET'], 
             self.keys['TOKEN_VALUE'], self.keys['TOKEN_SECRET']
         )
-        self.request_count_file =r'C:\Users\logan\OneDrive\Documents\Programming\Python\apis\BL_API\legosite\App\scripts\requests_count.txt'
+        self.request_count_file ='requests_count.txt'
         self.max_requests_limit = 5000
         self.reset_time = None
         self.read_request_count()

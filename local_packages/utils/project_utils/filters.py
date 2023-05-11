@@ -12,17 +12,15 @@ class FilterOut():
     def process_filters(self, request, items, user_id, view):
     
         filters = [
-            self.filter_out_theme_filters(request, items, user_id, view),
-            self.filter_out_item_type_filters(request, items),
-            self.filter_out_metric_filters(request, items),
-            self.filter_out_winners_losers_filters(request, items)
+            self.filter_out_theme_filters,
+            self.filter_out_item_type_filters,
+            self.filter_out_metric_filters,
+            self.filter_out_winners_losers_filters
         ]
-
-        print(filters)
 
         for filter in filters:
             if len(items) != 0 :
-                request, items = filter 
+                request, items = filter(request, items)
 
         context = {
             "filtered_themes":request.session.get("filtered_themes"), 
@@ -37,7 +35,7 @@ class FilterOut():
 
         return {"context":context, "return":return_values}
     
-    def filter_out_theme_filters(self, request, items, user_id, view):
+    def filter_out_theme_filters(self, request, items):
 
         filtered_themes = request.session.get("filtered_themes", [])
         if filtered_themes != []:
@@ -46,14 +44,15 @@ class FilterOut():
             else:
                 item_id_key = 0
 
-            items_to_filter_by_theme = DB.filter_items_by_theme(filtered_themes, view, user_id)
+            items_to_filter_by_theme = DB.filter_items_by_theme(filtered_themes)
             items = list(filter(lambda x:x[item_id_key] in items_to_filter_by_theme, items))
         return request, items
 
 
-    def filter_out_item_type_filters(self, request, items):
+    def filter_out_item_type_filters(self, request, items:list):
 
         item_type_filter = request.session.get("item_type_filter")
+        print(item_type_filter)
 
         if type(items[0]) == dict:
             item_type_key = "item_type"
@@ -166,7 +165,7 @@ class ProcessFilter():
 class ClearFilter():
 
     def clear_filters(self, request):
-        print(request.META.get('HTTP_REFERER', ""),"\n",f"{GENERAL.get_base_url(request)}{request.get_full_path()}")
+        # print(request.META.get('HTTP_REFERER', ""),"\n",f"{GENERAL.get_base_url(request)}{request.get_full_path()}")
         if f"{GENERAL.get_base_url(request)}{request.get_full_path()}" != request.META.get('HTTP_REFERER', "").replace("http://", ""):
             request = ProcessFilter().set_default_metric_filters(request)
             request.session["filtered_themes"] = []

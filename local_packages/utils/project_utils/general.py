@@ -123,3 +123,19 @@ class General():
 
         return num_pages
         
+
+    def save_post_params(self, request, post_params:list[str]) -> dict:
+        for param in post_params:
+            if request.POST.get(param) != None:
+                request.session[param] = request.POST.get(param)
+        request.session.modified = True
+        return request
+    
+
+    def clear_post_params(self, request, post_params:list[str]):
+        for param in post_params:
+            if param in request.session:
+                del request.session[param]
+        request.session.modified = True
+        return request
+    
