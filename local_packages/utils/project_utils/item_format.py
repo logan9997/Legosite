@@ -3,14 +3,16 @@ from config.config import (
     ITEM_TYPE_CONVERT,
     ALL_METRICS
 )
-from scripts.database import DatabaseManagment
+from scripts.database import DatabaseManagement
 
-
-DB = DatabaseManagment()
 GENERAL = General()
+DB = DatabaseManagement()
 
 
 class Formatter():
+
+    def __init__(self) -> None:
+        pass
 
     def format_item_info(self, items:tuple, **kwargs) -> list[dict]:
         '''

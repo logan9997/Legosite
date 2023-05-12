@@ -4,11 +4,9 @@ from django.shortcuts import (
     render
 )
 
-import os
-import sys
 import itertools
 
-from scripts.database import DatabaseManagment
+from scripts.database import DatabaseManagement
 
 from project_utils.item_format import Formatter
 from project_utils.general import General 
@@ -28,9 +26,9 @@ from App.models import (
     Item
 )
 
-GENERAL = General()
 FORMATTER = Formatter()
-DB = DatabaseManagment()
+GENERAL = General()
+DB = DatabaseManagement()
 
 
 def item(request, item_id):
@@ -38,8 +36,8 @@ def item(request, item_id):
     user_id = request.session.get("user_id", -1)
     metric = request.session.get("graph-metric", "avg_price")
 
-    item_info = FORMATTER.format_item_info(
-        DB.get_item_info(item_id, metric), graph_data=ALL_METRICS, view="item"
+    item_info = Formatter().format_item_info(
+        DB().get_item_info(item_id, metric), graph_data=ALL_METRICS, view="item"
     )
     item_info = convert_last_and_first_date(item_info)
 
@@ -63,30 +61,30 @@ def item(request, item_id):
         "user_id":user_id,
         "item_themes":Theme.objects.filter(item_id=item_id).distinct("theme_path").values_list("theme_path"),
         "graph_options":GENERAL.sort_dropdown_options(get_graph_options(), metric),
-        "in_watchlist":DB.is_item_in_user_items(user_id, "watchlist", item_id),
-        "total_watchers":DB.get_total_owners_or_watchers("watchlist", item_id),
-        "total_owners":DB.get_total_owners_or_watchers("portfolio", item_id),
+        "in_watchlist":DB().is_item_in_user_items(user_id, "watchlist", item_id),
+        "total_watchers":DB().get_total_owners_or_watchers("watchlist", item_id),
+        "total_owners":DB().get_total_owners_or_watchers("portfolio", item_id),
         "graph_checkboxes":get_graph_checkboxes(),
-        "sub_sets":DB.get_item_subsets(item_id),
+        "sub_sets":DB().get_item_subsets(item_id),
 
-        "metric_changes":FORMATTER.format_metric_changes(
-            [DB.get_item_metric_changes(item_id, metric) for metric in ALL_METRICS]
+        "metric_changes":Formatter().format_metric_changes(
+            [DB().get_item_metric_changes(item_id, metric) for metric in ALL_METRICS]
         ),
         "in_portfolio":[
             {"condition":{"N":"New", "U":"Used"}[_item[0]], "count":_item[1] } 
-            for _item in DB.is_item_in_user_items(user_id, "portfolio", item_id)
+            for _item in DB().is_item_in_user_items(user_id, "portfolio", item_id)
         ],
-        "similar_items":FORMATTER.format_item_info(
+        "similar_items":Formatter().format_item_info(
             get_similar_items(item_info["item_name"], item_info["item_type"], item_info["item_id"])
         ),    
     }
 
     #items to add to context based on item type
     if item_info["item_type"] == "M":
-        context["super_sets"] = FORMATTER.format_super_sets(DB.get_item_supersets(item_id))
-        context["most_recent_set_appearance"] = DB.most_recent_item_appearance(item_id)
+        context["super_sets"] = Formatter().format_super_sets(DB().get_item_supersets(item_id))
+        context["most_recent_set_appearance"] = DB().most_recent_item_appearance(item_id)
     else:
-        context["figures"] = FORMATTER.format_item_info(DB.get_set_items(item_id), quantity=8)
+        context["figures"] = Formatter().format_item_info(DB().get_set_items(item_id), quantity=8)
 
     return render(request, "App/item.html", context=context)
 
@@ -132,7 +130,7 @@ def shorten_len_return_value(_list:list) -> int:
 def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, item_id:str, items:list[str], combinations:int) -> tuple[int, list]:
     for sub in itertools.combinations(single_words, combinations):
         sql_like = "AND " + ''.join([f"item_name LIKE '%{word}%' AND " for word in sub])[:-4]
-        new_items = DB.get_similar_items(item_name, item_type, item_id, sql_like)
+        new_items = DB().get_similar_items(item_name, item_type, item_id, sql_like)
 
         for item in new_items:
             if len(items) < MAX_SIMILAR_ITEMS and item not in items:
@@ -148,9 +146,9 @@ def similar_items_iterate(single_words:list[str], item_name:str, item_type:str, 
 #AA
 def get_similar_items(item_name:str, item_type:str, item_id:str) -> list:
 
-    item_type = DB.get_item_type(item_id)
+    item_type = DB().get_item_type(item_id)
 
-    remove_words = list(DB.get_most_common_words("item_name", item_type, ',', '(', ')', min_word_length=2, limit=25))
+    remove_words = list(DB().get_most_common_words("item_name", item_type, ',', '(', ')', min_word_length=2, limit=25))
     remove_words.extend(COLOURS)
     remove_words.extend(EXTRA_WORDS)
     remove_words.extend(list(map(str.capitalize, remove_words)))

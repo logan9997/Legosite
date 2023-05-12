@@ -2,20 +2,33 @@ from config.config import PAGE_NUM_LIMIT
 import time
 import os
 
+def timer(func):
+    print("TIMER!")
+    def inner(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        finish = round(time.time() - start, 5)
+        print(f"\n<{func.__name__.upper()}> finished in {finish} seconds.\n")
+        return result
+    return inner
+
 class General():
 
-    def timer(self, func):
-        def inner(*args, **kwargs):
-            start = time.time()
-            result = func(*args, **kwargs)
-            finish = round(time.time() - start, 5)
-            print(f"\n<{func.__name__.upper()}> finished in {finish} seconds.\n")
-            return result 
-        return inner
+    def __init__(self) -> None:
+        pass
 
 
     def get_base_url(self, request) -> str:
         return request.get_host().strip(" ")
+    
+
+    def check_slider_range(self, start:int, end:int, _list:list):
+        if start >= len(_list) -1:
+            start = len(_list) - 1
+        if end <= 0:
+            end = 0
+        print(start, end)
+        return start, end
     
 
     def configure_relative_file_path(self, file_name:str, max_depth:int) -> str:
@@ -124,15 +137,15 @@ class General():
         return num_pages
         
 
-    def save_post_params(self, request, post_params:list[str]) -> dict:
+    def save_get_params(self, request, post_params:list[str]) -> dict:
         for param in post_params:
-            if request.POST.get(param) != None:
-                request.session[param] = request.POST.get(param)
+            if request.GET.get(param) != None:
+                request.session[param] = request.GET.get(param)
         request.session.modified = True
         return request
     
 
-    def clear_post_params(self, request, post_params:list[str]):
+    def clear_get_params(self, request, post_params:list[str]):
         for param in post_params:
             if param in request.session:
                 del request.session[param]

@@ -1,10 +1,9 @@
 import datetime
 import psycopg2
-import os
 
 from project_utils.environment_manager import Manager 
 
-class DatabaseManagment():
+class DatabaseManagement():
 
     def __init__(self) -> None:
        

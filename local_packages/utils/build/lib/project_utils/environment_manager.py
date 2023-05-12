@@ -41,6 +41,6 @@ class Manager():
             db_name = credentials['dbname']
             del credentials['dbname']
             credentials['name'] = db_name
-
+            credentials = {k.upper() : v for k, v in credentials.items()}                
         return credentials
 

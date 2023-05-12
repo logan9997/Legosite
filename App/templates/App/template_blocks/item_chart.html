@@ -22,8 +22,10 @@
     {% endwith %}
 
     <script>
-        var dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
-        dates = condence_list(dates)
+        var item_dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
+        var all_dates = JSON.parse(document.getElementById('all_dates').textContent)
+        // dates = condence_list(dates)
+        console.log(item_dates)
         
         var metric_data = [
             {
@@ -62,22 +64,32 @@
                 if (window.location.href.includes("trending")) {
 
                     var slice_start = 0
-                    for (let j = 0; j < dates.length; j ++) {
-                        if (dates[j] >= dates[onload_slider_value_start+1]) {
-                            slice_start = j  
+                    for (let j = 0; j < item_dates.length; j ++) {
+                        console.log(item_dates[j], all_dates[onload_slider_value_start+1])
+                        if (item_dates[j] >= all_dates[onload_slider_value_start+1]) {
+                            slice_start = j
                             break
                         }
                     }
-                    metric_data[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(slice_start, onload_slider_value_end+1))
+
+                    var slice_end = 0
+                    for (let j = item_dates.length-1; j >= 0; j --) {
+                        if (item_dates[j] <= all_dates[onload_slider_value_end]) {
+                            slice_end = j+1
+                            break
+                        }
+                    }
+
+                    metric_data[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(slice_start, slice_end))
                 } else {
                     metric_data[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent))
                 }
                 new_data.push(metric_data[i])
             } 
         }
-        
+
         var graph_data = {
-            labels:dates,
+            labels:condence_list(item_dates.slice(slice_start, slice_end)),
             datasets: new_data,
             
         }

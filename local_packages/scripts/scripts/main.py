@@ -1,11 +1,11 @@
 import time
 
-from scripts.database import DatabaseManagment
+from scripts.database import DatabaseManagement
 from scripts.responses import Response
 from scripts import key_updater 
 
-DB = DatabaseManagment()
 RESP = Response()
+DB = DatabaseManagement()
 
 def check_http_response(func):
     def inner(*args, **kwargs):
@@ -32,7 +32,6 @@ def check_http_response(func):
 
 @check_http_response
 def update_prices():
-    DB = DatabaseManagment()
     sw_ids = DB.get_all_itemIDs()
     figures_len = len(sw_ids)
     sw_ids.extend(DB.get_theme_sets("Star_Wars"))
@@ -58,7 +57,6 @@ def update_prices():
 
 @check_http_response
 def sub_sets():
-    DB = DatabaseManagment()
     sw_ids = DB.get_all_itemIDs()
 
     for _item in sw_ids[::-1]:
@@ -79,7 +77,6 @@ def sub_sets():
 
 @check_http_response
 def super_sets():
-    DB = DatabaseManagment()
     sw_ids = DB.get_all_itemIDs()
 
     for _item in sw_ids:

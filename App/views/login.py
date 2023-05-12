@@ -1,20 +1,14 @@
-from django.db.models import Q
 from django.shortcuts import (
     redirect, 
     render
 )
 
-import os
-import sys
 import json
 
 from datetime import datetime as dt
 from datetime import timedelta 
 
-from scripts.database import DatabaseManagment
 
-from project_utils.item_format import Formatter
-from project_utils.general import General 
 from config.config import (
     USERNAME_LENGTH,
     PASSWORD_LENGTH,
@@ -26,10 +20,6 @@ from App.models import (
 )
 
 from App.forms import LoginForm
-
-GENERAL = General()
-FORMATTER = Formatter()
-DB = DatabaseManagment()
 
 
 def login(request):

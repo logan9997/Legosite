@@ -13,7 +13,7 @@
     {{ max_graph_points|json_script:"max_graph_points" }}
 {% endwith %}
 
-{{dates|json_script:"dates"}}
+{{dates|json_script:"all_dates"}}
 
 
 <script>
@@ -31,14 +31,12 @@
 
     <div id="header">
         <div id="inputs-forms-container">
-            {% include 'App/template_blocks/item_filters_and_sorts.html' with action_view='trending_POST' sub_view="" hide_graph_metric_options=True %}
+            {% include 'App/template_blocks/item_filters_and_sorts.html' with action_view='trending' sub_view="" hide_graph_metric_options=True %}
         </div>
         <div id="slider-container">
-            <form action="{% url 'trending_POST' %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="form-type" value="sliders-form">
-                <input type="range" id="slider_start" min="{{slider_start_min_value}}" max="{{slider_start_max_value}}" name="slider_start" value="{{slider_start_value}}">
-                <input type="range" id="slider_end" min="{{slider_end_min_value}}" max="{{slider_end_max_value}}" name="slider_end" value="{{slider_end_value}}">
+            <form action="{% url 'trending' %}?{{qs}}" method="get">
+                <input type="range" id="slider_start" min="{{slider_start_min_value}}" max="{{slider_start_max_value}}" name="slider_start_value" value="{{slider_start_value}}">
+                <input type="range" id="slider_end" min="{{slider_end_min_value}}" max="{{slider_end_max_value}}" name="slider_end_value" value="{{slider_end_value}}">
             </form>
             <p id="slider-value">
                 {{dates|iterable_index:slider_start_value}}
@@ -72,14 +70,12 @@
 
 <script>
     var items = JSON.parse(document.getElementById("items_id").textContent)
-    var dates = JSON.parse(document.getElementById('dates').textContent)
+    var dates = JSON.parse(document.getElementById('all_dates').textContent)
 
     var slider_start = document.getElementById("slider_start") 
     var slider_start_value = parseInt(slider_start.value) 
     var slider_end = document.getElementById("slider_end")
     var slider_end_value = parseInt(slider_end.value) 
-
-    console.log(slider_start_value, slider_end_value)
 
     var slider_output = document.getElementById("slider-value")
 
@@ -109,7 +105,6 @@
 
     document.addEventListener("DOMContentLoaded", function() {
         display = localStorage.getItem("cached")
-        console.log("reload", display)
         document.getElementById('filters').style.display = display
     })
 

@@ -4,10 +4,6 @@ from django.shortcuts import (
     render
 )
 
-from scripts.database import DatabaseManagment
-from project_utils.item_format import Formatter
-from project_utils.general import General 
-
 from App.models import (
     User
 )
@@ -17,10 +13,6 @@ from App.forms import (
     PersonalInfo, 
     EmailPreferences
 )
-
-GENERAL = General()
-FORMATTER = Formatter()
-DB = DatabaseManagment()
 
 def profile(request):
 

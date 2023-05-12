@@ -1,12 +1,12 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from database import DatabaseManagment
+from scripts.database import DatabaseManagement
 import time, requests, os
 
-import responses
+from scripts.responses import Response
 
-RESP = responses.Response()
-DB = DatabaseManagment()
+RESP = Response()
+DB = DatabaseManagement()
 
 class Scraper():
 

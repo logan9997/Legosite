@@ -1,8 +1,7 @@
 import requests
 import os 
-import database
+from scripts.database import DB
 
-DB = database.DatabaseManagment()
 
 def images():
 
@@ -10,11 +9,11 @@ def images():
 
     type_convert = {
         "M" : {
-            "ids":DB.get_starwars_ids(),
+            "ids":DB().get_starwars_ids(),
             "path":"minifigures"
         },
         "S" : {
-            "ids":DB.get_theme_sets("Star_Wars"),
+            "ids":DB().get_theme_sets("Star_Wars"),
             "path":"sets"
         }
     }

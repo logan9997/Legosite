@@ -1,15 +1,13 @@
-from scripts.database import DatabaseManagment
+from scripts.database import DatabaseManagement
 from config.config import ALL_METRICS
 from .general import General  
 
-
-DB = DatabaseManagment()
-GENERAL = General()
+DB = DatabaseManagement()
 
 
 class FilterOut():
 
-    def process_filters(self, request, items, user_id, view):
+    def process_filters(self, request, items):
     
         filters = [
             self.filter_out_theme_filters,
@@ -69,7 +67,7 @@ class FilterOut():
 
         winners_or_losers = request.session.get("winners_losers_filter", "All")
         metric = request.session.get("trending_order", "avg_price-desc").split("-")[0]
-        metric = GENERAL.split_capitalize(metric, "_")
+        metric = General().split_capitalize(metric, "_")
 
         if winners_or_losers == "Winners":
             items = list(filter(lambda x:x[-1] > 0 , items))
@@ -165,8 +163,8 @@ class ProcessFilter():
 class ClearFilter():
 
     def clear_filters(self, request):
-        # print(request.META.get('HTTP_REFERER', ""),"\n",f"{GENERAL.get_base_url(request)}{request.get_full_path()}")
-        if f"{GENERAL.get_base_url(request)}{request.get_full_path()}" != request.META.get('HTTP_REFERER', "").replace("http://", ""):
+        # print(request.META.get('HTTP_REFERER', ""),"\n",f"{General().get_base_url(request)}{request.get_full_path()}")
+        if f"{General().get_base_url(request)}{request.get_full_path()}" != request.META.get('HTTP_REFERER', "").replace("http://", ""):
             request = ProcessFilter().set_default_metric_filters(request)
             request.session["filtered_themes"] = []
         request.session.modified = True

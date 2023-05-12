@@ -3,10 +3,10 @@ from django.shortcuts import (
     render
 )
 
-from scripts.database import DatabaseManagment
+from scripts.database import DatabaseManagement
 
 from project_utils.item_format import Formatter
-from project_utils.general import General 
+from project_utils.general import General
 from project_utils.filters import (
     FilterOut, 
     ClearFilter, 
@@ -24,14 +24,11 @@ from App.models import (
     Theme
 )
 
-
+DB = DatabaseManagement()
 GENERAL = General()
 FORMATTER = Formatter()
-DB = DatabaseManagment()
 FILTER_OUT = FilterOut()
 CLEAR_FILTER = ClearFilter()
-PROCESS_FILTER = ProcessFilter()
-
 
 def search(request, theme_path='all'):
 

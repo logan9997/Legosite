@@ -3,14 +3,7 @@ from django.shortcuts import (
     redirect, 
     render
 )
-
-import os
-import sys
-
-from scripts.database import DatabaseManagment
-
-from project_utils.item_format import Formatter
-from project_utils.general import General 
+ 
 from config.config import (
     USERNAME_LENGTH,
     EMAIL_LENGTH,
@@ -23,9 +16,6 @@ from App.models import (
 
 from App.forms import SignupFrom
 
-GENERAL = General()
-FORMATTER = Formatter()
-DB = DatabaseManagment()
 
 def join(request):
 
