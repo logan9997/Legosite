@@ -3,7 +3,7 @@ from config.config import ALL_METRICS
 from .general import General  
 
 DB = DatabaseManagement()
-
+GENERAL = General()
 
 class FilterOut():
 
@@ -22,8 +22,11 @@ class FilterOut():
 
         context = {
             "filtered_themes":request.session.get("filtered_themes"), 
-            "metric_filters":request.session.get("metric_filters"),
-            "item_type_filter":request.session.get("item_type_filter")
+            "metric_filters":{ 
+                f'{param}_{limit}' : request.session['metric_filters'].get(f'{param}_{limit}') 
+                for param in ALL_METRICS for limit in ['min', 'max']
+            },
+            "item_type_filter":request.session.get("item_type_filter"),
         }
 
         return_values = {
@@ -50,7 +53,6 @@ class FilterOut():
     def filter_out_item_type_filters(self, request, items:list):
 
         item_type_filter = request.session.get("item_type_filter")
-        print(item_type_filter)
 
         if type(items[0]) == dict:
             item_type_key = "item_type"
@@ -65,9 +67,12 @@ class FilterOut():
 
     def filter_out_winners_losers_filters(self, request, items):
 
-        winners_or_losers = request.session.get("winners_losers_filter", "All")
+        winners_or_losers = request.session.get("winners_or_losers_filter", "All")
         metric = request.session.get("trending_order", "avg_price-desc").split("-")[0]
-        metric = General().split_capitalize(metric, "_")
+        metric = GENERAL.split_capitalize(metric, "_")
+
+        if type(items[0]) == dict:
+            pass
 
         if winners_or_losers == "Winners":
             items = list(filter(lambda x:x[-1] > 0 , items))
@@ -77,10 +82,9 @@ class FilterOut():
     
     
     def filter_out_metric_filters(self, request, items) -> list:
-        
-        if "metric_filters" not in request.session:
-            request.session["metric_filters"] = {metric :  {"min":-1, "max":-1} for metric in ALL_METRICS}
-        metric_filters = request.session["metric_filters"]
+        metric_filters = request.session.get(
+            'metric_filters', ProcessFilter().default_metric_filters()
+        )
         
         if type(items[0]) == dict:
             keys = {
@@ -98,11 +102,12 @@ class FilterOut():
             }
 
         for metric in metric_filters:
-            for limit in ["min", "max"]:
-                if limit == "min" and metric_filters[metric][limit] != -1:
-                    items = list(filter(lambda x:x[keys[metric]] > metric_filters[metric][limit], items))
-                elif limit == "max" and metric_filters[metric][limit] != -1:
-                    items = list(filter(lambda x:x[keys[metric]] < metric_filters[metric][limit], items)) 
+            keys_lookup = metric.rsplit('_', 1)[0]
+
+            if "min" in metric and metric_filters[metric] != -1:
+                items = list(filter(lambda x:x[keys[keys_lookup]] > metric_filters[metric], items))
+            elif "max" in metric and metric_filters[metric] != -1:
+                items = list(filter(lambda x:x[keys[keys_lookup]] < metric_filters[metric], items)) 
         
         return request, items 
 
@@ -115,7 +120,7 @@ class ProcessFilter():
             request.session["filtered_themes"] = []
 
         themes = request.session.get("themes", [])
-        selected_theme = request.POST.get("theme-filter")
+        selected_theme = request.GET.get("theme-filter")
         
         for sub_theme in themes[themes.index(selected_theme)+1:]:
             if selected_theme in request.session["filtered_themes"]:
@@ -141,32 +146,47 @@ class ProcessFilter():
 
     def process_metric_filters(self, request):
         if "metric_filters" not in request.session:
-            request = self.set_default_metric_filters(request)
+            request.session['metric_filters'] = self.default_metric_filters()
 
         for metric in ALL_METRICS:
             for limit in ["min", "max"]:
-
-                if request.POST.get(f"{metric}_{limit}") != None and request.POST.get(f"{metric}_{limit}") != '':
+                if request.GET.get(f"{metric}_{limit}") != None and request.GET.get(f"{metric}_{limit}") != '':
                     try:
-                        _input = float(request.POST.get(f"{metric}_{limit}"))
+                        _input = float(request.GET.get(f"{metric}_{limit}"))
                     except:
                         _input = 0
-                    request.session["metric_filters"][metric][limit] = _input
+                    request.session["metric_filters"][f'{metric}_{limit}'] = _input
                     request.session.modified = True
         return request
     
-    def set_default_metric_filters(self, request):
-        request.session["metric_filters"] = {metric :  {"min":-1, "max":-1} for metric in ALL_METRICS}
+
+    def save_filters(self, request):
+        if request.GET.get('form-type') == 'metric_filters':
+            request = ProcessFilter().process_metric_filters(request)
+
+        elif request.GET.get("form-type") == "theme-filter":
+            request = ProcessFilter().process_theme_filters(request)
+
+        elif request.GET.get('form-type') == 'item_type_filter':
+            request.session['item_type_filter'] = request.GET.get('item_type_filter')
+
+        elif request.GET.get('form-type') == 'winners_or_losers_filter':
+            request.session['winners_or_losers_filter'] = request.GET.get('winners_or_losers_filter')
+
+
         return request
+
+
+    
+    def default_metric_filters(self):
+        return {f'{metric}_{limit}' : -1 for metric in ALL_METRICS for limit in ['min', 'max']}
 
 
 class ClearFilter():
 
     def clear_filters(self, request):
-        # print(request.META.get('HTTP_REFERER', ""),"\n",f"{General().get_base_url(request)}{request.get_full_path()}")
-        if f"{General().get_base_url(request)}{request.get_full_path()}" != request.META.get('HTTP_REFERER', "").replace("http://", ""):
-            request = ProcessFilter().set_default_metric_filters(request)
-            request.session["filtered_themes"] = []
+        request.session['metric_filters'] = ProcessFilter().default_metric_filters()
+        request.session["filtered_themes"] = []
         request.session.modified = True
         return request
 

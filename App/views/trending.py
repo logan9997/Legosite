@@ -17,6 +17,7 @@ from project_utils.general import (
 from project_utils.filters import (
     FilterOut, 
     ClearFilter, 
+    ProcessFilter,
 )
 from config.config import (
     METRIC_INPUT_STEPS,
@@ -34,33 +35,32 @@ from App.models import (
 GENERAL = General()
 CLEAR_FILTER = ClearFilter()
 DB = DatabaseManagement()
+FILTER_OUT = FilterOut()
+FORMATTER = Formatter()
+PROCESS_FILTER = ProcessFilter()
 
 
-@timer
 def trending(request):
     user_id = request.session.get("user_id", -1)
 
-    get_params = ['sort-field', 'page', 'slider_start_value', 'slider_end_value']
-    current_url = f"{GENERAL.get_base_url(request)}{request.get_full_path()}"
-    previous_url = request.META.get('HTTP_REFERER', "").replace("http://", "")
+    get_params = [
+        'sort-field', 'page', 'slider_start_value', 'slider_end_value', 
+    ]
 
-    if current_url != previous_url:
-        pass#request = GENERAL.clear_get_params(request, get_params)
-    request = GENERAL.save_get_params(request, get_params)
+    request = GENERAL.process_sorts_and_pages(request, get_params)
+    request = PROCESS_FILTER.save_filters(request)
+
+    if request.POST.get('clear-form') != None:
+        request = CLEAR_FILTER.clear_filters(request)
 
     query_string = '&'.join([
         f'{param}={request.session.get(param)}' 
         for param in get_params if request.session.get(param) != None
     ])
 
-    print('query_string',query_string)
-    QueryDict(query_string, mutable=True)
-
     trending_order:str = request.session.get("sort-field", "avg_price-desc") 
     trending_metric = trending_order.split("-")[0]
     current_page = int(request.session.get("page", 1))
-
-    request = CLEAR_FILTER.clear_filters(request)
 
     graph_options = GENERAL.sort_dropdown_options(get_graph_options(), trending_metric)
     trend_options = GENERAL.sort_dropdown_options(get_trending_options(), trending_order)
@@ -71,7 +71,8 @@ def trending(request):
     slider_start_value = int(request.session.get("slider_start_value", 0))
     slider_end_value = int(request.session.get("slider_end_value", len(dates)-1))
 
-    slider_start_value, slider_end_value = GENERAL.check_slider_range(slider_start_value, slider_end_value, dates)
+    slider_start_value = GENERAL.check_slider_range(slider_start_value, dates)
+    slider_end_value = GENERAL.check_slider_range(slider_end_value, dates)
 
     min_date = dates[slider_start_value]
     max_date = dates[slider_end_value]
@@ -84,19 +85,19 @@ def trending(request):
     themes = list(Theme.objects.filter(theme_path__startswith="Star_Wars").values_list("theme_path", flat=True).distinct("theme_path"))
     themes_formatted = [{"theme_path":theme} for theme in themes]
 
-    filter_results = FilterOut().process_filters(request, items)
+    filter_results = FILTER_OUT.process_filters(request, items)
     items = filter_results["return"]["items"]
     request = filter_results["return"]["request"]
-    
+
     current_page = GENERAL.check_page_boundaries(current_page, len(items), TRENDING_ITEMS_PER_PAGE)
     num_pages = GENERAL.slice_num_pages(len(items), current_page, TRENDING_ITEMS_PER_PAGE)
 
     items = items[(current_page-1) * TRENDING_ITEMS_PER_PAGE : (current_page) * TRENDING_ITEMS_PER_PAGE]
-    items = Formatter().format_item_info(items, metric_trends=[trending_metric], graph_data=[trending_metric])
+    items = FORMATTER.format_item_info(items, metric_trends=[trending_metric], graph_data=[trending_metric])
 
     for _item in items:
         metrics = [DB.get_item_metric_changes(_item["item_id"], metric, max_date=max_date, min_date=min_date) for metric in ALL_METRICS]
-        metrics = Formatter().format_metric_changes(metrics)
+        metrics = FORMATTER.format_metric_changes(metrics)
         _item["metric_changes"] = metrics
 
     request.session["themes"] = themes
@@ -119,11 +120,11 @@ def trending(request):
         "all_metrics":ALL_METRICS,
         "metric_input_steps":METRIC_INPUT_STEPS,
         "themes":themes_formatted,
-        "winners_losers_filter":request.session.get("winners_losers_filter"),
+        "winners_or_losers_filter":request.session.get("winners_or_losers_filter"),
         "qs":query_string
     }
 
     context.update(filter_results["context"])
-
+    print(filter_results["context"]["filtered_themes"])
     return render(request, "App/trending.html", context=context)
 

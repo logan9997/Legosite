@@ -29,14 +29,22 @@ GENERAL = General()
 FORMATTER = Formatter()
 FILTER_OUT = FilterOut()
 CLEAR_FILTER = ClearFilter()
+PROCESS_FILTER = ProcessFilter()
 
 def search(request, theme_path='all'):
 
-    request = CLEAR_FILTER.clear_filters(request)
+    # request = CLEAR_FILTER.clear_filters(request)
 
-    if request.method == 'POST':
-        request = GENERAL.save_post_params(request, ['graph-metric', 'sort-field', 'page'])
+    get_params = [
+        'sort-field', 'graph-metric', 'page', 'slider_start_value', 'slider_end_value', 
+    ]
 
+    request = GENERAL.process_sorts_and_pages(request, get_params)
+    request = PROCESS_FILTER.save_filters(request)
+
+    if request.POST.get('clear-form') != None:
+        request = CLEAR_FILTER.clear_filters(request)
+        
     if 'all' in request.path:
         return redirect(request.path.replace("all/", ""))
 
@@ -54,7 +62,7 @@ def search(request, theme_path='all'):
     else:
         theme_items = DB.get_theme_items(theme_path.replace("/", "~"), sort_field.split("-"))
 
-        filter_results = FILTER_OUT.process_filters(request, theme_items, user_id, "item")
+        filter_results = FILTER_OUT.process_filters(request, theme_items)
         request = filter_results["return"]["request"]
         theme_items = filter_results["return"]["items"]
 
@@ -74,7 +82,7 @@ def search(request, theme_path='all'):
 
     #remove first theme (parent theme)
     themes = list(Theme.objects.filter(
-        item_id__in=DB.get_starwars_ids(),
+        item_id__in=DB.get_all_starwars_items(),
         theme_path__contains=theme_path.replace("/", "~")
     ).values_list("theme_path", flat=True).distinct("theme_path"))[1:]
 
@@ -103,11 +111,13 @@ def search(request, theme_path='all'):
     
 
 def get_theme_paths(request):
-    url = request.get_full_path()
+    url = request.path
     url = url.replace("/search/", "")
     urls = url.split("/")
     urls.insert(0, "All")
-    urls.remove('')
 
-    theme_paths = [{"theme":theme, "url":'/'.join([urls[x+1] for x in range(i)])} for i, theme in enumerate(urls)]  
+    theme_paths = [
+        {"theme":theme, "url":'/'.join([urls[x+1] for x in range(i)])} 
+        for i, theme in enumerate(urls)
+    ]  
     return theme_paths
