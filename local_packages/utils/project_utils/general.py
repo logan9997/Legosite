@@ -1,6 +1,9 @@
 from config.config import PAGE_NUM_LIMIT
+
 import time
 import os
+import math
+
 
 def timer(func):
     print("TIMER!")
@@ -22,13 +25,22 @@ class General():
         return request.get_host().strip(" ")
     
 
-    def check_slider_range(self, start:int, end:int, _list:list):
-        if start >= len(_list) -1:
-            start = len(_list) - 1
-        if end <= 0:
-            end = 0
-        print(start, end)
-        return start, end
+    def get_previous_url(self, request, **kwargs) -> str:
+        previous_url:str = request.META['HTTP_REFERER'].replace(
+            f'http://{self.get_base_url(request)}', ''
+        )
+
+        if not kwargs.get('get_params'):
+            previous_url = previous_url.split('?')[0]
+        return previous_url
+    
+
+    def check_slider_range(self, value:int, _list:list):
+        if value >= len(_list) -1:
+            value = len(_list) - 1
+        if value <= 0:
+            value = 0
+        return value
     
 
     def configure_relative_file_path(self, file_name:str, max_depth:int) -> str:
@@ -92,7 +104,7 @@ class General():
             return 1
 
         conditions = [
-            current_page <= list_len // items_per_page,
+            current_page <= math.ceil(list_len / items_per_page),
             current_page > 0,
         ]
 
@@ -137,18 +149,31 @@ class General():
         return num_pages
         
 
-    def save_get_params(self, request, post_params:list[str]) -> dict:
-        for param in post_params:
+    def save_get_params(self, request, params:list[str]) -> dict:
+        for param in params:
             if request.GET.get(param) != None:
                 request.session[param] = request.GET.get(param)
         request.session.modified = True
         return request
     
 
-    def clear_get_params(self, request, post_params:list[str]):
-        for param in post_params:
+    def clear_get_params(self, request, params:list[str]):
+        for param in params:
             if param in request.session:
                 del request.session[param]
         request.session.modified = True
+        return request
+    
+
+    def process_sorts_and_pages(self, request, params:list):
+        current_url = request.path
+        previous_url = request.META.get('HTTP_REFERER', "").replace(
+            f'http://{self.get_base_url(request)}', ''
+        ).split('?')[0]
+
+        if current_url != previous_url:
+            request = self.clear_get_params(request, params)
+        request = self.save_get_params(request, params)
+
         return request
     
