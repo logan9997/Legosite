@@ -1,21 +1,22 @@
+import time
+
+import dotenv
+from project_utils.general import General
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-import time
-import dotenv
-
-from project_utils.general import General
+from selenium.webdriver.support.wait import WebDriverWait
 
 GENERAL = General()
+
 
 def update_ip(key):
     driver = webdriver.Chrome()
     url = "https://www.bricklink.com/v2/api/register_consumer.page"
     driver.get(url)
     try:
-        driver.find_element(By.XPATH, """//*[@id="js-btn-save"]/button[2]""").click()
+        driver.find_element(
+            By.XPATH, """//*[@id="js-btn-save"]/button[2]""").click()
     except:
         print("No cookies...")
 
@@ -52,14 +53,14 @@ def update_ip(key):
 
     time.sleep(3)
 
-    token_value = driver.find_element(By.XPATH, '/html/body/div[3]/center/table/tbody/tr/td/div/table[3]/tbody/tr/td/div/table/tbody/tr[1]/td[2]').text
-    token_secret = driver.find_element(By.XPATH, '/html/body/div[3]/center/table/tbody/tr/td/div/table[3]/tbody/tr/td/div/table/tbody/tr[2]/td[2]').text
+    token_value = driver.find_element(
+        By.XPATH, '/html/body/div[3]/center/table/tbody/tr/td/div/table[3]/tbody/tr/td/div/table/tbody/tr[1]/td[2]').text
+    token_secret = driver.find_element(
+        By.XPATH, '/html/body/div[3]/center/table/tbody/tr/td/div/table[3]/tbody/tr/td/div/table/tbody/tr[2]/td[2]').text
 
     dotenv_file = GENERAL.configure_relative_file_path('.env', 10)
     dotenv.load_dotenv(dotenv_file)
     dotenv.set_key(dotenv_file, 'TOKEN_VALUE', token_value)
     dotenv.set_key(dotenv_file, 'TOKEN_SECRET', token_secret)
 
-
     driver.close()
-

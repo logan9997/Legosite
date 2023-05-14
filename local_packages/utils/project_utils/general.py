@@ -1,12 +1,13 @@
-from config.config import PAGE_NUM_LIMIT
-
-import time
-import os
 import math
+import os
+import time
+
+from config.config import PAGE_NUM_LIMIT
 
 
 def timer(func):
     print("TIMER!")
+
     def inner(*args, **kwargs):
         start = time.time()
         result = func(*args, **kwargs)
@@ -15,35 +16,32 @@ def timer(func):
         return result
     return inner
 
+
 class General():
 
     def __init__(self) -> None:
         pass
 
-
     def get_base_url(self, request) -> str:
         return request.get_host().strip(" ")
-    
 
     def get_previous_url(self, request, **kwargs) -> str:
-        previous_url:str = request.META['HTTP_REFERER'].replace(
+        previous_url: str = request.META['HTTP_REFERER'].replace(
             f'http://{self.get_base_url(request)}', ''
         )
 
         if not kwargs.get('get_params'):
             previous_url = previous_url.split('?')[0]
         return previous_url
-    
 
-    def check_slider_range(self, value:int, _list:list):
-        if value >= len(_list) -1:
+    def check_slider_range(self, value: int, _list: list):
+        if value >= len(_list) - 1:
             value = len(_list) - 1
         if value <= 0:
             value = 0
         return value
-    
 
-    def configure_relative_file_path(self, file_name:str, max_depth:int) -> str:
+    def configure_relative_file_path(self, file_name: str, max_depth: int) -> str:
         path = file_name
         while True:
             if os.path.exists(path):
@@ -53,51 +51,48 @@ class General():
             if path.count('../') >= max_depth:
                 raise Exception(f'File {file_name} not found')
 
-
-    def clean_html_codes(self, string:str):
+    def clean_html_codes(self, string: str):
         codes = {
-            "&#41;":")", 
-            "&#40;":"(",
+            "&#41;": ")",
+            "&#40;": "(",
             "&#39;": "'"
         }
 
         for k, v in codes.items():
             if k in string:
-                string = string.replace(k ,v)
+                string = string.replace(k, v)
         return string
-    
 
-    def split_capitalize(self, string:str, split_value:str):
+    def split_capitalize(self, string: str, split_value: str):
         return " ".join(
             list(map(str.capitalize, string.split(split_value)))
         )
-    
 
-    def sort_items(self, items, sort , **order) -> list[dict]:
+    def sort_items(self, items, sort, **order) -> list[dict]:
         sort_field = sort.split("-")[0]
-        order = {"asc":False, "desc":True}[sort.split("-")[1]]
-        items = sorted(items, key=lambda field:field[sort_field], reverse=order)
+        order = {"asc": False, "desc": True}[sort.split("-")[1]]
+        items = sorted(
+            items, key=lambda field: field[sort_field], reverse=order)
         return items
 
+    def sort_dropdown_options(self, options: list[dict[str, str]], field: str) -> list[dict[str, str]]:
+        # loop through all options. If options["value"] matches to desired sort field, assign to variable
+        selected_field = [
+            option for option in options if option["value"] == field]
 
-    def sort_dropdown_options(self, options:list[dict[str,str]], field:str) -> list[dict[str,str]]:
-        #loop through all options. If options["value"] matches to desired sort field, assign to variable
-        selected_field = [option for option in options if option["value"] == field]
-
-        #default, if code above fails 
+        # default, if code above fails
         if selected_field == []:
             print("\n\nFAILS - <sort_dropdown_options>\n\n")
             selected_field = options[0]
         else:
             selected_field = selected_field[0]
-        
-        #push selected element to front of list, remove its old position
+
+        # push selected element to front of list, remove its old position
         options.insert(0, options.pop(options.index(selected_field)))
-        
+
         return options
-    
-    
-    def check_page_boundaries(self, current_page, list_len:int, items_per_page:int) -> int:
+
+    def check_page_boundaries(self, current_page, list_len: int, items_per_page: int) -> int:
         try:
             current_page = int(current_page)
         except:
@@ -110,27 +105,26 @@ class General():
 
         if not all(conditions):
             return 1
-        
+
         return current_page
 
-
-    def slice_num_pages(self, list_len:int, current_page:int, items_per_page:int):
-        num_pages = [i+1 for i in range((list_len // items_per_page ) + 1)]
-        last_page = num_pages[-1] -1
+    def slice_num_pages(self, list_len: int, current_page: int, items_per_page: int):
+        num_pages = [i+1 for i in range((list_len // items_per_page) + 1)]
+        last_page = num_pages[-1] - 1
 
         list_slice_start = current_page - (PAGE_NUM_LIMIT // 2)
-        list_slice_end = current_page - (PAGE_NUM_LIMIT // 2) + PAGE_NUM_LIMIT 
+        list_slice_end = current_page - (PAGE_NUM_LIMIT // 2) + PAGE_NUM_LIMIT
 
         if list_slice_end > len(num_pages):
-            list_slice_end = len(num_pages) -1
+            list_slice_end = len(num_pages) - 1
             list_slice_start = list_slice_end - PAGE_NUM_LIMIT
-        if list_slice_start < 0 :
+        if list_slice_start < 0:
             list_slice_end -= list_slice_start
             list_slice_start = 0
 
         num_pages = num_pages[list_slice_start:list_slice_end]
 
-        #remove last page. if len(items) % != 0 by ITEMS_PER_PAGE -> blank page with no items
+        # remove last page. if len(items) % != 0 by ITEMS_PER_PAGE -> blank page with no items
         if list_len % items_per_page == 0:
             num_pages.pop(-1)
 
@@ -147,25 +141,22 @@ class General():
             return []
 
         return num_pages
-        
 
-    def save_get_params(self, request, params:list[str]) -> dict:
+    def save_get_params(self, request, params: list[str]) -> dict:
         for param in params:
             if request.GET.get(param) != None:
                 request.session[param] = request.GET.get(param)
         request.session.modified = True
         return request
-    
 
-    def clear_get_params(self, request, params:list[str]):
+    def clear_get_params(self, request, params: list[str]):
         for param in params:
             if param in request.session:
                 del request.session[param]
         request.session.modified = True
         return request
-    
 
-    def process_sorts_and_pages(self, request, params:list):
+    def process_sorts_and_pages(self, request, params: list):
         current_url = request.path
         previous_url = request.META.get('HTTP_REFERER', "").replace(
             f'http://{self.get_base_url(request)}', ''
@@ -176,4 +167,3 @@ class General():
         request = self.save_get_params(request, params)
 
         return request
-    

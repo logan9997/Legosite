@@ -1,5 +1,6 @@
+import os
+
 import requests
-import os 
 from scripts.database import DB
 
 
@@ -8,13 +9,13 @@ def images():
     item_type = input("Type, M / S").upper()
 
     type_convert = {
-        "M" : {
-            "ids":DB().get_starwars_ids(),
-            "path":"minifigures"
+        "M": {
+            "ids": DB().get_starwars_ids(),
+            "path": "minifigures"
         },
-        "S" : {
-            "ids":DB().get_theme_sets("Star_Wars"),
-            "path":"sets"
+        "S": {
+            "ids": DB().get_theme_sets("Star_Wars"),
+            "path": "sets"
         }
     }
 
@@ -27,7 +28,6 @@ def images():
             img = requests.get(request_string).content
             with open(rf"..\App\static\App\{type_convert[item_type]['path']}\{_id}.png", "wb") as file:
                 file.write(img)
-
 
 
 if __name__ == "__main__":

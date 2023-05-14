@@ -1,9 +1,7 @@
 from django import forms
-from config.config import (
-    USERNAME_LENGTH,
-    PASSWORD_LENGTH,
-    EMAIL_LENGTH
-)
+
+from config.config import EMAIL_LENGTH, PASSWORD_LENGTH, USERNAME_LENGTH
+
 
 class ItemSelect(forms.Form):
     item_id = forms.CharField(max_length=20)
@@ -67,7 +65,7 @@ class SearchSort(forms.Form):
     sort_field = forms.MultipleChoiceField(choices=(
         ("theme_name", "theme_name"), ("popularity", "popularity"),
         ("avg_growth", "avg_growth"), ("num_items", "num_items")
-    )) 
+    ))
     order = forms.MultipleChoiceField(choices=(
         ("ASC", "ASC"), ("DESC", "DESC")
     ))

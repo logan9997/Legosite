@@ -3,21 +3,22 @@ from django.db import models
 DATE_FORMAT = '%Y-%m-%d'
 DATE_DEFAULT = '1991-01-01'
 
+
 class Item(models.Model):
     item_id = models.CharField(max_length=20, primary_key=True)
     item_name = models.CharField(max_length=210)
     year_released = models.IntegerField()
     item_type = models.CharField(max_length=1, choices=(
-        ("M","minifig"), ("S", "set")
+        ("M", "minifig"), ("S", "set")
     ))
     views = models.IntegerField()
-
 
 
 class Price(models.Model):
     price_record = models.AutoField(primary_key=True)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    date = models.DateField(DATE_FORMAT, blank=True, null=True, default=DATE_DEFAULT)
+    date = models.DateField(DATE_FORMAT, blank=True,
+                            null=True, default=DATE_DEFAULT)
     avg_price = models.FloatField()
     min_price = models.FloatField()
     max_price = models.FloatField()
@@ -27,12 +28,14 @@ class Price(models.Model):
 class Theme(models.Model):
     theme_id = models.AutoField(primary_key=True)
     theme_path = models.CharField(max_length=140)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE,blank=True, null=True)
+    item = models.ForeignKey(
+        Item, on_delete=models.CASCADE, blank=True, null=True)
 
 
 class User(models.Model):
     user_id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=16, unique=True) #USERNAME MUST BE UNIQUE
+    # USERNAME MUST BE UNIQUE
+    username = models.CharField(max_length=16, unique=True)
     email = models.EmailField()
     password = models.CharField(max_length=22)
     email_preference = models.CharField(max_length=14, default="All", choices=(
@@ -68,7 +71,8 @@ class Piece(models.Model):
     piece_name = models.CharField(max_length=360)
     type = models.CharField(max_length=20, choices=(
         ("MINIFIG", "MINIFIG"), ("PART", "PART"), ("SET", "SET"), ("GEAR", "GEAR"),
-        ("CATALOG", "CATALOG"), ("INSTRUCTION", "INSTRUCTION"), ("UNSORTED_LOT", "UNSORTED_LOT"),
+        ("CATALOG", "CATALOG"), ("INSTRUCTION",
+                                 "INSTRUCTION"), ("UNSORTED_LOT", "UNSORTED_LOT"),
         ("ORIGINAL_BOX", "ORIGINAL_BOX")
     ))
 
@@ -83,6 +87,7 @@ class PieceParticipation(models.Model):
 
 class SetParticipation(models.Model):
     participation = models.AutoField(primary_key=True)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="item")
+    item = models.ForeignKey(
+        Item, on_delete=models.CASCADE, related_name="item")
     set = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="set")
     quantity = models.IntegerField()

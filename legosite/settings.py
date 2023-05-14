@@ -88,7 +88,6 @@ WSGI_APPLICATION = 'legosite.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 credentials = Manager().get_database_credentials('settings')
-print("EEE",credentials)
 credentials.update({'ENGINE':'django.db.backends.postgresql'})
 
 DATABASES = {
