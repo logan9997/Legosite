@@ -1,10 +1,10 @@
 
 function maintain_scroll_pos(elememt_id) {
     var elem = document.getElementById(elememt_id)
-    document.addEventListener("DOMContentLoaded", function(event) { 
+    window.onload = function() { 
         var elem_scroll_pos = localStorage.getItem('elem_scroll_pos');
-        if (elem_scroll_pos) elem.scrollTo(0, elem_scroll_pos);
-    });
+        elem.scrollTo(0, elem_scroll_pos);
+    }
 
     window.onbeforeunload = function(e) {
         localStorage.setItem('elem_scroll_pos', elem.scrollTop);
@@ -114,7 +114,6 @@ function logout_popup(e) {
 
 function show_dropdown_content() {
     var element_style = document.getElementById("dropdown-content").style.display;
-    console.log(element_style)
     if (element_style == "flex") {
         document.getElementById("dropdown-content").style.display = "none";
     } else {
@@ -137,16 +136,18 @@ function update_add_portfolio_text() {
 
     if (value < 0) {
         button.innerHTML = "Remove from Portfolio!"
-        console.log("less")
     } else {
         button.innerHTML = "Add to Portfolio!"
-        console.log("more")
     }
 }
 
 //https://www.scaler.com/topics/date-validation-in-javascript/
 function isValidDate(date) {
  
+    if (date.length > 10) {
+        return false;
+    }
+
     // Date format: YYYY-MM-DD
     var datePattern = /^([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
 
@@ -181,8 +182,8 @@ function isValidDate(date) {
 
 function input_validation(input, type, add_new) {
     var form = input.parentElement.parentElement.parentElement
-
     var inputs = form.getElementsByTagName("input")
+
     var new_inputs = []
     for (let i = 0; i<inputs.length; i++) {
         if (inputs[i].type != "hidden") {
@@ -190,70 +191,63 @@ function input_validation(input, type, add_new) {
         }
     }
     inputs = new_inputs
-    
-    var msg = ""
-    if (type == "date") {
-        if (! isValidDate(input.value) || input.value.length != 10) {
-            msg = "invalid date format. (YYYY-MM-DD)"
-        }
-    } else {
-        if (isNaN(input.value)) {
-            msg = "invalid number (0.00)"
-        } 
-        if (input.value < 0) {
-            msg = "number must be >= 0"
-        }
-    }
 
-    if (msg != "") {
-        form.parentElement.getElementsByClassName("error-msg-container")[0].style.display = "block";
-        form.parentElement.getElementsByClassName("error-msg")[0].innerHTML = msg;
+    var submit_button = document.getElementById("submit")
+    var error_msg_container = form.parentElement.getElementsByClassName("error-msg-container")[0]
+    var error_msg = form.parentElement.getElementsByClassName("error-msg")[0]
 
-        var watchlist_button = document.getElementById("add-to-watchlist")
-        if (watchlist_button != null) {
-            watchlist_button.style.marginTop = "1.5rem"
-        }
-        // form.parentElement.getElementsByClassName("entry-counter")[0].style.borderTop = "none";
-    } else {
-        form.parentElement.getElementsByClassName("error-msg-container")[0].style.display = "none"
-        form.parentElement.getElementsByClassName("error-msg")[0].innerHTML = ""
-    }
-
-    var valid = true
-    for (let i = 0; i<inputs.length; i++) {
-        if (i % 2 == 0) {
-            if (! isValidDate(inputs[i].value) && inputs[i].value != "" && inputs[i].value.length != 10) {
-                valid = false
-                console.log(inputs[i].value, "IN-VALID")
+    //check all inputs
+    console.log(inputs[0], inputs[1], inputs[2] ,inputs[3])
+    var msg = ''
+    for (let i = 0; i < inputs.length; i ++) {
+        let value = inputs[i].value
+        console.log(i, value)
+        if (i % 2 == 0 && value != '') {
+            //dates
+            if (! isValidDate(value)) {
+                msg = 'invalid date'
+                break
             }
-        } else {            
-            if (isNaN(inputs[i].value) || parseFloat(inputs[i].value) < 0) {
-                valid = false
-                console.log(inputs[i].value, "IN-VALID")
+        }  
+        if (i % 2 != 0 && value != 0) {
+            //prices
+            if (isNaN(value)) {
+                msg = 'invalid number format'
+                break
+            } 
+            if (parseFloat(value) < 0) {
+                msg = 'number must be > 0.00'
+                break
             } 
         }
     }
 
-    for (let i = 0; i<inputs.length; i ++) {
-        console.log(inputs[i].value)
+    //update error message
+    if (msg != '') {
+        error_msg_container.style.display = 'block'
+        error_msg.innerHTML = msg
+    } else {
+        error_msg_container.style.display = 'none'
+        error_msg.innerHTML = ''
     }
 
-    var submit_button = document.getElementById("submit")
+    var valid = true
+    if (msg != '') {
+        valid = false
+    }
 
-    console.log(add_new, valid)
-
-    if (valid) {
-        if (add_new) {
-            submit_button.disabled = false
-        } else {
-            form.submit()
-        } 
+    if (! valid) {
+        submit_button.disabled = true
     } else {
-        if (add_new) {
-            input.value = ""
-        }
+        submit_button.disabled = false
     }
 }
+
+
+
+    
+
+
 
 function condence_list(_list) {
     const max_graph_points = JSON.parse(document.getElementById("max_graph_points").textContent);
