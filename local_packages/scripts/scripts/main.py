@@ -57,6 +57,16 @@ def update_prices():
 
 
 @check_http_response
+def update_year_released():
+    figs = DB.get_starwars_ids()
+    for _id in figs:
+        info = RESP.get_response_data(f'items/MINIFIG/{_id}')
+        year_released = info.get('year_released', '1900')
+        DB.update_field('App_item', 'year_released',
+                        'item_id', _id, year_released)
+
+
+@check_http_response
 def sub_sets():
     sw_ids = DB.get_all_itemIDs()
 
@@ -98,10 +108,11 @@ def super_sets():
 
 
 def main():
-    update_choice = input(
-        'Update: (Prices : P) (Sub Sets : SUB) (Super Sets : SUPER): ').upper()
-    choices = {'P': update_prices, 'SUB': sub_sets, 'SUPER': super_sets}
-    choices[update_choice]()
+    # update_choice = input(
+    #     'Update: (Prices : P) (Sub Sets : SUB) (Super Sets : SUPER): ').upper()
+    # choices = {'P': update_prices, 'SUB': sub_sets, 'SUPER': super_sets}
+    # choices[update_choice]()
+    update_year_released()
 
 
 if __name__ == '__main__':
