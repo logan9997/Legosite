@@ -5,29 +5,30 @@ from django.utils.safestring import mark_safe
 
 from config.config import (ITEM_TYPE_CONVERT, MAX_GRAPH_POINTS,
                            MAX_GRAPH_POINTS_ITEM_VIEW, MAX_SEARCH_SUGGESTIONS)
+from project_utils.general import General
 
 from ..models import Item, Theme, User
 
+
 register = template.Library()
 
+
 # add login status to base.html to either display (logout) / (login + join) in the nav bar
-
-
 @register.simple_tag(takes_context=True)
 def check_login_status(context, request):
     try:
-        if request.session["user_id"] != -1:
-            context["logged_in"] = True
+        if request.session['user_id'] != -1:
+            context['logged_in'] = True
         else:
-            context["logged_in"] = False
+            context['logged_in'] = False
     except KeyError:
-        context["logged_in"] = False
+        context['logged_in'] = False
     return ''
 
 
 @register.simple_tag
 def get_max_graph_points(request):
-    if "/item/" in request.get_full_path():
+    if '/item/' in request.get_full_path():
         return MAX_GRAPH_POINTS_ITEM_VIEW
     return MAX_GRAPH_POINTS
 
@@ -40,19 +41,19 @@ def max_search_suggestions():
 @register.simple_tag
 def item_details_search_suggestions():
     details = list(Item.objects.filter(
-        theme__theme_path__contains="Star_Wars",
-    ).values_list("item_id", "item_name", "item_type").distinct("item_id"))
+        theme__theme_path__contains='Star_Wars',
+    ).values_list('item_id', 'item_name', 'item_type').distinct('item_id'))
 
-    return [{"item_id": detail[0].lower(), "item_name":detail[1].lower(), "item_type":ITEM_TYPE_CONVERT[detail[2]]} for detail in details]
+    return [{'item_id': detail[0].lower(), 'item_name':detail[1].lower(), 'item_type':ITEM_TYPE_CONVERT[detail[2]]} for detail in details]
 
 
 @register.simple_tag
 def item_names():
     names = list(map(str.lower, Item.objects.filter(
-        theme__theme_path__contains="Star_Wars",
-    ).values_list("item_name", flat=True).distinct("item_id")))
+        theme__theme_path__contains='Star_Wars',
+    ).values_list('item_name', flat=True).distinct('item_id')))
 
-    return ["".join([char for char in name if char not in [")", "(", ",", "-", "."]]) for name in names]
+    return [''.join([char for char in name if char not in [')', '(', ',', '-', '.']]) for name in names]
 
 
 @register.filter
@@ -63,39 +64,23 @@ def iterable_index(list: list, i: int):
 
 
 @register.filter
-def large_num_commas(number):
-    number = str(number)
-    if "." in number:
-        num_int = number.split(".")[0]
-        num_decimal = "." + number.split(".")[1]
-    else:
-        num_int = number
-        num_decimal = ""
+def shorten_large_num(number):
+    number = General().large_number_commas(number)
+    if len(number) >= 6 and '.' in number:
+        number = number.split('.')[0]
 
-    sections = []
-
-    remainder = len(num_int) % 3
-    if remainder != 0:
-        sections.append(num_int[:remainder])
-        num_int = num_int[remainder:]
-
-    for i in range(len(num_int)):
-        if (i % 3) == 0:
-            sections.append(num_int[i:i+3])
-
-    number = ",".join(sections)+num_decimal
     return number
 
 
 @register.simple_tag(takes_context=True)
 def add_username_email_to_context(context, request):
     try:
-        user_id = request.session["user_id"]
+        user_id = request.session['user_id']
         if user_id != -1:
             user_details = User.objects.filter(user_id=user_id)
-            context["username"] = user_details.values_list(
-                "username", flat=True)[0]
-            context["email"] = user_details.values_list("email", flat=True)[0]
+            context['username'] = user_details.values_list(
+                'username', flat=True)[0]
+            context['email'] = user_details.values_list('email', flat=True)[0]
     except KeyError:
         return ''
     return ''
@@ -106,7 +91,7 @@ def postivie_or_negative_sign(num: float):
     if num == None:
         return 0
     if num > 0:
-        num = f"+{str(num)}"
+        num = f'+{str(num)}'
     return num
 
 
@@ -120,7 +105,7 @@ def times_negative_one(number: float):
 @register.filter
 def none_to_hyphens(date):
     if date == None:
-        return " - - - -"
+        return ' - - - -'
     return date
 
 
@@ -133,7 +118,7 @@ def none_to_empty_string(string):
 
 @register.filter
 def none_to_zero(num):
-    if num == None or num == "":
+    if num == None or num == '':
         return 0
     return num
 
@@ -145,15 +130,7 @@ def index(iterable, item):
 
 @register.filter
 def capitalise_split_words(string: str):
-    return ' '.join([word.capitalize() for word in string.split("_")])
-
-
-@register.filter
-def shorten_long_number(number: float):
-
-    if number >= 1000:
-        return str(number).split(".")[0]
-    return number
+    return ' '.join([word.capitalize() for word in string.split('_')])
 
 
 @register.filter
@@ -163,35 +140,35 @@ def remove_decimals(number: float):
 
 @register.filter
 def two_decimals(number: float):
-    if "." in str(number):
-        if len(str(number).split(".")[1]) == 1:
-            return str(number).split(".")[0] + "." + str(number).split(".")[1] + "0"
+    if '.' in str(number):
+        if len(str(number).split('.')[1]) == 1:
+            return str(number).split('.')[0] + '.' + str(number).split('.')[1] + '0'
     return number
 
 
 @register.filter
 def replace_underscore(string: str):
-    return string.replace("_", " ")
+    return string.replace('_', ' ')
 
 
 @register.filter
 def replace_forward_slash(string: str):
-    if string == "/":
-        return "index"
+    if string == '/':
+        return 'index'
 
-    return string.replace("/", "")
+    return string.replace('/', '')
 
 
 @register.filter
 def replace_space_substitute(string: str):
-    return string.replace("~", ",  ").replace("_", " ")
+    return string.replace('~', ',  ').replace('_', ' ')
 
 
 @register.filter
 def item_themes(string: str):
-    string = string.replace("_", " ")
-    if "~" in string:
-        string = "-- " + string.split("~")[1]
+    string = string.replace('_', ' ')
+    if '~' in string:
+        string = '-- ' + string.split('~')[1]
     return string
 
 
@@ -213,7 +190,7 @@ def strip(string: str, sub_string: str):
 @register.filter
 def replace(string: str, replace_args: str):
 
-    replace_args = replace_args.split("|")
+    replace_args = replace_args.split('|')
     if len(replace_args) != 2:
         return string.replace(replace_args[0])
 
@@ -234,7 +211,7 @@ def count(string: str, sub_string: str) -> int:
 
 @register.filter
 def get_indent_colour(theme_path: str):
-    indent = theme_path.count("~") + 1
+    indent = theme_path.count('~') + 1
     colour_convert = {
         1: 'orangered',
         2: '#FFA500',
@@ -246,12 +223,12 @@ def get_indent_colour(theme_path: str):
 
 @register.filter
 def count_theme_indent(theme_path: str):
-    indent = theme_path.count("~")
-    parent_theme = theme_path.split("~")[0]
+    indent = theme_path.count('~')
+    parent_theme = theme_path.split('~')[0]
     desired_indent = 2
 
     if indent <= desired_indent and parent_theme in theme_path:
-        return "-"*(indent*2) + " " + theme_path.split("~")[-1].replace("_", " ").replace("~", " ")
+        return '-'*(indent*2) + ' ' + theme_path.split('~')[-1].replace('_', ' ').replace('~', ' ')
     return ''
 
 

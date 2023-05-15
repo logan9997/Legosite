@@ -13,12 +13,12 @@ class DatabaseManagement():
         self.cursor = self.con.cursor()
 
     def SELECT(self, sql, **kwargs):
-        if kwargs.get("print"):
+        if kwargs.get('print'):
             print(sql)
         self.cursor.execute(sql)
-        if kwargs.get("fetchone"):
+        if kwargs.get('fetchone'):
             return self.cursor.fetchone()
-        if kwargs.get("flat"):
+        if kwargs.get('flat'):
             return [result[0] for result in self.cursor.fetchall()]
         return self.cursor.fetchall()
 
@@ -86,13 +86,6 @@ class DatabaseManagement():
         '''
         return self.SELECT(sql)
 
-    def get_all_piece_ids(self):
-        sql = '''
-            SELECT piece_id
-            FROM App_piece
-        '''
-        return self.SELECT(sql)
-
     def get_todays_price_records(self):
         today = datetime.datetime.today().strftime('%Y-%m-%d')
         sql = f'''
@@ -120,23 +113,6 @@ class DatabaseManagement():
         '''
         return self.SELECT(sql)
 
-    def get_all_items(self) -> list[str]:
-        sql = '''
-            SELECT item_id
-            FROM "App_price"
-            GROUP BY item_id
-        '''
-        return self.SELECT(sql)
-
-    def check_for_todays_date(self) -> int:
-        today = datetime.date.today()
-        sql = f'''
-            SELECT count(*)
-            FROM "App_price"
-            WHERE date = '{today}'
-        '''
-        return self.SELECT(sql)
-
     def theme_item_ids(self):
         sql = '''
             SELECT DISTINCT ON (theme_path) I.item_id
@@ -157,17 +133,17 @@ class DatabaseManagement():
         return self.SELECT(sql, flat=True)
 
     def get_biggest_trends(self, change_metric, **kwargs) -> list[str]:
-        min_date_sql = kwargs.get("min_date")
-        if "min_date" in kwargs:
+        min_date_sql = kwargs.get('min_date')
+        if 'min_date' in kwargs:
             min_date_sql = f"WHERE date >= '{min_date_sql}'"
 
-        max_date_sql = kwargs.get("max_date", "")
-        if "max_date" in kwargs:
+        max_date_sql = kwargs.get('max_date', '')
+        if 'max_date' in kwargs:
             max_date_sql = f"WHERE date <= '{max_date_sql}'"
 
-        limit_sql = kwargs.get("limit", "")
-        if "limit" in kwargs:
-            limit_sql = f"LIMIT {limit_sql}"
+        limit_sql = kwargs.get('limit', '')
+        if 'limit' in kwargs:
+            limit_sql = f'LIMIT {limit_sql}'
 
         change_calculation_sql = f'''
         ROUND(CAST(
@@ -205,30 +181,11 @@ class DatabaseManagement():
         '''
         return self.SELECT(sql)
 
-    def get_items_parent_themes(self, item_ids):
-        item_ids = str(item_ids).replace("[", "(").replace("]", ")")
-        sql = f'''
-            SELECT theme_path
-            FROM "App_theme"
-            WHERE item_id IN {item_ids}
-        '''
-        return self.SELECT(sql)
-
-    def get_parent_themes(self) -> list[str]:
-        sql = '''
-            SELECT REPLACE(REPLACE(theme_path, '/', ''), ' ', '-')
-            FROM "App_item", "App_theme"
-            WHERE theme_path NOT LIKE '%~%'
-                AND "App_item".item_id = "App_theme".item_id
-            GROUP BY theme_path
-        '''
-        return self.SELECT(sql)
-
     def get_theme_items(self, theme_path, sort_field) -> list[str]:
-        distinct = f"(I.item_id, {sort_field[0]})"
-        if sort_field[0] == "item_id":
-            sort_field[0] = "I.item_id"
-            distinct = "(I.item_id)"
+        distinct = f'(I.item_id, {sort_field[0]})'
+        if sort_field[0] == 'item_id':
+            sort_field[0] = 'I.item_id'
+            distinct = '(I.item_id)'
         sql = f'''
             SELECT DISTINCT ON {distinct} I.item_id, item_name, year_released, item_type, avg_price, 
             min_price, max_price, total_quantity
@@ -256,17 +213,6 @@ class DatabaseManagement():
         '''
         return self.SELECT(sql)
 
-    def get_star_wars_sets(self):
-        sql = '''
-            SELECT I.item_id
-            FROM "App_item" I, "App_theme" T
-            WHERE I.item_id = T.item_id
-                AND item_type = 'S'
-                AND theme_path = 'Star_Wars'
-            GROUP BY I.item_id
-        '''
-        return self.SELECT(sql, flat=True)
-
     def filter_items_by_theme(self, themes):
         print(themes)
         if themes != []:
@@ -285,15 +231,15 @@ class DatabaseManagement():
         return []
 
     def get_item_metric_changes(self, item_id, change_metric, **kwargs):
-        min_date = kwargs.get("min_date", "")
-        max_date = kwargs.get("max_date", "")
+        min_date = kwargs.get('min_date', '')
+        max_date = kwargs.get('max_date', '')
 
-        min_date_sql = ""
-        if min_date != "":
+        min_date_sql = ''
+        if min_date != '':
             min_date_sql = f"AND date >= '{min_date}'"
 
-        max_date_sql = ""
-        if max_date != "":
+        max_date_sql = ''
+        if max_date != '':
             max_date_sql = f"AND date <= '{max_date}'"
 
         min_date_sql = f"""(SELECT MIN(date) FROM "App_price" WHERE item_id = '{item_id}' {min_date_sql})"""
@@ -337,14 +283,6 @@ class DatabaseManagement():
         if result == None:
             return None
         return result[0]
-
-    def insert_year_released(self, year_released, item_id) -> None:
-        self.cursor.execute(f'''
-            UPDATE "App_item"
-            SET year_released = '{year_released}'
-            WHERE item_id = '{item_id}'
-        ''')
-        self.con.commit()
 
     def get_item_info(self, item_id, change_metric) -> list[str]:
         sql = f'''
@@ -411,14 +349,6 @@ class DatabaseManagement():
         '''
         return self.SELECT(sql, flat=True)
 
-    def fetch_theme_details(self) -> list[str]:
-        sql = '''
-            SELECT item_type, theme_path
-            FROM "App_item" I, "App_theme" T
-            WHERE I.item_id = T.item_id
-        '''
-        return self.SELECT(sql)
-
     def add_theme_details(self, theme_details, item_type) -> None:
         for item in theme_details[item_type]:
             if theme_details["path"] not in self.get_item_themes(item):
@@ -428,8 +358,8 @@ class DatabaseManagement():
                 self.con.commit()
 
     def get_user_items(self, user_id, view) -> list[str]:
-        sql_select = "SELECT DISTINCT ON (I.item_id) _view1.item_id, item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity"
-        if view == "portfolio":
+        sql_select = 'SELECT DISTINCT ON (I.item_id) _view1.item_id, item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity'
+        if view == 'portfolio':
             sql_select += f''',
                 (SELECT COUNT(*) FROM "App_portfolio" P2 WHERE user_id = 1 AND condition = 'N' AND _view1.item_id = P2.item_id GROUP BY P2.item_id),
                 (SELECT COUNT(*) FROM "App_portfolio" P2 WHERE user_id = 1 AND condition = 'U' AND _view1.item_id = P2.item_id GROUP BY P2.item_id)
@@ -448,12 +378,12 @@ class DatabaseManagement():
 
     def is_item_in_user_items(self, user_id, view, item_id) -> bool:
 
-        if view == "portfolio":
-            sql_select = "SELECT condition, COUNT(*)"
-            sql_group = "GROUP BY condition"
+        if view == 'portfolio':
+            sql_select = 'SELECT condition, COUNT(*)'
+            sql_group = 'GROUP BY condition'
         else:
-            sql_select = "SELECT item_id"
-            sql_group = ""
+            sql_select = 'SELECT item_id'
+            sql_group = ''
 
         sql = f'''
             {sql_select}
@@ -463,17 +393,6 @@ class DatabaseManagement():
             {sql_group}
         '''
 
-        return self.SELECT(sql)
-
-    def portfolio_total_item_price(self, user_id) -> list[str]:
-        sql = f'''
-            SELECT ROUND(avg_price * PO.quantity, 2), I.item_id, condition
-            FROM "App_portfolio" PO, "App_price" PR, "App_item" I
-            WHERE PO.user_id = {user_id}
-                AND PO.item_id = I.item_id
-                AND I.item_id = PR.item_id
-            GROUP BY I.item_id, condition
-        '''
         return self.SELECT(sql)
 
     def user_items_total_price(self, user_id, metric, view) -> list[str]:
@@ -513,17 +432,6 @@ class DatabaseManagement():
                 AND user_id = '{user_id}'
         '''
         return int(self.SELECT(sql)[0][0])
-
-    def get_portfolio_price_trends(self, user_id) -> list[str]:
-        sql = f'''
-            SELECT date, ROUND(CAST(SUM(avg_price * quantity) AS numeric), 2)
-            FROM "App_portfolio" PO, "App_price" PR, "App_item" I
-            WHERE user_id = {user_id}
-                AND PO.item_id = I.item_id
-                AND PR.item_id = I.item_id
-            GROUP BY date
-        '''
-        return self.SELECT(sql)
 
     def biggest_portfolio_changes(self, user_id, metric) -> list[str]:
         sql = f'''
@@ -590,26 +498,6 @@ class DatabaseManagement():
         '''
         return self.SELECT(sql)
 
-    def get_portfolio_items_condition(self, user_id) -> list[str]:
-        sql = f'''
-            SELECT item_id, condition
-            FROM "App_portfolio"
-            WHERE user_id = {user_id}
-        '''
-        return self.SELECT(sql)
-
-    def total_portfolio_price_trend(self, user_id) -> list[str]:
-        sql = f'''
-            SELECT SUM(max_price), date
-            FROM "App_price" price, "App_portfolio" portfolio, "App_item" item, "App_user" user
-            WHERE user.user_id = {user_id}
-                AND price.item_id = item.item_id
-                AND item.item_id = portfolio.item_id
-                AND portfolio.user_id = user.user_id
-            GROUP BY date
-        '''
-        return self.SELECT(sql)
-
     def get_all_itemIDs(self) -> list[str]:
         sql = f'''
             SELECT item_id
@@ -620,7 +508,7 @@ class DatabaseManagement():
         return self.SELECT(sql, flat=True)
 
     def insert_item_info(self, item_info) -> None:
-        type_convert = {"MINIFIG": "M", "SET": "S"}
+        type_convert = {'MINIFIG': 'M', 'SET': 'S'}
         self.cursor.execute(f'''
             INSERT INTO "App_item"
             ("item_id", "item_name", "year_released", "item_type", "views")
@@ -630,18 +518,18 @@ class DatabaseManagement():
 
     def add_to_user_items(self, user_id, item_id, view, date_added, **portfolio_args) -> None:
 
-        sql_fields = "(user_id, item_id, date_added"
+        sql_fields = '(user_id, item_id, date_added'
         sql_values = f"VALUES ({user_id},'{item_id}','{date_added}'"
 
-        if view == "portfolio":
-            condition = portfolio_args["condition"]
-            bought_for = portfolio_args["bought_for"]
+        if view == 'portfolio':
+            condition = portfolio_args['condition']
+            bought_for = portfolio_args['bought_for']
 
-            sql_fields += ",condition, bought_for)"
+            sql_fields += ',condition, bought_for)'
             sql_values += f",'{condition}', {bought_for})"
         else:
-            sql_fields += ")"
-            sql_values += ")"
+            sql_fields += ')'
+            sql_values += ')'
 
         self.cursor.execute(f'''
             INSERT INTO "App_{view}"
@@ -671,10 +559,10 @@ class DatabaseManagement():
                 GROUP BY {metric_or_date}, I.item_id, P.date
                 ORDER BY date ASC
                 '''
-        return [result[0] for result in self.SELECT(sql)]
+        return self.SELECT(sql, flat=True)
 
     def get_sub_theme_set(self, theme_path: str, sub_theme_indent: int):
-        for char in ["/", " "]:
+        for char in ['/', ' ']:
             if char in theme_path:
                 theme_path = theme_path.replace(char, "~")
 
@@ -724,28 +612,28 @@ class DatabaseManagement():
             FROM "App_theme"
             WHERE item_id = '{item_id}'
         '''
-        return [theme[0] for theme in self.SELECT(sql)]
+        return self.SELECT(sql, flat=True)
 
     def sub_themes(self, user_id: int, theme_path: str, view: str, metric: str, **kwargs) -> list[str]:
 
-        user_id_sql = f"AND user_id = {user_id}"
+        user_id_sql = f'AND user_id = {user_id}'
         view_sql = f'"App_{view}" _view,'
-        link_sql = f"AND I.item_id = _view.item_id"
+        link_sql = f'AND I.item_id = _view.item_id'
 
         if user_id == -1 or view not in ["watchlist", "portfolio"]:
-            user_id_sql = ""
-            view_sql = ""
-            link_sql = ""
+            user_id_sql = ''
+            view_sql = ''
+            link_sql = ''
 
-        show_count = kwargs.get("count")
-        count_sql = ""
+        show_count = kwargs.get('count')
+        count_sql = ''
         if show_count:
-            count_sql = ",COUNT(*)"
+            count_sql = ',COUNT(*)'
 
-        metric_total_sql = ""
-        metric_total = kwargs.get("metric_total")
+        metric_total_sql = ''
+        metric_total = kwargs.get('metric_total')
         if metric_total:
-            metric_total_sql = f",ROUND(CAST(SUM({metric}) AS numeric), 2)"
+            metric_total_sql = f',ROUND(CAST(SUM({metric}) AS numeric), 2)'
 
         sql = f'''
             SELECT theme_path {count_sql} {metric_total_sql}
@@ -815,16 +703,6 @@ class DatabaseManagement():
         '''
         return self.SELECT(sql)
 
-    def get_most_weekly_viewed_themes(self) -> list[str]:
-        sql = '''
-            SELECT theme_path, SUM(views) as [total_views]
-            FROM "App_theme" T, "App_item" I
-            WHERE T.item_id = I.item_id
-            GROUP BY theme_path
-            ORDER BY [total_views] DESC
-        '''
-        return self.SELECT(sql)
-
     def get_total_owners_or_watchers(self, view, item_id):
         if view == "portfolio":
             sql = f'''
@@ -862,16 +740,6 @@ class DatabaseManagement():
             return []
         return self.SELECT(sql)
 
-    def get_item_parent_theme(self, item_id):
-        sql = f'''
-            SELECT theme_path
-            FROM "App_item" I, "App_theme" TH
-            WHERE TH.item_id = I.item_id
-                AND LENGTH(theme_path) = LENGTH(REPLACE(theme_path, '~', '')) 
-				AND I.item_id = '{item_id}'
-        '''
-        return self.SELECT(sql, fetchone=True)[0]
-
     def get_item_type(self, item_id):
         sql = f'''
             SELECT item_type
@@ -881,12 +749,11 @@ class DatabaseManagement():
         return self.SELECT(sql, fetchone=True)[0]
 
     def get_most_common_words(self, field, item_type, *args, **kwargs):
-        min_word_length = kwargs.get("min_word_length", 3)
-        limit = kwargs.get("limit", 100)
+        min_word_length = kwargs.get('min_word_length', 3)
+        limit = kwargs.get('limit', 100)
 
         if len(args) != 0:
-
-            replace_sql = f""
+            replace_sql = ''
             for i, char in enumerate(args):
                 if i == 0:
                     replace_sql += f"REPLACE({field}, '{char}', '')"
@@ -913,4 +780,4 @@ class DatabaseManagement():
             ORDER BY COUNT(*) DESC 
             LIMIT {limit}      
         '''
-        return [word[0] for word in self.SELECT(sql)]
+        return self.SELECT(sql, flat=True)

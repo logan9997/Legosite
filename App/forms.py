@@ -16,10 +16,10 @@ class AddItemToPortfolio(forms.Form):
 
 class PortfolioItemsSort(forms.Form):
     sort_field = forms.MultipleChoiceField(choices=(
-        ("item_name", "item_name"), ("condition", "condition")
+        ('item_name', 'item_name'), ('condition', 'condition')
     ))
     field_order = forms.MultipleChoiceField(choices=(
-        ("ASC", "ASC"), ("DESC", "DESC")
+        ('ASC', 'ASC'), ('DESC', 'DESC')
     ))
 
 
@@ -39,7 +39,7 @@ class AddOrRemovePortfolioItem(forms.Form):
     item_id = forms.CharField(max_length=700)
     remove_or_add = forms.CharField(max_length=1)
     condition = forms.MultipleChoiceField(choices=(
-        ("N", "N"), ("U", "U")
+        ('N', 'N'), ('U', 'U')
     ))
     quantity = forms.IntegerField()
 
@@ -53,7 +53,7 @@ class ChangePassword(forms.Form):
 class EmailPreferences(forms.Form):
     email = forms.CharField(max_length=EMAIL_LENGTH)
     preference = forms.MultipleChoiceField(choices=(
-        ("Never", "Never"), ("Occasional", "Occasional"), ("All", "All")
+        ('Never', 'Never'), ('Occasional', 'Occasional'), ('All', 'All')
     ))
 
 
@@ -63,9 +63,9 @@ class PersonalInfo(forms.Form):
 
 class SearchSort(forms.Form):
     sort_field = forms.MultipleChoiceField(choices=(
-        ("theme_name", "theme_name"), ("popularity", "popularity"),
-        ("avg_growth", "avg_growth"), ("num_items", "num_items")
+        ('theme_name', 'theme_name'), ('popularity', 'popularity'),
+        ('avg_growth', 'avg_growth'), ('num_items', 'num_items')
     ))
     order = forms.MultipleChoiceField(choices=(
-        ("ASC", "ASC"), ("DESC", "DESC")
+        ('ASC', 'ASC'), ('DESC', 'DESC')
     ))

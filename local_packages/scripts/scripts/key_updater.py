@@ -12,33 +12,33 @@ GENERAL = General()
 
 def update_ip(key):
     driver = webdriver.Chrome()
-    url = "https://www.bricklink.com/v2/api/register_consumer.page"
+    url = 'https://www.bricklink.com/v2/api/register_consumer.page'
     driver.get(url)
     try:
         driver.find_element(
-            By.XPATH, """//*[@id="js-btn-save"]/button[2]""").click()
+            By.XPATH, '''//*[@id='js-btn-save']/button[2]''').click()
     except:
-        print("No cookies...")
+        print('No cookies...')
 
-    usernmame = "frmUsername"
-    password = "frmPassword"
-    button = "blbtnLogin"
+    usernmame = 'frmUsername'
+    password = 'frmPassword'
+    button = 'blbtnLogin'
 
-    driver.find_element(By.ID, usernmame).send_keys("loganbax101@gmail.com")
-    driver.find_element(By.ID, password).send_keys("#Legomario1")
+    driver.find_element(By.ID, usernmame).send_keys('loganbax101@gmail.com')
+    driver.find_element(By.ID, password).send_keys('#Legomario1')
     driver.find_element(By.ID, button).click()
 
     time.sleep(3)
 
-    delete_buttons = driver.find_elements(By.CLASS_NAME, "deleteBtn")
+    delete_buttons = driver.find_elements(By.CLASS_NAME, 'deleteBtn')
 
     for button in delete_buttons:
         button.click()
 
     time.sleep(5)
 
-    ip_inputs = driver.find_elements(By.CLASS_NAME, "ipToken")
-    ip_values = key.split(".")
+    ip_inputs = driver.find_elements(By.CLASS_NAME, 'ipToken')
+    ip_values = key.split('.')
 
     print(ip_values)
 
@@ -46,10 +46,10 @@ def update_ip(key):
 
     for i, ip in enumerate(ip_inputs[:4]):
         print(i, ip)
-        ip.send_keys(f"{ip_values[i]}")
+        ip.send_keys(f'{ip_values[i]}')
         time.sleep(1.5)
 
-    driver.find_element(By.ID, "registIpBtn").click()
+    driver.find_element(By.ID, 'registIpBtn').click()
 
     time.sleep(3)
 

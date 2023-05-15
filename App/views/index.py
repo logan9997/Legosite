@@ -16,9 +16,7 @@ DB = DatabaseManagement()
 
 def index(request):
 
-    if "user_id" not in request.session:
-        request.session["user_id"] = -1
-    user_id = request.session["user_id"]
+    user_id = request.session.get('user_id')
 
     graph_options = get_graph_options()
     graph_metric = request.POST.get("graph-metric", "avg_price")
@@ -29,12 +27,12 @@ def index(request):
         request.session["recently-viewed"] = []
 
     recently_viewed_ids = request.session["recently-viewed"][:RECENTLY_VIEWED_ITEMS_NUM]
-    recently_viewed = [DB.get_item_info(item_id, "avg_price")[
-        0] for item_id in recently_viewed_ids]
+    recently_viewed_items = [
+        DB.get_item_info(item_id, "avg_price")[0] for item_id in recently_viewed_ids
+    ]
 
-    recently_viewed = FORMATTER.format_item_info(
-        recently_viewed, graph_data=[graph_metric], user_id=user_id
-    )
+    recently_viewed_items = FORMATTER.format_item_info(
+        recently_viewed_items, graph_data=[graph_metric], user_id=user_id)
 
     popular_items = FORMATTER.format_item_info(DB.get_popular_items(
     )[:10], weekly_views=8, item_group="_popular_items", graph_data=[graph_metric])
@@ -58,7 +56,7 @@ def index(request):
         "last_week": last_week,
         "popular_items": popular_items,
         "new_items": new_items,
-        "recently_viewed": recently_viewed,
+        "recently_viewed": recently_viewed_items,
         "show_graph": False,
         "metric": graph_metric,
     }

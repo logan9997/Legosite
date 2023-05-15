@@ -21,7 +21,7 @@ PROCESS_FILTER = ProcessFilter()
 
 
 def trending(request):
-    user_id = request.session.get("user_id", -1)
+    user_id = request.session.get('user_id', -1)
 
     get_params = [
         'sort-field', 'page', 'slider_start_value', 'slider_end_value',
@@ -38,21 +38,21 @@ def trending(request):
         for param in get_params if request.session.get(param) != None
     ])
 
-    trending_order: str = request.session.get("sort-field", "avg_price-desc")
-    trending_metric = trending_order.split("-")[0]
-    current_page = int(request.session.get("page", 1))
+    trending_order: str = request.session.get('sort-field', 'avg_price-desc')
+    trending_metric = trending_order.split('-')[0]
+    current_page = int(request.session.get('page', 1))
 
     graph_options = GENERAL.sort_dropdown_options(
         get_graph_options(), trending_metric)
     trend_options = GENERAL.sort_dropdown_options(
         get_trending_options(), trending_order)
 
-    dates = list(Price.objects.distinct("date").values_list("date", flat=True))
+    dates = list(Price.objects.distinct('date').values_list('date', flat=True))
     dates = [date.strftime('%Y-%m-%d') for date in dates]
 
-    slider_start_value = int(request.session.get("slider_start_value", 0))
+    slider_start_value = int(request.session.get('slider_start_value', 0))
     slider_end_value = int(request.session.get(
-        "slider_end_value", len(dates)-1))
+        'slider_end_value', len(dates)-1))
 
     slider_start_value = GENERAL.check_slider_range(slider_start_value, dates)
     slider_end_value = GENERAL.check_slider_range(slider_end_value, dates)
@@ -66,13 +66,13 @@ def trending(request):
     # remove trending items if % change (-1) is equal to None (0.00)
     items = [_item for _item in items if _item[-1] != None]
 
-    themes = list(Theme.objects.filter(theme_path__startswith="Star_Wars").values_list(
-        "theme_path", flat=True).distinct("theme_path"))
-    themes_formatted = [{"theme_path": theme} for theme in themes]
+    themes = list(Theme.objects.filter(theme_path__startswith='Star_Wars').values_list(
+        'theme_path', flat=True).distinct('theme_path'))
+    themes_formatted = [{'theme_path': theme} for theme in themes]
 
     filter_results = FILTER_OUT.process_filters(request, items, themes)
-    items = filter_results["return"]["items"]
-    request = filter_results["return"]["request"]
+    items = filter_results['return']['items']
+    request = filter_results['return']['request']
 
     current_page = GENERAL.check_page_boundaries(
         current_page, len(items), TRENDING_ITEMS_PER_PAGE)
@@ -86,32 +86,32 @@ def trending(request):
 
     for _item in items:
         metrics = [DB.get_item_metric_changes(
-            _item["item_id"], metric, max_date=max_date, min_date=min_date) for metric in ALL_METRICS]
+            _item['item_id'], metric, max_date=max_date, min_date=min_date) for metric in ALL_METRICS]
         metrics = FORMATTER.format_metric_changes(metrics)
-        _item["metric_changes"] = metrics
+        _item['metric_changes'] = metrics
 
     context = {
-        "items": items,
-        "show_graph": True,
-        "graph_options": graph_options,
-        "sort_options": trend_options,
-        "num_pages": num_pages,
-        "current_page": current_page,
-        "dates": dates,
-        "metric_data": trending_metric,
-        "slider_start_value": slider_start_value,
-        "slider_end_value": slider_end_value,
-        "slider_start_max_value": slider_end_value - 1,
-        "slider_end_max_value": len(dates) - 1,
-        "slider_start_min_value": 0,
-        "slider_end_min_value": slider_start_value + 1,
-        "all_metrics": ALL_METRICS,
-        "metric_input_steps": METRIC_INPUT_STEPS,
-        "themes": themes_formatted,
-        "winners_or_losers_filter": request.session.get("winners_or_losers_filter"),
-        "qs": query_string
+        'items': items,
+        'show_graph': True,
+        'graph_options': graph_options,
+        'sort_options': trend_options,
+        'num_pages': num_pages,
+        'current_page': current_page,
+        'dates': dates,
+        'metric_data': trending_metric,
+        'slider_start_value': slider_start_value,
+        'slider_end_value': slider_end_value,
+        'slider_start_max_value': slider_end_value - 1,
+        'slider_end_max_value': len(dates) - 1,
+        'slider_start_min_value': 0,
+        'slider_end_min_value': slider_start_value + 1,
+        'all_metrics': ALL_METRICS,
+        'metric_input_steps': METRIC_INPUT_STEPS,
+        'themes': themes_formatted,
+        'winners_or_losers_filter': request.session.get('winners_or_losers_filter'),
+        'qs': query_string
     }
 
-    context.update(filter_results["context"])
-    print(filter_results["context"]["filtered_themes"])
-    return render(request, "App/trending.html", context=context)
+    context.update(filter_results['context'])
+    print(filter_results['context']['filtered_themes'])
+    return render(request, 'App/trending.html', context=context)

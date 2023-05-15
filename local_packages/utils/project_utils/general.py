@@ -6,13 +6,13 @@ from config.config import PAGE_NUM_LIMIT
 
 
 def timer(func):
-    print("TIMER!")
+    print('TIMER!')
 
     def inner(*args, **kwargs):
         start = time.time()
         result = func(*args, **kwargs)
         finish = round(time.time() - start, 5)
-        print(f"\n<{func.__name__.upper()}> finished in {finish} seconds.\n")
+        print(f'\n<{func.__name__.upper()}> finished in {finish} seconds.\n')
         return result
     return inner
 
@@ -23,10 +23,10 @@ class General():
         pass
 
     def get_base_url(self, request) -> str:
-        return request.get_host().strip(" ")
+        return request.get_host().strip(' ')
 
     def get_previous_url(self, request, **kwargs) -> str:
-        previous_url: str = request.META['HTTP_REFERER'].replace(
+        previous_url: str = request.META.get('HTTP_REFERER', '').replace(
             f'http://{self.get_base_url(request)}', ''
         )
 
@@ -53,9 +53,9 @@ class General():
 
     def clean_html_codes(self, string: str):
         codes = {
-            "&#41;": ")",
-            "&#40;": "(",
-            "&#39;": "'"
+            '&#41;': ')',
+            '&#40;': '(',
+            '&#39;': ''''''
         }
 
         for k, v in codes.items():
@@ -64,25 +64,25 @@ class General():
         return string
 
     def split_capitalize(self, string: str, split_value: str):
-        return " ".join(
+        return ' '.join(
             list(map(str.capitalize, string.split(split_value)))
         )
 
-    def sort_items(self, items, sort, **order) -> list[dict]:
-        sort_field = sort.split("-")[0]
-        order = {"asc": False, "desc": True}[sort.split("-")[1]]
+    def sort_items(self, items: list, sort: str, **order) -> list[dict]:
+        sort_field = sort.split('-')[0]
+        order = {'asc': False, 'desc': True}[sort.split('-')[1]]
         items = sorted(
             items, key=lambda field: field[sort_field], reverse=order)
         return items
 
     def sort_dropdown_options(self, options: list[dict[str, str]], field: str) -> list[dict[str, str]]:
-        # loop through all options. If options["value"] matches to desired sort field, assign to variable
+        # loop through all options. If options['value'] matches to desired sort field, assign to variable
         selected_field = [
-            option for option in options if option["value"] == field]
+            option for option in options if option['value'] == field]
 
         # default, if code above fails
         if selected_field == []:
-            print("\n\nFAILS - <sort_dropdown_options>\n\n")
+            print('\n\nFAILS - <sort_dropdown_options>\n\n')
             selected_field = options[0]
         else:
             selected_field = selected_field[0]
@@ -92,7 +92,7 @@ class General():
 
         return options
 
-    def check_page_boundaries(self, current_page, list_len: int, items_per_page: int) -> int:
+    def check_page_boundaries(self, current_page: int, list_len: int, items_per_page: int) -> int:
         try:
             current_page = int(current_page)
         except:
@@ -142,7 +142,7 @@ class General():
 
         return num_pages
 
-    def save_get_params(self, request, params: list[str]) -> dict:
+    def save_get_params(self, request, params: list[str]):
         for param in params:
             if request.GET.get(param) != None:
                 request.session[param] = request.GET.get(param)
@@ -156,9 +156,9 @@ class General():
         request.session.modified = True
         return request
 
-    def process_sorts_and_pages(self, request, params: list):
+    def process_sorts_and_pages(self, request, params: list[str]):
         current_url = request.path
-        previous_url = request.META.get('HTTP_REFERER', "").replace(
+        previous_url = request.META.get('HTTP_REFERER', '').replace(
             f'http://{self.get_base_url(request)}', ''
         ).split('?')[0]
 
@@ -167,3 +167,26 @@ class General():
         request = self.save_get_params(request, params)
 
         return request
+
+    def large_number_commas(self, number: float):
+        number = str(number)
+        if '.' in number:
+            num_int = number.split('.')[0]
+            num_decimal = '.' + number.split('.')[1]
+        else:
+            num_int = number
+            num_decimal = ''
+
+        sections = []
+
+        remainder = len(num_int) % 3
+        if remainder != 0:
+            sections.append(num_int[:remainder])
+            num_int = num_int[remainder:]
+
+        for i in range(len(num_int)):
+            if (i % 3) == 0:
+                sections.append(num_int[i:i+3])
+
+        number = ','.join(sections)+num_decimal
+        return number

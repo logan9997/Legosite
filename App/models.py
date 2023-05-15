@@ -9,7 +9,7 @@ class Item(models.Model):
     item_name = models.CharField(max_length=210)
     year_released = models.IntegerField()
     item_type = models.CharField(max_length=1, choices=(
-        ("M", "minifig"), ("S", "set")
+        ('M', 'minifig'), ('S', 'set')
     ))
     views = models.IntegerField()
 
@@ -38,9 +38,9 @@ class User(models.Model):
     username = models.CharField(max_length=16, unique=True)
     email = models.EmailField()
     password = models.CharField(max_length=22)
-    email_preference = models.CharField(max_length=14, default="All", choices=(
-        ("Never", "Never"), ("Occasional", "Occasional"),
-        ("All", "All")
+    email_preference = models.CharField(max_length=14, default='All', choices=(
+        ('Never', 'Never'), ('Occasional', 'Occasional'),
+        ('All', 'All')
     ))
     region = models.CharField(max_length=60, default='None')
 
@@ -50,7 +50,7 @@ class Portfolio(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     condition = models.CharField(max_length=1, choices=(
-        ("U", "used"), ("N", "new")
+        ('U', 'used'), ('N', 'new')
     ))
     date_added = models.DateField(DATE_FORMAT, null=True)
     bought_for = models.FloatField(null=True)
@@ -70,10 +70,10 @@ class Piece(models.Model):
     piece_id = models.CharField(max_length=40, primary_key=True)
     piece_name = models.CharField(max_length=360)
     type = models.CharField(max_length=20, choices=(
-        ("MINIFIG", "MINIFIG"), ("PART", "PART"), ("SET", "SET"), ("GEAR", "GEAR"),
-        ("CATALOG", "CATALOG"), ("INSTRUCTION",
-                                 "INSTRUCTION"), ("UNSORTED_LOT", "UNSORTED_LOT"),
-        ("ORIGINAL_BOX", "ORIGINAL_BOX")
+        ('MINIFIG', 'MINIFIG'), ('PART', 'PART'), ('SET', 'SET'), ('GEAR', 'GEAR'),
+        ('CATALOG', 'CATALOG'), ('INSTRUCTION',
+                                 'INSTRUCTION'), ('UNSORTED_LOT', 'UNSORTED_LOT'),
+        ('ORIGINAL_BOX', 'ORIGINAL_BOX')
     ))
 
 
@@ -88,6 +88,6 @@ class PieceParticipation(models.Model):
 class SetParticipation(models.Model):
     participation = models.AutoField(primary_key=True)
     item = models.ForeignKey(
-        Item, on_delete=models.CASCADE, related_name="item")
-    set = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="set")
+        Item, on_delete=models.CASCADE, related_name='item')
+    set = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='set')
     quantity = models.IntegerField()

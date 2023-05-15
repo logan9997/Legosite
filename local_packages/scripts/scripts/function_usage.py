@@ -3,15 +3,15 @@ import os
 
 class FunctionUsage():
 
-    def __init__(self, parent_folder: str, skipped_folders: list[str]) -> None:
+    def __init__(self, parent_folder: str, **kwargs: list[str]) -> None:
         self.parent_folder = parent_folder
-        self.skipped_folders = skipped_folders
+        self.skipped_folders = kwargs.get('skipped_folders', [])
         self.files: list = []
         self.functions: list = []
 
     def extract_folders(self, directories: list, path: str):
         for directory in directories:
-            full_path = path + "\\" + directory
+            full_path = path + '\\' + directory
 
             if os.path.isdir(full_path):
                 yield directory
@@ -24,7 +24,7 @@ class FunctionUsage():
         folders = self.extract_folders(folders, initial_path)
 
         for folder in folders:
-            path = initial_path + "\\" + folder
+            path = initial_path + '\\' + folder
 
             if folder in self.skipped_folders:
                 continue
@@ -35,10 +35,10 @@ class FunctionUsage():
                     folder_content = os.listdir(path)
                     folder_content = self.extract_folders(folder_content, path)
 
-                path: str = path.replace(f"\\{folder}", "")
+                path: str = path.replace(f'\\{folder}', '')
                 try:
                     self.parse_through_folders(
-                        path + "\\" + folder, folder_content)
+                        path + '\\' + folder, folder_content)
                 except RecursionError:
                     pass
             except PermissionError:
@@ -51,7 +51,6 @@ class FunctionUsage():
         for file in self.get_files():
             with open(file, 'r') as read_file:
                 lines = read_file.readlines()
-
                 for line in lines:
                     if 'def ' in line:
                         function_name = line.rstrip(r'\n')
@@ -62,13 +61,23 @@ class FunctionUsage():
                             {'file': file, 'function_name': function_name, 'count': 0}
                         )
 
+    def find_function(self, function: str):
+        for file in self.get_files():
+            with open(file, 'r') as read_file:
+                try:
+                    lines = read_file.readlines()
+                except UnicodeDecodeError:
+                    continue
+                for line in lines:
+                    if function in line:
+                        print('FOUND IN - ', file)
+
     def count_occurances(self):
         for file in self.get_files():
             with open(file, 'r') as read_file:
                 lines = read_file.readlines()
 
                 for line in lines:
-
                     for function in self.functions:
                         if function['function_name'] in line:
                             function['count'] += 1
@@ -79,9 +88,27 @@ class FunctionUsage():
                 print(file, function['function_name'])
 
 
-parent_folder = r'C:\Users\logan\OneDrive\Documents\Programming\Python\apis\BL_API\legosite'
-f = FunctionUsage(
-    parent_folder, ['__pycache__', 'migrations', 'env', 'build', 'staticfiles', 'templatetags', '__init__'])
-f.parse_through_folders(parent_folder, os.listdir(parent_folder))
-f.get_functions()
-f.count_occurances()
+def main():
+    parent_folder = r'C:\Users\logan\OneDrive\Documents\Programming\Python\apis\BL_API\legosite'
+    skipped_folders = ['__pycache__', 'migrations', 'env',
+                       'build', 'staticfiles', 'templatetags', '__init__']
+
+    action = input(
+        'Find unused functions / Find function location - (U / L): ').upper()
+
+    if action == 'U':
+
+        f = FunctionUsage(parent_folder, skipped_folders=skipped_folders)
+        f.parse_through_folders(parent_folder, os.listdir(parent_folder))
+        f.get_functions()
+        f.count_occurances()
+
+    elif action == 'L':
+        function_to_find = input('Function name: ')
+        f = FunctionUsage(parent_folder, skipped_folders=skipped_folders)
+        f.parse_through_folders(parent_folder, os.listdir(parent_folder))
+        f.find_function(function_to_find)
+
+
+if __name__ == '__main__':
+    main()

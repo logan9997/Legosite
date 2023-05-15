@@ -109,15 +109,6 @@ class Scraper():
         elif details[index]["num_spaces"] < details[index-1]["num_spaces"] and len(parents) > 0:
             parents.pop(-1)
 
-    def is_item_in_theme_entries(self, item_type, theme_path):
-        theme_entries = DB.fetch_theme_details()
-        # loop through results from database to see if theme details has already been recorded
-        for theme_entries_details in theme_entries:
-            print(theme_entries_details, "|", item_type, theme_path)
-            if theme_entries_details == (item_type, theme_path):
-                return True
-        return False
-
     def get_theme_ids(self) -> None:
 
         # create empty list which will be populated with dicts containing {M:[...], S:[...], path:"..."}
