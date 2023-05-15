@@ -30,7 +30,10 @@ def user_items(request, view, user_id):
     request = GENERAL.process_sorts_and_pages(request, get_params)
     request = PROCESS_FILTER.save_filters(request)
 
-    if request.POST.get('clear-form') != None:
+    previous_url = GENERAL.get_previous_url(request)
+    current_url = request.path
+
+    if request.POST.get('clear-form') != None or current_url != previous_url:
         request = CLEAR_FILTER.clear_filters(request)
 
     graph_options = get_graph_options()
@@ -39,6 +42,7 @@ def user_items(request, view, user_id):
     graph_metric = request.session.get('graph-metric', 'avg_price')
     current_page = int(request.session.get('page', 1))
     sort_field = request.session.get('sort-field', 'avg_price-desc')
+    print(sort_field, graph_metric)
 
     items = DB.get_user_items(user_id, view)
     items = FORMATTER.format_item_info(
@@ -109,7 +113,7 @@ def view_POST(request, view):
 
     if 'user_id' not in request.session or request.session['user_id'] == -1:
         return redirect('index')
-    user_id = request.session['user_id']
+    user_id = request.session.get('user_id')
 
     items = DB.get_user_items(user_id, view=view)
 
@@ -148,9 +152,7 @@ def portfolio(request, item_id=None):
 
     if 'user_id' not in request.session or request.session['user_id'] == -1:
         return redirect('index')
-    user_id = request.session['user_id']
-
-    item_id = request.GET.get('item')
+    user_id = request.session.get('user_id', -1)
 
     context = user_items(request, 'portfolio', user_id)
 
@@ -162,55 +164,76 @@ def portfolio(request, item_id=None):
     context['total_profit'] = round(Portfolio.objects.filter(user_id=user_id).aggregate(
         profit=Sum('bought_for', default=0) - Sum('sold_for', default=0))['profit'], 2)
 
-    item_id = request.GET.get('item')
-    if item_id != None:
-
-        if len(Portfolio.objects.filter(user_id=user_id, item_id=item_id)) == 0:
-            return redirect('portfolio')
-
-        if 'graph_metric' in request.session:
-            context['graph_metric'] = request.session['graph_metric']
-            del request.session['graph_metric']
-
-        if 'graph_options' in request.session:
-            context['graph_options'] = request.session['graph_options']
-            del request.session['graph_options']
-
-        items = Portfolio.objects.filter(item_id=item_id, user_id=user_id).values_list(
-            'condition', 'bought_for', 'sold_for', 'date_added', 'date_sold', 'notes', 'portfolio_id')
-        items = FORMATTER.format_portfolio_items(items)
-        context['item_entries'] = items
-        context['metric_changes'] = [{'metric': metric, 'change': DB.get_item_metric_changes(
-            item_id, metric)} for metric in ALL_METRICS]
-        context['item'] = FORMATTER.format_item_info(DB.get_item_info(item_id, context['graph_metric']), graph_data=[
-                                                     context['graph_metric']], metric_trends=ALL_METRICS)[0]
-
-        context['total_profit'] = round(Portfolio.objects.filter(user_id=user_id, item_id=item_id).aggregate(
-            profit=Sum('sold_for', default=0) - Sum('bought_for', default=0))['profit'], 2)
-        context['total_owners'] = len(Portfolio.objects.filter(
-            item_id=item_id).aggregate(Count('user_id')))
-        context['total_watchers'] = Watchlist.objects.filter(
-            item_id=item_id).count()
-
-        context['total_market_value'] = Price.objects.filter(
-            item_id=item_id, date=Price.objects.filter(
-                item_id=item_id).aggregate(Max('date'))['date__max']
-        ).values_list('avg_price', flat=True)[0] * Portfolio.objects.filter(item_id=item_id, user_id=user_id, date_sold=None).count()
-
-        if len(Portfolio.objects.filter(item_id=item_id, user_id=user_id)) > 0:
-            context['total_bought_price'] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(
-                total_bought_for=Sum('bought_for', default=0))['total_bought_for']
-            context['total_sold_price'] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(
-                total_sold_for=Sum('sold_for', default=0))['total_sold_for']
-
     return render(request, 'App/portfolio.html', context=context)
+
+
+def portfolio_item(request, item_id: str):
+    graph_metric = request.session.get('graph_metric', 'avg_price')
+    sort_field = request.session.get('sort-field', 'avg_price-desc')
+    print('sort_field', sort_field)
+    item_info = FORMATTER.format_item_info(DB.get_item_info(item_id, graph_metric), graph_data=[
+        graph_metric], metric_trends=ALL_METRICS)[0]
+
+    user_id = request.session.get('user_id', -1)
+
+    if request.POST.get('form-type') in ['entry-edit', 'new-entry']:
+        request = entry_item_handler(request)
+
+    context = {
+        'item_id': item_id,
+        'item_info': item_info,
+        'item': item_info,
+        'view': 'portfolio',
+        'sort_options': GENERAL.sort_dropdown_options(get_sort_options(), sort_field),
+        'graph_options': GENERAL.sort_dropdown_options(get_graph_options(), graph_metric),
+    }
+
+    if len(Portfolio.objects.filter(user_id=user_id, item_id=item_id)) == 0:
+        return redirect('portfolio')
+
+    if 'graph_metric' in request.session:
+        context['graph_metric'] = request.session['graph_metric']
+        del request.session['graph_metric']
+
+    if 'graph_options' in request.session:
+        context['graph_options'] = request.session['graph_options']
+        del request.session['graph_options']
+
+    items = Portfolio.objects.filter(item_id=item_id, user_id=user_id).values_list(
+        'condition', 'bought_for', 'sold_for', 'date_added', 'date_sold', 'notes', 'portfolio_id')
+    items = FORMATTER.format_portfolio_items(items)
+    context['item_entries'] = items
+    context['metric_changes'] = [{'metric': metric, 'change': DB.get_item_metric_changes(
+        item_id, metric)} for metric in ALL_METRICS]
+    context['item'] = FORMATTER.format_item_info(DB.get_item_info(item_id, graph_metric), graph_data=[
+        graph_metric], metric_trends=ALL_METRICS)[0]
+
+    context['total_profit'] = round(Portfolio.objects.filter(user_id=user_id, item_id=item_id).aggregate(
+        profit=Sum('sold_for', default=0) - Sum('bought_for', default=0))['profit'], 2)
+    context['total_owners'] = len(Portfolio.objects.filter(
+        item_id=item_id).aggregate(Count('user_id')))
+    context['total_watchers'] = Watchlist.objects.filter(
+        item_id=item_id).count()
+
+    context['total_market_value'] = Price.objects.filter(
+        item_id=item_id, date=Price.objects.filter(
+            item_id=item_id).aggregate(Max('date'))['date__max']
+    ).values_list('avg_price', flat=True)[0] * Portfolio.objects.filter(item_id=item_id, user_id=user_id, date_sold=None).count()
+
+    if len(Portfolio.objects.filter(item_id=item_id, user_id=user_id)) > 0:
+        context['total_bought_price'] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(
+            total_bought_for=Sum('bought_for', default=0))['total_bought_for']
+        context['total_sold_price'] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(
+            total_sold_for=Sum('sold_for', default=0))['total_sold_for']
+
+    return render(request, 'App/portfolio_item.html', context=context)
 
 
 def watchlist(request):
 
     if 'user_id' not in request.session or request.session['user_id'] == -1:
         return redirect('index')
-    user_id = request.session['user_id']
+    user_id = request.session.get('user_id')
 
     context = user_items(request, 'watchlist', user_id)
 
@@ -223,7 +246,7 @@ def add_to_user_items(request, item_id):
 
     if 'user_id' not in request.session or request.session['user_id'] == -1:
         return redirect('index')
-    user_id = request.session['user_id']
+    user_id = request.session.get('user_id')
 
     user_item_ids = eval(view.capitalize()).objects.filter(
         user_id=user_id).values_list('item_id', flat=True).annotate(t=Count('item_id'))
@@ -249,27 +272,23 @@ def add_to_user_items(request, item_id):
     return redirect(f'http://{GENERAL.get_base_url(request)}/item/{item_id}')
 
 
-def entry_item_handler(request, view):
+def entry_item_handler(request):
     item_id = request.POST.get('item_id')
     entry_id = request.POST.get('entry_id')
+    user_id = request.session.get('user_id', -1)
 
     if request.POST.get('remove-entry') != None:
         Portfolio.objects.filter(portfolio_id=entry_id).delete()
-        if view == 'portfolio':
-            return redirect(f'http://{GENERAL.get_base_url(request)}/{view}/?item={item_id}')
-        return redirect(f'http://{GENERAL.get_base_url(request)}/{view}/{item_id}/')
 
     elif 'CLEAR' in request.POST.get('clear-input', ''):
         nulled_field = request.POST.get('clear-input').split('_CLEAR')[0]
 
+        # for price inputs
         new_data = {nulled_field: None}
         if '_for' in nulled_field:
             new_data = {nulled_field: 0}
 
         Portfolio.objects.filter(portfolio_id=entry_id).update(**new_data)
-        if view == 'portfolio':
-            return redirect(f'http://{GENERAL.get_base_url(request)}/{view}/?item={item_id}')
-        return redirect(f'http://{GENERAL.get_base_url(request)}/{view}/{item_id}/')
 
     elif request.POST.get('form-type') == 'entry-edit':
         fields = {
@@ -286,15 +305,13 @@ def entry_item_handler(request, view):
                 fields[k] = None
 
         Portfolio.objects.filter(portfolio_id=entry_id).update(**fields)
-        return redirect(f'http://{GENERAL.get_base_url(request)}/{view}/?item={item_id}')
 
     elif request.POST.get('form-type') == 'new-entry':
         values = {k: v for k, v in request.POST.items() if k not in [
             'csrfmiddlewaretoken', 'form-type'] and v != ''}
+        values.update({'user_id': user_id})
         Portfolio(**values).save()
-        if view == 'portfolio':
-            return redirect(f'http://{GENERAL.get_base_url(request)}/{view}/?item={item_id}')
-        return redirect(f'http://{GENERAL.get_base_url(request)}/{view}/{item_id}/')
+    return request
 
 
 def get_sub_themes(user_id: int, parent_themes: list[str], themes: list[dict], indent: int, view: str, metric: str) -> list[str]:

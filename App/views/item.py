@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render
 from project_utils.general import General
 from project_utils.item_format import Formatter
 from scripts.database import DatabaseManagement
+from .user_items import entry_item_handler
 
 from App.models import Item, Theme
 from config.config import (
@@ -33,6 +34,9 @@ def item(request, item_id):
     if item_info == []:
         return redirect(request.META.get('HTTP_REFERER'))
     item_info = item_info[0]
+
+    if request.POST.get('form-type') in ['entry-edit', 'new-entry']:
+        request = entry_item_handler(request)
 
     # stops view count being increased on refresh
     if request.session.get('item_id') != item_id:
