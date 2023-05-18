@@ -2,6 +2,25 @@
 
 {% block content %}
 
+    <script>
+
+    window.onload = function() {
+        var display = localStorage.getItem('filters-display')
+        document.getElementById('filters').style.display = display
+
+        if (display == 'block') {
+            document.getElementById('collapse-filters-button').innerHTML = 'Hide Filters'
+        } else {
+            document.getElementById('collapse-filters-button').innerHTML = 'Show Filters'
+        }
+    }
+
+    window.onbeforeunload = function() {
+        localStorage.setItem('filters-display', document.getElementById('filters').style.display);
+    }
+    
+    </script>
+
     {% load static %}
     <link rel="stylesheet" href="{% static 'App/search.css' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
@@ -79,7 +98,7 @@
                 <table>
                 {% for theme in biggest_theme_trends.biggest_losers %}
                 <tr>
-                    <td class="theme-path"><a href="">{{theme.theme_path|replace:"_| "|replace:"~|, "}}</a></td>
+                    <td class="theme-path"><a href="{% url 'search' theme.theme_path|replace:'~|/' %}">{{theme.theme_path|replace:"_| "|replace:"~|, "}}</a></td>
                     <td class="change">%{{theme.change}}</td>
                 </tr>
                 {% endfor %}
@@ -88,17 +107,6 @@
         </div>
     </section>
     {% endif %}
-
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        display = localStorage.getItem("cached")
-        console.log("reload", display)
-        document.getElementById('filters').style.display = display
-    })
-
-    window.onload = maintain_scroll_pos("theme-filters-form-container")
-
-    </script>
 
 {% endblock %}
 

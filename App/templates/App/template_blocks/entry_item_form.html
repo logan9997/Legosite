@@ -2,11 +2,15 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'App/entry_item_form.css'%}">
 
-<form class="entry-item-container" action="{% url 'entry_item_handler' view %}" method="post">
+{% if sub_view != "" %}
+<form class="entry-item-container" action="{% url action_view sub_view %}" method="post">
+{% else %}
+<form class="entry-item-container" action="{% url action_view %}" method="post">
+{% endif%}
+
     {% csrf_token %}
 
     <input type="hidden" name="item_id" value="{{item.item_id}}">
-
     {% if not add_new %}
 
     <input type="hidden" name="form-type" value="entry-edit">
@@ -32,9 +36,9 @@
         <div class="label-input-container">
             <label for="date_added">Date Added : </label>
             {% if add_new %}
-                <input onchange="input_validation(this, 'date', true)" class="date-price-input" type="text" value="{{entry.date_added|none_to_empty_string}}" name="date_added">
+                <input oninput="input_validation(this, 'date', true)" class="date-price-input" type="text" value="{{entry.date_added|none_to_empty_string}}" name="date_added">
             {% else%}
-                <input onchange="input_validation(this, 'date', false)" class="date-price-input" type="text" value="{{entry.date_added|none_to_empty_string}}" name="date_added">
+                <input oninput="input_validation(this, 'date', false)" class="date-price-input" type="text" value="{{entry.date_added|none_to_empty_string}}" name="date_added">
                 <button class="clear-button" type="submit" value="date_added_CLEAR" name="clear-input">-</button>
             {% endif %}
         </div>
@@ -42,9 +46,9 @@
         <div class="label-input-container">
             <label for="bought_for">Bought For (£) : </label>
             {% if add_new %}
-                <input onchange="input_validation(this, 'price', true)" class="date-price-input" type="text" name="bought_for" value="{{entry.bought_for|none_to_zero}}">
+                <input oninput="input_validation(this, 'price', true)" class="date-price-input" type="text" name="bought_for" value="{{entry.bought_for|none_to_zero}}">
             {% else %}   
-                <input onchange="input_validation(this, 'price', false)" class="date-price-input" type="text" name="bought_for" value="{{entry.bought_for|none_to_zero}}">
+                <input oninput="input_validation(this, 'price', false)" class="date-price-input" type="text" name="bought_for" value="{{entry.bought_for|none_to_zero}}">
                 <button class="clear-button" type="submit" value="bought_for_CLEAR" name="clear-input">-</button>
             {% endif %}
         </div>
@@ -54,9 +58,9 @@
         <div class="label-input-container">
             <label for="date_sold">Date Sold : </label>
             {% if add_new %}
-                <input onchange="input_validation(this, 'date', true)" class="date-price-input" type="text" value="{{entry.date_sold|none_to_empty_string}}" name="date_sold">
+                <input oninput="input_validation(this, 'date', true)" class="date-price-input" type="text" value="{{entry.date_sold|none_to_empty_string}}" name="date_sold">
             {% else %}
-                <input onchange="input_validation(this, 'date', false)" class="date-price-input" type="text" value="{{entry.date_sold|none_to_empty_string}}" name="date_sold">
+                <input oninput="input_validation(this, 'date', false)" class="date-price-input" type="text" value="{{entry.date_sold|none_to_empty_string}}" name="date_sold">
                 <button class="clear-button" type="submit" value="date_sold_CLEAR" name="clear-input">-</button>
             {% endif %}
         </div>
@@ -64,9 +68,9 @@
         <div class="label-input-container">
             <label for="sold_for">Sold For (£) : </label>
             {% if add_new %}
-                <input onchange="input_validation(this, 'price', true)" class="date-price-input" type="text" name="sold_for" value="{{entry.sold_for|none_to_zero}}">               
+                <input oninput="input_validation(this, 'price', true)" class="date-price-input" type="text" name="sold_for" value="{{entry.sold_for|none_to_zero}}">               
             {% else %}
-                <input onchange="input_validation(this, 'price', false)" class="date-price-input" type="text" name="sold_for" value="{{entry.sold_for|none_to_zero}}">
+                <input oninput="input_validation(this, 'price', false)" class="date-price-input" type="text" name="sold_for" value="{{entry.sold_for|none_to_zero}}">
                 <button class="clear-button" type="submit" value="sold_for_CLEAR" name="clear-input">-</button>
             {% endif %}
         </div>                               

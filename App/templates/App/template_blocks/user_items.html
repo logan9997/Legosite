@@ -13,7 +13,7 @@
 
 
     <div id="items-header" class="headers">
-        {% include 'App/template_blocks/item_filters_and_sorts.html' with action_view='view_POST' sub_view=view item_id=item_id %}
+        {% include 'App/template_blocks/sorts_and_pages.html' with action_view=view sub_view="" item_id=item_id %}
     </div>
     
 </section>
@@ -31,43 +31,43 @@
                     <p>Total sold for price : £{{total_sold_price|none_to_hyphens}}</p>
 
                     {% if total_profit < 0 %}
-                        <p>Total Loss £{{total_profit|times_negative_one|large_num_commas|two_decimals}}</p>
+                        <p>Total Loss £{{total_profit|times_negative_one|shorten_large_num|two_decimals}}</p>
                     {% else %}
-                        <p>Total Profit : £{{total_profit|two_decimals|large_num_commas}}</p>
+                        <p>Total Profit : £{{total_profit|two_decimals|shorten_large_num}}</p>
                     {% endif %}
                     <br>
-                    <p>Total Owners : {{total_owners|large_num_commas}}</p>
-                    <p>Total Watchers : {{total_watchers|large_num_commas}}</p>
+                    <p>Total Owners : {{total_owners|shorten_large_num}}</p>
+                    <p>Total Watchers : {{total_watchers|shorten_large_num}}</p>
                     <br>
                 </div>
             {% else %}
 
-            {% include 'App/template_blocks/filters.html' with action_view='view_POST' view=view %}
+            {% include 'App/template_blocks/filters.html' with action_view=view sub_view="" %}
 
             <div class="tool-bar-div" id="stats">
                 <h3>Stats</h3>
                     
                 {% if request.path == "/portfolio/" %}
-                    <p>Total of {{ total_items|large_num_commas }} items in your portfolio.</p>
+                    <p>Total of {{ total_items|shorten_large_num }} items in your portfolio.</p>
                 {% endif %}
 
-                <p>Total of {{ total_unique_items|large_num_commas }} unique items in your {{ view }}.</p>
+                <p>Total of {{ total_unique_items|shorten_large_num }} unique items in your {{ view }}.</p>
 
                 {% if metric_total.metric != 'Total Quantity'%}
-                    <p>Total {{metric_total.metric}} £{{metric_total.total|two_decimals|large_num_commas}}</p>
+                    <p>Total {{metric_total.metric}} £{{metric_total.total|two_decimals|shorten_large_num}}</p>
                 {% else %}
-                    <p>{{metric_total.metric}} {{metric_total.total|remove_decimals|large_num_commas}}</p>
+                    <p>{{metric_total.metric}} {{metric_total.total|remove_decimals|shorten_large_num}}</p>
                 {% endif %}
 
                 <br>
 
                 {% if request.path == "/portfolio/" %}
-                    <p>Total Price Bought For : £{{total_bought_price|two_decimals|large_num_commas}}</p>
-                    <p>Total Price Sold For : £{{total_sold_price|two_decimals|large_num_commas}}</p>
+                    <p>Total Price Bought For : £{{total_bought_price|two_decimals|shorten_large_num}}</p>
+                    <p>Total Price Sold For : £{{total_sold_price|two_decimals|shorten_large_num}}</p>
                     {% if total_profit < 0 %}
-                        <p>Total Loss £{{total_profit|times_negative_one|two_decimals|large_num_commas}}</p>
+                        <p>Total Loss £{{total_profit|times_negative_one|two_decimals|shorten_large_num}}</p>
                     {% else %}
-                        <p>Total Profit : £{{total_profit|two_decimals|large_num_commas}}</p>
+                        <p>Total Profit : £{{total_profit|two_decimals|shorten_large_num}}</p>
                     {% endif %}
                 {% endif %}
 
@@ -77,9 +77,9 @@
                 <h3>Themes - <span id="themes-header-metric">({{metric_total.metric}})</span></h3>
                 {% for theme in themes %}
                     {% if metric_total.metric != 'Total Quantity' %}
-                        <p>{{theme.theme_path | count_theme_indent }} ({{theme.count|large_num_commas}}) : £{{theme.metric_total |two_decimals|large_num_commas}}</p>
+                        <p>{{theme.theme_path | count_theme_indent }} ({{theme.count|shorten_large_num}}) : £{{theme.metric_total |two_decimals|shorten_large_num}}</p>
                     {% else %}
-                        <p>{{theme.theme_path | count_theme_indent }} ({{theme.count|large_num_commas}}) : {{theme.metric_total |remove_decimals|large_num_commas}}</p>
+                        <p>{{theme.theme_path | count_theme_indent }} ({{theme.count|shorten_large_num}}) : {{theme.metric_total |remove_decimals|shorten_large_num}}</p>
                     {% endif %}
                 {% endfor %}
                 <br>
@@ -87,7 +87,6 @@
 
             {% endif %}
     </section>
-    {% if request.GET.item == None %}
         <section id="items-container">
             <div id="items">
             {% for item in items %}
@@ -97,26 +96,21 @@
                 <div class="items-options">
                     <div class="qty-condition-container">      
                         {% if item.owned_quantity_new != None %} 
-                            <p>{{item.owned_quantity_new|large_num_commas}} (N)</p>
+                            <p>{{item.owned_quantity_new|shorten_large_num}} (N)</p>
                         {% endif %}
 
                         {% if item.owned_quantity_used != None %}
-                            <p>{{item.owned_quantity_used|large_num_commas}} (U)</p>
+                            <p>{{item.owned_quantity_used|shorten_large_num}} (U)</p>
                         {% endif %}
                     </div>
 
                     <div class="view-owned">
-                        <form action="{% url 'portfolio' %}?item={{item.item_id}}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="form-type" value="entries_button">
-                            <input type="hidden" name="item_id" value="{{item.item_id}}">
-                            <button type="submit">Entries</button>
-                        </form>
+                        <a href="{% url 'portfolio' %}item/{{item.item_id}}">Entries</a>
                     </div>
                 </div>
                 {% else %}
                 <div class="items-options watchlist-options">
-                    <form action="{% url 'view_POST' view %}" method="POST">
+                    <form action="{% url view %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="form-type" value="remove-watchlist-item">
                         <input type="hidden" name="item_id" value="{{item.item_id}}">
@@ -129,52 +123,6 @@
                 {% endfor %}
             </div>  
         </section>
-        
-
-    {% else %}
-    <section id="items-container">
-            <div id="entry-item-container">
-                <div id="item-profile">
-                    {% include 'App/template_blocks/item_container.html' with item=item show_graph=False show_year_released=True show_availability=True %}
-                </div>
-
-                <div id="chart-container">
-                    <div id="header-and-graph-container">
-                        <h3>{{graph_metric|capitalise_split_words}} Trends</h3>
-                        {% include 'App/template_blocks/item_chart.html' with item=item %}
-                    </div>
-                </div>
-
-                <div id="metric-change-container">
-                    <h3>Trends</h3>
-                    {% for trend in metric_changes %}
-                        {% if trend.change >= 0 %}
-                            <p style="color:green">{{trend.metric|capitalise_split_words}} : (%) {{trend.change|large_num_commas}}</p>
-                        {% else %}
-                            <p style="color:red">{{trend.metric|capitalise_split_words}} : (%) {{trend.change|large_num_commas}}</p>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div id="add-new-entry">
-                <div id="new-entry-sub-container">
-                    <h3>Add New Entry</h3>
-                    {% include 'App/template_blocks/entry_item_form.html' with add_new=True show_notes=True %}
-                </div>
-            </div>
-
-            <div id="entries-items-container">
-                <h3>Entries</h3>
-                <div id="entries-items-loop-container">
-                {% for entry in item_entries %}
-                    {% include 'App/template_blocks/entry_item_form.html' with add_new=False show_notes=True %}
-                {% endfor %}
-                </div>
-            </div>
-
-    </section>
-    {% endif %}
 </section>
 
 {% endblock%}

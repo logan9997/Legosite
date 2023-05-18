@@ -16,8 +16,8 @@
             <h3>Prices & Quantity</h3>
             <div id="current-metrics-container">
                 <p>Total Quantity Available {{item.total_quantity}}</p>
-                <p>Avg Price £{{item.avg_price|two_decimals|large_num_commas}}</p>
-                <p>Min Price £{{item.min_price|two_decimals|large_num_commas}}</p>
+                <p>Avg Price £{{item.avg_price|two_decimals}}</p>
+                <p>Min Price £{{item.min_price|two_decimals}}</p>
                 <p>Max Price £{{item.max_price|two_decimals }}</p>
             </div>
             
@@ -51,8 +51,8 @@
         <div class="info-block">
             <h3>General Info</h3>
             <br>
-            <p>Owned By : {{total_owners|large_num_commas}}</p>
-            <p>Watched By : {{total_watchers|large_num_commas}}</p>
+            <p>Owned By : {{total_owners|shorten_large_num}}</p>
+            <p>Watched By : {{total_watchers|shorten_large_num}}</p>
             {% if item.item_type == 'M' %}
             <br>
             <p>Last Appearance : {{most_recent_set_appearance}}</p>
@@ -101,20 +101,20 @@
 
         <section id="in-collections">
             {% if in_portfolio|length != 0%}
-                <p><a href="{% url 'portfolio' %}?item={{item.item_id}}">In Portfolio</a>| {% for condition in in_portfolio %} {{condition.condition}} : {{condition.count}} | {% endfor %}</p>
+            <p><a href="{% url 'portfolio' %}item/{{item.item_id}}">In Portfolio</a>| {% for condition in in_portfolio %} {{condition.condition}} : {{condition.count}} | {% endfor %}</p>
             {% else %}
-                <p><a href="{% url 'portfolio' %}?view=items">In Portfolio</a> | New : 0 | Used : 0 |</p>
+            <p><a href="{% url 'portfolio' %}">In Portfolio</a> | New : 0 | Used : 0 |</p>
             {% endif %}
+            <p><a href="{% url 'watchlist' %}">In Watchlist</a>{% if in_watchlist|length != 0%} Yes {% else %} No {% endif %}  </p>
         </section>
 
         <section id="form-container">
             <h3>Add to Your Collection</h3>
     
-            {% include 'App/template_blocks/entry_item_form.html' with view='item' add_new=True show_notes=False %}
-            
-            <form id="add-to-watchlist" action="{% url 'add_to_user_items' item.item_id %}" method="post">
+            {% include 'App/template_blocks/entry_item_form.html' with action_view='item' sub_view=item_id add_new=True show_notes=False %}
+            <form id="add-to-watchlist" action="{% url 'item' item.item_id %}" method="post">
                 {% csrf_token %}
-                {% if in_watchlist == 'No' %}
+                {% if in_watchlist|length == 0 %}
                 <button name="view-type" type="submit" value="watchlist">Add to Watchlist!</button>
                 {% else %}
                 <button name="view-type" type="submit" value="watchlist">Remove from Watchlist!</button>
@@ -200,7 +200,7 @@
         <div id="similar-items-container">
             {% for item in similar_items %}
             <div class="similar-item-container">
-                {% include 'App/template_blocks/item_container.html' with item=item scroll_to_top=True show_year_released=True show_availability=True %} 
+                {% include 'App/template_blocks/item_container.html' with item=item scroll_to_top=True show_prices=True %} 
             </div>
             {% endfor %}
         </div>

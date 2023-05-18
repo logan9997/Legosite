@@ -8,15 +8,10 @@
 {% endif %}
     <div class="item-img-and-title">
         <h3>{{item.item_name}}</h3>
-
-        {% if scroll_to_top %}
-            <h4><a onclick="window.scrollTo({top:0})" href="{% url 'item' item.item_id %}">{{item.item_id}}</a></h4>
-        {% else %}
-            <h4><a href="{% url 'item' item.item_id %}">{{item.item_id}}</a></h4>
-        {% endif %}
+        <h4><a {% if scroll_to_top %} onclick="window.scrollTo({top:0})" {% endif %} href="{% url 'item' item.item_id %}">{{item.item_id}}</a></h4>
         <img src="{% static item.img_path  %}" alt="{{item.item_id}}">
 
-        {% if show_graph %}
+        {% if show_prices %}
         <div class="price-info">
             <table>
                 <tr>
@@ -27,10 +22,10 @@
                 </tr>
 
                 <tr>
-                    <td>£{{item.avg_price|shorten_long_number|two_decimals|large_num_commas}}</td>
-                    <td>£{{item.min_price|shorten_long_number|large_num_commas}}</td>
-                    <td>£{{item.max_price|shorten_long_number|large_num_commas}}</td>
-                    <td>{{item.total_quantity|shorten_long_number|large_num_commas}}</td>
+                    <td>£{{item.avg_price|two_decimals|shorten_large_num}}</td>
+                    <td>£{{item.min_price|shorten_large_num}}</td>
+                    <td>£{{item.max_price|shorten_large_num}}</td>
+                    <td>{{item.total_quantity|shorten_large_num}}</td>
                 </tr>
             </table>
         </div> 

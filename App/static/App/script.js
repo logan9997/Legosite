@@ -75,7 +75,8 @@ function search_suggestions(input) {
             html_block.setAttribute("class", "search-suggestion")
             html_block.innerHTML = `
                     <div class="item-id-img-container">
-                        <a href="/item/${item_ids[i]}" onclick="clear_search_suggestions()" class="item-id">${item_ids[i].replaceAll(input, `<span style="color:black">${input}</span>`)}</a>
+                        <a href="/item/${item_ids[i]}" onclick="clear_search_suggestions()" 
+                        class="item-id">${item_ids[i].replaceAll(input, `<span style="color:black">${input}</span>`)}</a>
                         <img class="item-img" src="/static/App/${item_types[i]}s/${item_ids[i]}.png">
                     </div>
                     <div class="item-name-contianer">
@@ -183,6 +184,7 @@ function isValidDate(date) {
 function input_validation(input, type, add_new) {
     var form = input.parentElement.parentElement.parentElement
     var inputs = form.getElementsByTagName("input")
+    var add_to_watchlist_form = document.getElementById('add-to-watchlist')
 
     var new_inputs = []
     for (let i = 0; i<inputs.length; i++) {
@@ -197,26 +199,24 @@ function input_validation(input, type, add_new) {
     var error_msg = form.parentElement.getElementsByClassName("error-msg")[0]
 
     //check all inputs
-    console.log(inputs[0], inputs[1], inputs[2] ,inputs[3])
     var msg = ''
     for (let i = 0; i < inputs.length; i ++) {
         let value = inputs[i].value
-        console.log(i, value)
         if (i % 2 == 0 && value != '') {
             //dates
             if (! isValidDate(value)) {
-                msg = 'invalid date'
+                msg = 'Invalid date (YYYY-MM-DD)'
                 break
             }
         }  
         if (i % 2 != 0 && value != 0) {
             //prices
             if (isNaN(value)) {
-                msg = 'invalid number format'
+                msg = 'Invalid number format (0.00)'
                 break
             } 
             if (parseFloat(value) < 0) {
-                msg = 'number must be > 0.00'
+                msg = 'Number must be > 0.00'
                 break
             } 
         }
@@ -226,9 +226,11 @@ function input_validation(input, type, add_new) {
     if (msg != '') {
         error_msg_container.style.display = 'block'
         error_msg.innerHTML = msg
+        add_to_watchlist_form.style.marginTop = '1.5rem'
     } else {
         error_msg_container.style.display = 'none'
         error_msg.innerHTML = ''
+        add_to_watchlist_form.style.marginTop = '14.5rem'
     }
 
     var valid = true
@@ -242,11 +244,6 @@ function input_validation(input, type, add_new) {
         submit_button.disabled = false
     }
 }
-
-
-
-    
-
 
 
 function condence_list(_list) {

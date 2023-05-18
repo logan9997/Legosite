@@ -12,24 +12,31 @@
         <div id="themes-filter" class="filter-container">
             <h4>Themes</h4>
             <div id="theme-filters-form-container">
-                <form action="{% url 'update_filters_in_session' view %}" method="post">
-                    {% csrf_token %}
+                {% if sub_view != "" %}
+                <form action="{% url action_view sub_view %}" method="GET">
+                {% else %}
+                <form action="{% url action_view %}" method="GET">
+                {% endif %}
                     <input type="hidden" name="form-type" value="theme-filter">
-                    {% for theme in themes %}
+                    {% for theme in filter_themes %}
                     <div class="theme-checkbox-container">
                         <table>
-                            <th style="color : {{theme.theme_path|get_indent_colour}}" class="theme"><label for="{{theme.theme_path}}">{{theme.theme_path|count_theme_indent}}</label></th>
-                            {% if theme.theme_path not in filtered_themes %}
-                            <th class="checkbox"><button type="submit" name="theme-filter" value="{{theme.theme_path}}">x</button></th>
+                            <th style="color : {{theme|get_indent_colour}}" class="theme"><label for="{{theme}}">{{theme|count_theme_indent}}</label></th>
+                            {% if theme not in filtered_themes %}
+                            <th class="checkbox"><button type="submit" name="theme-filter" value="{{theme}}">x</button></th>
                             {% else %}
-                            <th class="checkbox"><button style="background-color: orangered;" type="submit" name="theme-filter" value="{{theme.theme_path}}">x</button></th>
+                            <th class="checkbox"><button style="background-color: orangered;" type="submit" name="theme-filter" value="{{theme}}">x</button></th>
                             {% endif %}
                         </table>
                     </div>
                     {% endfor %}
                 </form>
             </div>
-            <form action="{% url 'update_filters_in_session' view %}" method="post">
+            {% if sub_view != "" %}
+            <form action="{% url action_view sub_view %}" method="POST">
+            {% else %}
+            <form action="{% url action_view %}" method="POST">
+            {% endif %}
                 {% csrf_token %}
                 <button type="submit" name="clear-form" class="clear-button" value="clear-theme-filters" id="clear-theme-filters-button">Clear!</button>
             </form>
@@ -40,37 +47,40 @@
         <div id="metric-filters" class="filter-container">
             <h4>Prices & Quantity</h4>
             <table>
-            <form action="{% url 'update_filters_in_session' view %}" method="post">
+                {% if sub_view != "" %}
+                <form action="{% url action_view sub_view %}" method="GET">
+                {% else %}
+                <form action="{% url action_view %}" method="GET">
+                {% endif %}
+                <input type="hidden" name="form-type" value="metric_filters">
                 {% for metric in all_metrics %}
-                <input type="hidden" name="form-type" value="metric-filter">
-                {% csrf_token %}
                 <div class="main-metric-filter-container">
                     <tr class="row-header"><th colspan="2">{{metric|capitalise_split_words}}</th></tr>
                     <tr class="min-max-container">
-                        <td>
-                            <label for="{{metric}}_min">Min</label>
-                            {% if metric_filters|get_item:metric|get_item:'min' == -1 %}
-                            <input step="{{metric_input_steps|get_item:metric}}" min="0" placeholder="(£) Min" type="number" name="{{metric}}_min">
-                            {% else %}
-                            <input step="{{metric_input_steps|get_item:metric}}" min="0" placeholder="(£) Min" type="number" name="{{metric}}_min" value="{{metric_filters|get_item:metric|get_item:'min'}}">
-                            {% endif %}
-                        </td>
-                        <td>
-                            <label for="{{metric}}_min">Max</label>
-                            {% if metric_filters|get_item:metric|get_item:'max' == -1 %}
-                            <input step="{{metric_input_steps|get_item:metric}}" min="0" placeholder="(£) Max" type="number" name="{{metric}}_max">
-                            {% else %}
-                            <input step="{{metric_input_steps|get_item:metric}}" min="0" placeholder="(£) Max" type="number" name="{{metric}}_max" value="{{metric_filters|get_item:metric|get_item:'max'}}">
-                            {% endif %}
-                        </td>
+                    {% for limit in 'min max'|split:" " %}
+                    {% with metric_filters_key=metric|add:"_"|add:limit %}
+                    <td>
+                        <label for="metric|add:' '|add:limit ">{{ limit|capitalise }}</label>
+                        <input step="{{ metric_input_steps|get_item:metric }}"min="0" placeholder="(£) {{limit|capitalise}}" type="number" 
+                        name="{{metric}}_{{limit}}" {% if metric_filters|get_item:metric_filters_key != -1 %}  value="{{metric_filters|get_item:metric_filters_key }}" {% endif %}>
+                    </td>
+                    {% endwith %}
+                    {% endfor %}
                     </tr>
                 </div>
                 {% endfor %}
                 <tr id="metric-filters-buttons-container">
-                    <td><button type="submit" class="clear-button" name="clear-form" value="clear-metric-filters" id="clear-metric-filter-button" >Clear!</button></td>
                     <td><button type="submit" id="metric-filters-submit-button">&rarr;</button></td>
+                    </form>
+                    {% if sub_view != "" %}
+                    <form action="{% url action_view sub_view %}" method="POST">
+                    {% else %}
+                    <form action="{% url action_view %}" method="POST">
+                    {% endif %}
+                        {% csrf_token %}
+                        <td><button type="submit" class="clear-button" name="clear-form" value="clear-metric-filters" id="clear-metric-filter-button" >Clear!</button></td>
+                    </form>
                 </tr>
-            </form>
             </table>
         </div>
 
@@ -78,21 +88,24 @@
 
         <div id="item-type-filter" class="radio-button-filters-container">
             <h4>Item Type</h4>
-            <form action="{% url 'update_filters_in_session' view %}" method="post">
-                {% csrf_token %}
+            {% if sub_view != "" %}
+            <form action="{% url action_view sub_view %}" method="GET">
+            {% else %}
+            <form action="{% url action_view %}" method="GET">
+            {% endif %}
+                <input type="hidden" name="form-type" value="item_type_filter">
                 <table>
-                    <input type="hidden" name="form-type" value="item-type-select">
                 <tr>
-                    <td><label for="item-type-select">Minifigures</label></td>
-                   <td><input {% if item_type_filter == 'M' %} checked {% endif %} type="radio" name="item-type-select" value="M" onclick="form.submit()"></td>
+                    <td><label for="item_type_filter">Minifigures</label></td>
+                   <td><input {% if item_type_filter == 'M' %} checked {% endif %} type="radio" name="item_type_filter" value="M" onclick="form.submit()"></td>
                 </tr>
                 <tr>
-                    <td><label for="item-type-select">Sets</label></td>
-                    <td><input {% if item_type_filter == 'S' %} checked {% endif %} type="radio" name="item-type-select" value="S" onclick="form.submit()"></td>
+                    <td><label for="item_type_filter">Sets</label></td>
+                    <td><input {% if item_type_filter == 'S' %} checked {% endif %} type="radio" name="item_type_filter" value="S" onclick="form.submit()"></td>
                 </tr>
                 <tr>
-                    <td><label for="item-type-select">All</label></td>
-                    <td><input {% if item_type_filter == 'All' %} checked {% endif %} type="radio" name="item-type-select" value="All" onclick="form.submit()"></td>
+                    <td><label for="item_type_filter">All</label></td>
+                    <td><input {% if item_type_filter == 'All' %} checked {% endif %} type="radio" name="item_type_filter" value="All" onclick="form.submit()"></td>
                 </tr>    
             </table>
             </form>
@@ -101,21 +114,24 @@
         {% if show_winners_or_losers %}
         <div id="winners-or-losers-filter" class="radio-button-filters-container">
             <h4>Winners / Losers</h4>
-            <form action="{% url 'update_filters_in_session' view %}" method="post">
-                {% csrf_token %}
+            {% if sub_view != "" %}
+            <form action="{% url action_view sub_view %}" method="GET">
+            {% else %}
+            <form action="{% url action_view %}" method="GET">
+                <input type="hidden" name="form-type" value="winners_or_losers_filter">
+            {% endif %}
                 <table>
-                    <input type="hidden" name="form-type" value="winners-or-losers-filter">
                 <tr>
-                    <td><label for="winners-or-losers-filter">Winners</label></td>
-                   <td><input {% if winners_losers_filter == 'Winners' %} checked {% endif %} type="radio" name="winners-or-losers-filter" value="Winners" onclick="form.submit()"></td>
+                    <td><label for="winners_or_losers_filter">Winners</label></td>
+                   <td><input {% if winners_or_losers_filter == 'Winners' %} checked {% endif %} type="radio" name="winners_or_losers_filter" value="Winners" onclick="form.submit()"></td>
                 </tr>
                 <tr>
-                    <td><label for="winners-or-losers-filter">Losers</label></td>
-                    <td><input {% if winners_losers_filter == 'Losers' %} checked {% endif %} type="radio" name="winners-or-losers-filter" value="Losers" onclick="form.submit()"></td>
+                    <td><label for="winners_or_losers_filter">Losers</label></td>
+                    <td><input {% if winners_or_losers_filter == 'Losers' %} checked {% endif %} type="radio" name="winners_or_losers_filter" value="Losers" onclick="form.submit()"></td>
                 </tr>
                 <tr>
-                    <td><label for="winners-or-losers-filter">All</label></td>
-                    <td><input {% if winners_losers_filter == 'All' %} checked {% endif %} type="radio" name="winners-or-losers-filter" value="All" onclick="form.submit()"></td>
+                    <td><label for="winners_or_losers_filter">All</label></td>
+                    <td><input {% if winners_or_losers_filter == 'All' %} checked {% endif %} type="radio" name="winners_or_losers_filter" value="All" onclick="form.submit()"></td>
                 </tr>    
             </table>
             </form>

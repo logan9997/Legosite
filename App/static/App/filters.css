@@ -95,6 +95,7 @@
 #metric-filters-buttons-container {
     display: flex;
     justify-content: center;
+    flex-direction: row-reverse;
     margin-top: 0.7rem;
 }
 

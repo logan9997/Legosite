@@ -16,9 +16,11 @@
 }
 
 .item-container {
-    height: 20rem;
+    height: 18rem;
     margin: 1rem;
 }
+
+
 
 .item-container h3 {
     border-top: 0.1rem orangered solid;
@@ -174,7 +176,7 @@
 }
 
 #in-collections {
-    height: 4rem;
+    height: 6rem;
     box-shadow: 0 0 1rem 1rem rgb(225,225,225); 
     margin: 1rem 0 1rem;
     display: flex;
@@ -221,10 +223,6 @@
 
 #portfolio-button {
     margin-top: 1rem;
-}
-
-#error-msg {
-    text-align: center;
 }
 
 #similar-items {

@@ -1,5 +1,9 @@
 {
     "python.analysis.extraPaths": [
         "./App/project_utils/build/lib"
-    ]
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8"
+    },
+    "python.formatting.provider": "none"
 }

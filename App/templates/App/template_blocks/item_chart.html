@@ -23,9 +23,10 @@
 
     <script>
         var item_dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
-        var all_dates = JSON.parse(document.getElementById('all_dates').textContent)
-        // dates = condence_list(dates)
-        console.log(item_dates)
+
+        if (window.location.href.includes("trending")) {
+            var all_dates = JSON.parse(document.getElementById('all_dates').textContent)
+        }
         
         var metric_data = [
             {
@@ -88,8 +89,14 @@
             } 
         }
 
+        if (window.location.href.includes("trending")) {
+            item_dates = condence_list(item_dates.slice(slice_start, slice_end))
+        } else {
+            item_dates = condence_list(item_dates)
+        }
+
         var graph_data = {
-            labels:condence_list(item_dates.slice(slice_start, slice_end)),
+            labels:item_dates,
             datasets: new_data,
             
         }
