@@ -62,8 +62,10 @@ def update_year_released():
     for _id in figs:
         info = RESP.get_response_data(f'items/MINIFIG/{_id}')
         year_released = info.get('year_released', '1900')
-        DB.update_field('App_item', 'year_released',
-                        'item_id', _id, year_released)
+        DB.update_field(
+            'App_item', 'year_released', 'item_id', _id, year_released
+        )
+        
 
 
 @check_http_response
@@ -74,14 +76,21 @@ def sub_sets():
         parts = RESP.get_response_data(f'items/MINIFIG/{_item}/subsets')
         for part in parts:
             for entry in part['entries']:
-                info = {'piece_name': entry['item']['name'].replace(
-                    "'", ''), 'piece_id': entry['item']['no'], 'type': entry['item']['type']}
+                info = {
+                    'piece_name': entry['item']['name'].replace("'", ''),
+                    'piece_id': entry['item']['no'], 
+                    'type': entry['item']['type']
+                }
                 if info['piece_id'] not in DB.get_pieces():
                     DB.add_pieces(info)
                     print('-PIECES- INSERTING', entry['item']['no'])
 
-                info = {'item_id': _item, 'piece_id': entry['item']['no'],
-                        'colour_id': entry['color_id'], 'quantity': entry['quantity']}
+                info = {
+                    'item_id': _item, 
+                    'piece_id': entry['item']['no'],
+                    'colour_id': entry['color_id'], 
+                    'quantity': entry['quantity']
+                    }
                 if (info['piece_id'], info['item_id']) not in DB.get_piece_participations():
                     DB.add_piece_participation(info)
                     print('-PIECEPARTICIPATION- INSERTING',
@@ -99,7 +108,10 @@ def super_sets():
             for entry in _set['entries']:
                 print(_item, entry['item']['no'])
                 info = {
-                    'quantity': entry['quantity'], 'item_id': _item, 'set_id': entry['item']['no']}
+                    'quantity': entry['quantity'], 
+                    'item_id': _item, 
+                    'set_id': entry['item']['no']
+                }
                 if (info['item_id'], info['set_id']) not in DB.get_set_participations():
                     try:
                         DB.add_set_participation(info)
@@ -108,11 +120,10 @@ def super_sets():
 
 
 def main():
-    # update_choice = input(
-    #     'Update: (Prices : P) (Sub Sets : SUB) (Super Sets : SUPER): ').upper()
-    # choices = {'P': update_prices, 'SUB': sub_sets, 'SUPER': super_sets}
-    # choices[update_choice]()
-    update_year_released()
+    update_choice = input(
+        'Update: (Prices : P) (Sub Sets : SUB) (Super Sets : SUPER): ').upper()
+    choices = {'P': update_prices, 'SUB': sub_sets, 'SUPER': super_sets}
+    choices[update_choice]()
 
 
 if __name__ == '__main__':

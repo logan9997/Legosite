@@ -1,6 +1,5 @@
-from scripts.database import DatabaseManagement
-
 from config.config import ALL_METRICS, ITEM_TYPE_CONVERT
+from scripts.database import DatabaseManagement
 
 from .general import General
 
@@ -48,7 +47,11 @@ class Formatter():
             if 'graph_data' in kwargs:
                 item_dict = AdditionalItemData().add_graph_data(item_dict, **kwargs)
 
-            if 'owned_quantity_new' in kwargs and 'owned_quantity_used' in kwargs and kwargs.get('view', '') == 'portfolio':
+            if (
+                'owned_quantity_new' in kwargs and 
+                'owned_quantity_used' in kwargs and 
+                kwargs.get('view', '') == 'portfolio'
+            ):
                 item_dict = AdditionalItemData().add_item_owned_quantity(item_dict, **kwargs)
 
             # only accepts values of type int, v < len(item) to avoid indexing errors
@@ -80,9 +83,11 @@ class Formatter():
             for theme in themes]
 
         themes_formated = [
-            theme for theme in themes_formated if theme['change'] != None]
+            theme for theme in themes_formated if theme['change'] != None
+        ]
         themes_formated = sorted(
-            themes_formated, key=lambda x: x['change'], reverse=True)
+            themes_formated, key=lambda x: x['change'], reverse=True
+        )
 
         losers_and_winners = {
             'biggest_winners': themes_formated[:5],
@@ -142,9 +147,11 @@ class AdditionalItemData():
 
     def add_item_owned_quantity(self, item_dict: dict, **kwargs):
         owned_quantity_new = DB.get_portfolio_item_quantity(
-            item_dict['item_id'], 'N', kwargs.get('user_id', -1))
+            item_dict['item_id'], 'N', kwargs.get('user_id', -1)
+        )
         owned_quantity_used = DB.get_portfolio_item_quantity(
-            item_dict['item_id'], 'U', kwargs.get('user_id', -1))
+            item_dict['item_id'], 'U', kwargs.get('user_id', -1)
+        )
         item_dict['owned_quantity_new'] = owned_quantity_new
         item_dict['owned_quantity_used'] = owned_quantity_used
         return item_dict
@@ -153,7 +160,8 @@ class AdditionalItemData():
         item_dict['metric_changes'] = {}
         for metric in metric_changes:
             item_dict['metric_changes'][metric] = DB.get_item_metric_changes(
-                item_dict['item_id'], metric, kwargs.get('user_id', -1))
+                item_dict['item_id'], metric, kwargs.get('user_id', -1)
+            )
         return item_dict
 
     def append_item_graph_info(self, item_id: str, metric_or_date, **kwargs):

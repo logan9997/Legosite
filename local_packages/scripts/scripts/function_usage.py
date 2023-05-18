@@ -58,7 +58,11 @@ class FunctionUsage():
                         function_name = function_name.replace('def ', '')
                         function_name = function_name.replace(' ', '')
                         self.functions.append(
-                            {'file': file, 'function_name': function_name, 'count': 0}
+                            {
+                                'file': file, 
+                                'function_name': function_name,
+                                'count': 0
+                            }
                         )
 
     def find_function(self, function: str):

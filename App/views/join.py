@@ -34,9 +34,10 @@ def join(request):
                     )
                     new_user.save()
 
-                    user = User.objects.filter(
-                        username=username, password=password)
-                    user_id = user.values_list('user_id', flat=True)[0]
+                    user_id = User.objects.filter(
+                        username=username, password=password
+                    ).values_list('user_id', flat=True)[0]
+
                     request.session['user_id'] = user_id
                     request.session.modified = True
                     return redirect('/')
@@ -58,7 +59,7 @@ def join(request):
 
 def get_login_error_message(form):
     error = str(form.errors)
-    errors = list(filter(lambda x: x != '</ul>', error.split('</li>')))
+    #errors = list(filter(lambda x: x != '</ul>', error.split('</li>')))
 
     if 'Enter a valid email address' in error:
         error_msg = 'Invalid Email'

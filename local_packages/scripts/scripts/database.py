@@ -498,6 +498,16 @@ class DatabaseManagement():
         '''
         return self.SELECT(sql)
 
+    def update_field(self, table, update_field, condition_field, field_value, new_value):
+        sql = f'''
+            UPDATE "{table}"
+            SET {update_field} = '{new_value}'
+            WHERE {condition_field} = '{field_value}'
+        '''
+        print(sql)
+        self.cursor.execute(sql)
+        self.con.commit()
+
     def get_all_itemIDs(self) -> list[str]:
         sql = f'''
             SELECT item_id
@@ -736,9 +746,10 @@ class DatabaseManagement():
                 {sql_like}
         '''
 
-        if self.SELECT(sql) == None:
+        result = self.SELECT(sql)
+        if result == None:
             return []
-        return self.SELECT(sql)
+        return result
 
     def get_item_type(self, item_id):
         sql = f'''

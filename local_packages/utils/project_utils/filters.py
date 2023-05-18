@@ -51,13 +51,14 @@ class FilterOut():
                 item_id_key = 0
 
             items_to_filter_by_theme = DB.filter_items_by_theme(
-                filtered_themes)
+                filtered_themes
+                )
             items = list(
-                filter(lambda x: x[item_id_key] in items_to_filter_by_theme, items))
+                filter(lambda x: x[item_id_key] in items_to_filter_by_theme, items)
+            )
         return request, items
 
     def filter_out_item_type_filters(self, request, items: list):
-
         item_type_filter = request.session.get('item_type_filter')
 
         if type(items[0]) == dict:
@@ -74,9 +75,11 @@ class FilterOut():
     def filter_out_winners_losers_filters(self, request, items):
 
         winners_or_losers = request.session.get(
-            'winners_or_losers_filter', 'All')
+            'winners_or_losers_filter', 'All'
+        )
         metric = request.session.get(
-            'trending_order', 'avg_price-desc').split('-')[0]
+            'trending_order', 'avg_price-desc'
+        ).split('-')[0]
         metric = GENERAL.split_capitalize(metric, '_')
 
         if type(items[0]) == dict:
@@ -124,7 +127,6 @@ class FilterOut():
 class ProcessFilter():
 
     def process_theme_filters(self, request):
-        # el request.session['filtered_themes']
         if 'filtered_themes' not in request.session:
             request.session['filtered_themes'] = []
 
@@ -158,7 +160,10 @@ class ProcessFilter():
 
         for metric in ALL_METRICS:
             for limit in ['min', 'max']:
-                if request.GET.get(f'{metric}_{limit}') != None and request.GET.get(f'{metric}_{limit}') != '':
+                if (
+                    request.GET.get(f'{metric}_{limit}') != None and 
+                    request.GET.get(f'{metric}_{limit}') != ''
+                ):
                     try:
                         _input = float(request.GET.get(f'{metric}_{limit}'))
                     except:
@@ -185,7 +190,9 @@ class ProcessFilter():
         return request
 
     def default_metric_filters(self):
-        return {f'{metric}_{limit}': -1 for metric in ALL_METRICS for limit in ['min', 'max']}
+        return {
+            f'{metric}_{limit}': -1 for metric in ALL_METRICS for limit in ['min', 'max']
+        }
 
 
 class ClearFilter():

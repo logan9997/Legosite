@@ -34,7 +34,10 @@ class Response():
     def exit_if_request_limit_exceeded(self):
         if self.request_count >= 5000 and time.time() - self.recorded_time < (60 * 60 * 24):
             print(
-                f'DAILY REQUESTS LIMIT REACHED\nCounter reset in {(time.time() - self.recorded_time) / (60 * 60)} hours')
+                f'''DAILY REQUESTS LIMIT REACHED\nCounter reset in 
+                {(time.time() - self.recorded_time) / (60 * 60)} hours'''
+            )
+            
             exit()
 
     def record_time(self):

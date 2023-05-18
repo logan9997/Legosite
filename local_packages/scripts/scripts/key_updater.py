@@ -54,9 +54,16 @@ def update_ip(key):
     time.sleep(3)
 
     token_value = driver.find_element(
-        By.XPATH, '/html/body/div[3]/center/table/tbody/tr/td/div/table[3]/tbody/tr/td/div/table/tbody/tr[1]/td[2]').text
+        By.XPATH, 
+        '''/html/body/div[3]/center/table/tbody/tr/td/div/
+        table[3]/tbody/tr/td/div/table/tbody/tr[1]/td[2]'''
+    ).text
+    
     token_secret = driver.find_element(
-        By.XPATH, '/html/body/div[3]/center/table/tbody/tr/td/div/table[3]/tbody/tr/td/div/table/tbody/tr[2]/td[2]').text
+        By.XPATH, 
+        '''/html/body/div[3]/center/table/tbody/tr/td/div/
+        table[3]/tbody/tr/td/div/table/tbody/tr[2]/td[2]'''
+    ).text
 
     dotenv_file = GENERAL.configure_relative_file_path('.env', 10)
     dotenv.load_dotenv(dotenv_file)

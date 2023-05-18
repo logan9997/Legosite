@@ -36,7 +36,7 @@ ITEM_CONDITION_CONVERT = {
     'U': 'Used'
 }
 
-REMOVE_CHARS = ['(', ')']
+REMOVE_CHARS = ['(', ')', ',', '-']
 INVALID_USERNAME_CHARS = []
 
 COLOURS = [

@@ -31,7 +31,8 @@ def login(request):
 
             if username not in request.session['login_attempts']:
                 request.session['login_attempts'][username] = {
-                    'attempts': 0, 'login_retry_date': -1}
+                    'attempts': 0, 'login_retry_date': -1
+                }
                 request.session.modified = True
 
             login_blocked = is_login_blocked(request, username)
@@ -41,15 +42,17 @@ def login(request):
                 len(User.objects.filter(username=username, password=password)) == 1 and
                 request.session['login_attempts'][username]['login_retry_date'] == -1
             ):
-                user = User.objects.filter(
-                    username=username, password=password)
-                user_id = user.values_list('user_id', flat=True)[0]
+                user_id = User.objects.filter(
+                    username=username, password=password
+                ).values_list('user_id', flat=True)[0]
                 request.session['user_id'] = user_id
+
                 del request.session['login_attempts'][username]
                 return redirect('/')
             else:
                 context.update(
-                    {'login_message': 'Username and Password do not match'})
+                    {'login_message': 'Username and Password do not match'}
+                )
                 request.session['login_attempts'][username]['attempts'] += 1
                 request.session.modified = True
 
@@ -64,23 +67,36 @@ def login(request):
     if login_attempts >= MAX_LOGIN_ATTEMPTS:
         if not login_blocked:
             tommorow = dt.strptime(
-                str(dt.now() + timedelta(1)).split('.')[0], '%Y-%m-%d %H:%M:%S')
+                str(dt.now() + timedelta(1)).split('.')[0], '%Y-%m-%d %H:%M:%S'
+            )
             request.session['login_attempts'][username]['login_retry_date'] = json.dumps(
-                tommorow, default=str)
+                tommorow, default=str
+                )
 
         login_retry_date = request.session['login_attempts'][username]['login_retry_date']
         ''' ? EMAIL USER ? '''
-        context.update({'login_message': [
-                       'YOU HAVE ATTEMPTED LOGIN TOO MANY TIMES:', f'try again on {login_retry_date}']})
+        context.update({
+            'login_message': [
+                'YOU HAVE ATTEMPTED LOGIN TOO MANY TIMES:', 
+                f'try again on {login_retry_date}'
+            ]
+        })
 
     return render(request, 'App/login.html', context=context)
 
 
 def is_login_blocked(request, username):
     login_blocked = False
-    if username in request.session.get('login_attempts') and request.session['login_attempts'][username]['login_retry_date'] != -1:
+    login_retry_date = request.session['login_attempts'][username]['login_retry_date']
+    
+    if (
+        username in request.session.get('login_attempts') and 
+        login_retry_date != -1
+    ):
         login_retry_date = dt.strptime(
-            request.session['login_attempts'][username]['login_retry_date'].strip('"'), '%Y-%m-%d %H:%M:%S')
+            login_retry_date.strip('"'), '%Y-%m-%d %H:%M:%S'
+        )
+        
         if dt.today() > login_retry_date:
             login_blocked = False
         else:
