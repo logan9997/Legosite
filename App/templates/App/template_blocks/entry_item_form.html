@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="{% static 'App/entry_item_form.css'%}">
 
 {% if sub_view != "" %}
-<form class="entry-item-container" action="{% url action_view sub_view %}" method="post">
+<form class="entry-item-container" action="{% url 'entry_item_handler' redirect_view=redirect_view %}" method="post">
 {% else %}
 <form class="entry-item-container" action="{% url action_view %}" method="post">
 {% endif%}

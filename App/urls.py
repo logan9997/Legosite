@@ -50,4 +50,12 @@ urlpatterns = [
     path(
         'watchlist/', user_items.watchlist, name='watchlist'
      ),
+    path(
+        'entry_item_handler/<path:redirect_view>',
+        misc.entry_item_handler, name='entry_item_handler'
+    ),
+    path(
+        'add_to_watchlist/<str:item_id>', misc.add_to_watchlist, 
+        name='add_to_watchlist'
+    )
 ]

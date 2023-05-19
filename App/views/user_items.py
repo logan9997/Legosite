@@ -158,17 +158,12 @@ def portfolio_item(request, item_id: str):
     if current_url != previous_url:
         GENERAL.clear_get_params(request, get_params)
 
-    request = add_to_user_items(request, item_id, 'portfolio')
-
     graph_metric = request.session.get('graph-metric', 'avg_price')
 
     item_info = FORMATTER.format_item_info(
         DB.get_item_info(item_id, graph_metric), 
         graph_data=[graph_metric], metric_trends=ALL_METRICS
     )[0]
-
-    if request.POST.get('form-type') in ['entry-edit', 'new-entry']:
-        request = entry_item_handler(request)
 
     context = {
         'item_id': item_id,
@@ -251,82 +246,10 @@ def watchlist(request):
     return render(request, 'App/watchlist.html', context=context)
 
 
-def add_to_user_items(request, item_id:str, user_item_type:str):
-    '''
-    user_item_type : watchlist or portfolio
-    '''
-    user_id = request.session.get('user_id', -1)
-
-    user_item_ids = eval(user_item_type.capitalize()).objects.filter(
-        user_id=user_id).values_list('item_id', flat=True
-    ).annotate(t=Count('item_id'))
-
-    if user_item_type == 'portfolio':
-        form = AddItemToPortfolio(request.POST)
-        if form.is_valid():
-            condition = form.cleaned_data['condition']
-            quantity = form.cleaned_data['quantity']
-            bought_for = form.cleaned_data['bought_for']
-            date_added = form.cleaned_data['date_added']
-
-            for _ in range(quantity):
-                DB.add_to_user_items(
-                    user_id, item_id, user_item_type, date_added, 
-                    condition=condition, bought_for=bought_for
-                )
-    else:
-        if item_id not in user_item_ids:
-            DB.add_to_user_items(
-                user_id, item_id, user_item_type,
-                dt.today().strftime('%Y-%m-%d')
-            )
-        else:
-            Watchlist.objects.filter(user_id=user_id, item_id=item_id).delete()
-
-    return request
 
 
-def entry_item_handler(request):
-    entry_id = request.POST.get('entry_id')
-    user_id = request.session.get('user_id', -1)
 
-    if request.POST.get('remove-entry') != None:
-        Portfolio.objects.filter(portfolio_id=entry_id).delete()
 
-    elif 'CLEAR' in request.POST.get('clear-input', ''):
-        nulled_field = request.POST.get('clear-input').split('_CLEAR')[0]
-
-        # for price inputs
-        new_data = {nulled_field: None}
-        if '_for' in nulled_field:
-            new_data = {nulled_field: 0}
-
-        Portfolio.objects.filter(portfolio_id=entry_id).update(**new_data)
-
-    elif request.POST.get('form-type') == 'entry-edit':
-        fields = {
-            'date_added': str(request.POST.get('date_added')),
-            'bought_for': float(request.POST.get('bought_for')),
-            'date_sold': str(request.POST.get('date_sold')),
-            'sold_for': float(request.POST.get('sold_for')),
-            'notes': str(request.POST.get('notes')),
-        }
-
-        # set fields in database to null rather than empty string
-        for k, v in fields.items():
-            if v == '':
-                fields[k] = None
-
-        Portfolio.objects.filter(portfolio_id=entry_id).update(**fields)
-
-    elif request.POST.get('form-type') == 'new-entry':
-        values = {
-            k: v for k, v in request.POST.items() 
-            if k not in ['csrfmiddlewaretoken', 'form-type'] and v != ''
-        }
-        values.update({'user_id': user_id})
-        Portfolio(**values).save()
-    return request
 
 
 def get_sub_themes(

@@ -1,13 +1,13 @@
 import itertools
+from datetime import datetime as dt
 
 from django.db.models import F
 from django.shortcuts import redirect, render
 from project_utils.general import General
 from project_utils.item_format import Formatter
 from scripts.database import DatabaseManagement
-from .user_items import entry_item_handler, add_to_user_items
 
-from App.models import Item, Theme
+from App.models import Item, Theme, Watchlist
 from config.config import (
     ALL_METRICS, COLOURS, EXTRA_WORDS,
     MAX_SIMILAR_ITEMS, RECENTLY_VIEWED_ITEMS_NUM,
@@ -21,15 +21,9 @@ DB = DatabaseManagement()
 
 
 def item(request, item_id):
-
-    if request.POST.get('form-type') in ['entry-edit', 'new-entry']:
-        request = entry_item_handler(request)
-
-    request = process_recently_viewed_items(request, item_id)
-    request = add_to_user_items(request, item_id, 'portfolio')
-    request = add_to_user_items(request, item_id, 'watchlist')
-
     user_id = request.session.get('user_id', -1)
+        
+    request = process_recently_viewed_items(request, item_id)    
     metric = request.session.get('graph-metric', 'avg_price')
 
     item_info = FORMATTER.format_item_info(
@@ -87,8 +81,6 @@ def item(request, item_id):
             )
         ),
     }
-
-    print('errr', context['in_watchlist'])
 
     # items to add to context based on item type
     if item_info['item_type'] == 'M':
