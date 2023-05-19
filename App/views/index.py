@@ -21,10 +21,13 @@ def index(request):
     graph_metric = request.POST.get('graph-metric', 'avg_price')
     graph_options = GENERAL.sort_dropdown_options(get_graph_options(), graph_metric)
 
-    if 'recently-viewed' not in request.session or user_id == -1:
-        request.session['recently-viewed'] = []
+    if 'recently-viewed' not in request.session:
+        request.session['recently-viewed'][user_id] = []
 
-    recently_viewed_ids = request.session['recently-viewed'][:RECENTLY_VIEWED_ITEMS_NUM]
+    recently_viewed_ids = request.session['recently-viewed'].get(
+        str(user_id), []
+    )[:RECENTLY_VIEWED_ITEMS_NUM]    
+
     recently_viewed_items = [
         DB.get_item_info(item_id, 'avg_price')[0] for item_id in recently_viewed_ids
     ]

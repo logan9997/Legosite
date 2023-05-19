@@ -23,7 +23,7 @@ DB = DatabaseManagement()
 def item(request, item_id):
     user_id = request.session.get('user_id', -1)
         
-    request = process_recently_viewed_items(request, item_id)    
+    request = process_recently_viewed_items(request, item_id, user_id)    
     metric = request.session.get('graph-metric', 'avg_price')
 
     item_info = FORMATTER.format_item_info(
@@ -115,19 +115,24 @@ def convert_last_and_first_date(item_info):
     return item_info
 
 
-def process_recently_viewed_items(request, item_id):
-    if 'recently-viewed' not in request.session:
-        request.session['recently-viewed'] = [item_id]
-    else:
-        if item_id in request.session['recently-viewed']:
-            request.session['recently-viewed'].remove(item_id)
+def process_recently_viewed_items(request, item_id, user_id):
 
-        request.session['recently-viewed'].insert(0, item_id)
+    user_id = str(user_id)
 
-        if len(request.session['recently-viewed']) > RECENTLY_VIEWED_ITEMS_NUM:
-            request.session['recently-viewed'].pop()
+    if user_id not in request.session['recently-viewed']:
+        request.session['recently-viewed'][user_id] = []
 
-        request.session.modified = True
+    if item_id in request.session['recently-viewed'][user_id]:
+        request.session['recently-viewed'][user_id].remove(item_id)
+
+    request.session['recently-viewed'][user_id].insert(0, item_id)
+
+    if len(request.session['recently-viewed'][user_id]) > RECENTLY_VIEWED_ITEMS_NUM:
+        request.session['recently-viewed'][user_id].pop()
+
+    print(request.session['recently-viewed'])
+
+    request.session.modified = True
     return request
 
 
