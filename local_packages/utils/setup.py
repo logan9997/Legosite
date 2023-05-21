@@ -6,4 +6,7 @@ setup(
     description='utility functions to be used throughout the project',
     packages=['project_utils'],
     zip_safe=False,
+    install_requires = [
+        'scripts', 'config'
+    ]
 )

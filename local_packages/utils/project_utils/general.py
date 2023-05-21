@@ -190,3 +190,28 @@ class General():
 
         number = ','.join(sections)+num_decimal
         return number
+
+
+    def get_login_error_message(self, form):
+        error_html = str(form.errors)
+        errors = list(filter(lambda x: x != '</ul>', error_html.split('</li>')))
+
+
+        for error in errors:
+            field = error.replace('<ul class="errorlist">', '')
+            field = field.split('<li>')[1]
+            print('field - ',field)
+            if 'Enter a valid email address' in error:
+                error_msg = 'Invalid Email'
+                break
+
+            elif 'Ensure this value has at most' in error:
+                max_chars = error.split(
+                    'Ensure this value has at most'
+                )[1].split(' characters')[0]
+                field = ' '.join([word.capitalize() for word in field.split('_')])
+                error_msg = f'{field} has a maximum length of {max_chars} characters.'
+                break
+            else:
+                error_msg = 'Please fill in all required fields (*)'
+        return error_msg

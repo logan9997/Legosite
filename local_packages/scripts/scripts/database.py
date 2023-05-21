@@ -319,7 +319,8 @@ class DatabaseManagement():
                 ) 
             
         '''
-        return self.SELECT(sql)
+        result = self.SELECT(sql)
+        return result
 
     def get_sub_themes(self, parent_theme):
         sql = f'''

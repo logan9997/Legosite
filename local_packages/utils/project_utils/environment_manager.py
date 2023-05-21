@@ -3,11 +3,13 @@ import os
 
 from dotenv import load_dotenv
 from project_utils.general import General
+from config.config import ROOT_DIR
 
 
 class Manager():
 
     def __init__(self) -> None:
+        print(ROOT_DIR)
         load_dotenv(General().configure_relative_file_path('.env', 10))
 
     def get_env_varaibles(self, *args):

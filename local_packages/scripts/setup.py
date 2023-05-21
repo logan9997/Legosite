@@ -6,5 +6,8 @@ setup(
     description='package containing scripts for api calls, web scraping, database functions',
     packages=['scripts'],
     zip_safe=False,
+        install_requires = [
+        'scripts', 'project_utils'
+    ]
 )
 
