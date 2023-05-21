@@ -2,12 +2,14 @@ import json
 from datetime import datetime as dt
 from datetime import timedelta
 
+from config.config import MAX_LOGIN_ATTEMPTS, PASSWORD_LENGTH, USERNAME_LENGTH
 from django.shortcuts import redirect, render
+from project_utils.general import General
 
 from App.forms import LoginForm
 from App.models import User
-from config.config import MAX_LOGIN_ATTEMPTS, PASSWORD_LENGTH, USERNAME_LENGTH
 
+GENERAL = General()
 
 def login(request):
     context = {
@@ -55,7 +57,10 @@ def login(request):
                 )
                 request.session['login_attempts'][username]['attempts'] += 1
                 request.session.modified = True
-
+        else:
+            context.update(
+                    {'login_message':  GENERAL.get_login_error_message(form)}
+            )
     try:
         login_attempts = request.session['login_attempts'][username]['attempts']
     except:
@@ -71,7 +76,7 @@ def login(request):
             )
             request.session['login_attempts'][username]['login_retry_date'] = json.dumps(
                 tommorow, default=str
-                )
+            )
 
         login_retry_date = request.session['login_attempts'][username]['login_retry_date']
         ''' ? EMAIL USER ? '''

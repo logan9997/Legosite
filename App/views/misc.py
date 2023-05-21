@@ -90,7 +90,6 @@ def entry_item_handler(request, redirect_view):
 
 def add_to_watchlist(request, item_id):
     user_id = request.session.get('user_id', -1)
-
     watchlist_items = Watchlist.objects.filter(user_id=user_id, item_id=item_id)
 
     if len(watchlist_items) == 0:

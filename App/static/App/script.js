@@ -183,8 +183,7 @@ function isValidDate(date) {
 
 function input_validation(input, type, add_new) {
     var form = input.parentElement.parentElement.parentElement
-    var inputs = form.getElementsByTagName("input")
-    var add_to_watchlist_form = document.getElementById('add-to-watchlist')
+    var inputs = form.getElementsByTagName('input')
 
     var new_inputs = []
     for (let i = 0; i<inputs.length; i++) {
@@ -226,11 +225,15 @@ function input_validation(input, type, add_new) {
     if (msg != '') {
         error_msg_container.style.display = 'block'
         error_msg.innerHTML = msg
-        add_to_watchlist_form.style.marginTop = '1.5rem'
+        if (! window.location.href.includes('portfolio')) {
+            document.getElementById('add-to-watchlist').style.marginTop = '1.5rem'
+        }
     } else {
         error_msg_container.style.display = 'none'
         error_msg.innerHTML = ''
-        add_to_watchlist_form.style.marginTop = '14.5rem'
+        if (! window.location.href.includes('portfolio')) {
+            document.getElementById('add-to-watchlist').style.marginTop = '14.5rem'
+        }
     }
 
     var valid = true

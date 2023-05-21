@@ -1,10 +1,12 @@
+from config.config import EMAIL_LENGTH, PASSWORD_LENGTH, USERNAME_LENGTH
 from django.db.models import Q
 from django.shortcuts import redirect, render
+from project_utils.general import General
 
 from App.forms import SignupFrom
 from App.models import User
-from config.config import EMAIL_LENGTH, PASSWORD_LENGTH, USERNAME_LENGTH
 
+GENERAL = General()
 
 def join(request):
 
@@ -52,23 +54,9 @@ def join(request):
                 context['signup_message'] = 'Email already exists'
 
         else:
-            context['signup_message'] = get_login_error_message(form)
+            context['signup_message'] = GENERAL.get_login_error_message(form)
 
     return render(request, 'App/join.html', context=context)
 
 
-def get_login_error_message(form):
-    error = str(form.errors)
-    #errors = list(filter(lambda x: x != '</ul>', error.split('</li>')))
 
-    if 'Enter a valid email address' in error:
-        error_msg = 'Invalid Email'
-
-    elif 'Ensure this value has at most' in error:
-        max_chars = error.split('Ensure this value has at most ')[
-            1].split(' characters')[0]
-        field = error.split("<ul class='errorlist'><li>")[1]
-        error_msg = f'{field.capitalize()} has a maximum length of {max_chars} characters.'
-    else:
-        error_msg = 'Please fill in all required fields (*)'
-    return error_msg

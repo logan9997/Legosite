@@ -74,7 +74,7 @@
             <div id="add-new-entry">
                 <div id="new-entry-sub-container">
                     <h3>Add New Entry</h3>
-                    {% include 'App/template_blocks/entry_item_form.html' with action_view='portfolio_item' sub_view=item_id add_new=True show_notes=True %}
+                    {% include 'App/template_blocks/entry_item_form.html' with item_id=item_id user_item_type='portfolio' redirect_view='portfolio_item/'|add:item_id add_new=True show_notes=True %}
                 </div>
             </div>
 
@@ -82,7 +82,7 @@
                 <h3>Entries</h3>
                 <div id="entries-item-loop-container">
                 {% for entry in item_entries %}
-                    {% include 'App/template_blocks/entry_item_form.html' with action_view='portfolio_item' sub_view=item_id add_new=False show_notes=True %}
+                    {% include 'App/template_blocks/entry_item_form.html'  with item_id=item_id user_item_type='portfolio' redirect_view='portfolio_item/'|add:item_id add_new=False show_notes=True %}
                 {% endfor %}
                 </div>
             </div>

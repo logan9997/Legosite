@@ -1,3 +1,5 @@
-*.drawio
 sets/
-.env
+minifigures/
+images/
+static/
+staticfiles/

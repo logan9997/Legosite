@@ -23,7 +23,8 @@ DB = DatabaseManagement()
 def item(request, item_id):
     user_id = request.session.get('user_id', -1)
         
-    request = process_recently_viewed_items(request, item_id, user_id)    
+    if item_id in list(Item.objects.all().values_list('item_id', flat=True)):
+        request = process_recently_viewed_items(request, item_id, user_id)    
     metric = request.session.get('graph-metric', 'avg_price')
 
     item_info = FORMATTER.format_item_info(
@@ -33,7 +34,7 @@ def item(request, item_id):
 
     # if no info for item, return to previous page
     if item_info == []:
-        return redirect(request.META.get('HTTP_REFERER'))
+        return redirect(request.META.get('HTTP_REFERER', 'index'))
     item_info = item_info[0]
 
     # stops view count being increased on refresh

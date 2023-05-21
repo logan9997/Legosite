@@ -105,14 +105,14 @@
             {% else %}
             <p><a href="{% url 'portfolio' %}">In Portfolio</a> | New : 0 | Used : 0 |</p>
             {% endif %}
-            <p><a href="{% url 'watchlist' %}">In Watchlist</a>{% if in_watchlist|length != 0%} Yes {% else %} No {% endif %}  </p>
+            <p><a href="{% url 'watchlist' %}">In Watchlist</a> : {% if in_watchlist|length != 0%} Yes {% else %} No {% endif %}  </p>
         </section>
 
         <section id="form-container">
             <h3>Add to Your Collection</h3>
     
-            {% include 'App/template_blocks/entry_item_form.html' with action_view='item' sub_view=item_id add_new=True show_notes=False %}
-            <form id="add-to-watchlist" action="{% url 'item' item.item_id %}" method="post">
+            {% include 'App/template_blocks/entry_item_form.html' with item_id=item.item_id user_item_type='portfolio' redirect_view='item/'|add:item.item_id add_new=True show_notes=False %}
+            <form id="add-to-watchlist" action="{% url 'add_to_watchlist' item_id=item.item_id %}" method="post">
                 {% csrf_token %}
                 {% if in_watchlist|length == 0 %}
                 <button name="view-type" type="submit" value="watchlist">Add to Watchlist!</button>

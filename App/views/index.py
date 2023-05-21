@@ -22,6 +22,7 @@ def index(request):
     graph_options = GENERAL.sort_dropdown_options(get_graph_options(), graph_metric)
 
     if 'recently-viewed' not in request.session:
+        request.session['recently-viewed'] = {}
         request.session['recently-viewed'][user_id] = []
 
     recently_viewed_ids = request.session['recently-viewed'].get(

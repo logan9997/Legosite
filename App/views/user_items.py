@@ -7,7 +7,6 @@ from project_utils.general import General
 from project_utils.item_format import Formatter
 from scripts.database import DatabaseManagement
 
-from App.forms import AddItemToPortfolio, AddOrRemovePortfolioItem
 from App.models import Portfolio, Price, Watchlist
 from config.config import (
     ALL_METRICS, METRIC_INPUT_STEPS,
@@ -221,7 +220,7 @@ def portfolio_item(request, item_id: str):
         ).count()
     )
 
-    context['total_market_value'] =  item_current_price * item_count
+    context['total_market_value'] = round(item_current_price * item_count, 3)
 
     if len(Portfolio.objects.filter(item_id=item_id, user_id=user_id)) > 0:
         context['total_bought_price'] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(
