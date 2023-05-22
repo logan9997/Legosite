@@ -29,6 +29,6 @@ tzdata==2022.7
 urllib3==1.26.15
 whitenoise==6.4.0
 wsproto==1.2.0
--e git+https://github.com/logan9997/legosite_packages.git#egg=config&subdirectory=config
--e git+https://github.com/logan9997/legosite_packages.git#egg=project_utils&subdirectory=project_utils
--e git+https://github.com/logan9997/legosite_packages.git#egg=scripts&subdirectory=scripts
+git+https://github.com/logan9997/legosite_packages.git#egg=config&subdirectory=config
+git+https://github.com/logan9997/legosite_packages.git#egg=project_utils&subdirectory=project_utils
+git+https://github.com/logan9997/legosite_packages.git#egg=scripts&subdirectory=scripts
