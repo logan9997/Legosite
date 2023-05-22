@@ -1,6 +1,5 @@
 setup.py
 project_utils/__init__.py
-project_utils/_utils.py
 project_utils/environment_manager.py
 project_utils/filters.py
 project_utils/general.py
@@ -9,4 +8,5 @@ project_utils.egg-info/PKG-INFO
 project_utils.egg-info/SOURCES.txt
 project_utils.egg-info/dependency_links.txt
 project_utils.egg-info/not-zip-safe
+project_utils.egg-info/requires.txt
 project_utils.egg-info/top_level.txt
