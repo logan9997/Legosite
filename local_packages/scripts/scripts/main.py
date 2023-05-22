@@ -1,11 +1,10 @@
 import time
 
 from scripts import key_updater
-from scripts.database import DatabaseManagement
+from scripts.database import DB
 from scripts.responses import Response
 
 RESP = Response()
-DB = DatabaseManagement()
 
 
 def check_http_response(func):

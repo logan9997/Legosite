@@ -7,7 +7,7 @@ from project_utils.environment_manager import Manager
 class DatabaseManagement():
 
     def __init__(self) -> None:
-
+        print('INITIALISING DATABASE MANAGMENT ')
         credentials = Manager().get_database_credentials('postgres')
         self.con = psycopg2.connect(**credentials)
         self.cursor = self.con.cursor()
@@ -793,3 +793,7 @@ class DatabaseManagement():
             LIMIT {limit}      
         '''
         return self.SELECT(sql, flat=True)
+
+
+#INITIALISE DB
+DB = DatabaseManagement()

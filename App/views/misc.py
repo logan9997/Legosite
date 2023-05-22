@@ -3,14 +3,13 @@ from django.db.models import Count
 from datetime import datetime as dt
 from project_utils.filters import ProcessFilter
 from project_utils.general import General
-from scripts.database import DatabaseManagement
+from scripts.database import DB
 
 from App.models import Item, Watchlist, Portfolio
 from App.forms import AddItemToPortfolio
 
 GENERAL = General()
 PROCESS_FILTER = ProcessFilter()
-DB = DatabaseManagement()
 
 
 def search_item(request, current_view):

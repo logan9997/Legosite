@@ -3,7 +3,7 @@ from django.shortcuts import render
 from project_utils.filters import ClearFilter, FilterOut, ProcessFilter
 from project_utils.general import General
 from project_utils.item_format import Formatter
-from scripts.database import DatabaseManagement
+from scripts.database import DB
 
 from App.models import Price, Theme
 from config.config import (
@@ -14,7 +14,6 @@ from config.config import (
 
 GENERAL = General()
 CLEAR_FILTER = ClearFilter()
-DB = DatabaseManagement()
 FILTER_OUT = FilterOut()
 FORMATTER = Formatter()
 PROCESS_FILTER = ProcessFilter()

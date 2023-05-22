@@ -1,10 +1,9 @@
 from config.config import ALL_METRICS, ITEM_TYPE_CONVERT
-from scripts.database import DatabaseManagement
+from scripts.database import DB
 
 from .general import General
 
 GENERAL = General()
-DB = DatabaseManagement()
 
 
 class Formatter():

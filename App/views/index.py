@@ -4,14 +4,13 @@ from datetime import timedelta
 from django.shortcuts import render
 from project_utils.general import General
 from project_utils.item_format import Formatter
-from scripts.database import DatabaseManagement
+from scripts.database import DB
 
 from App.models import User
 from config.config import RECENTLY_VIEWED_ITEMS_NUM, get_graph_options
 
 FORMATTER = Formatter()
 GENERAL = General()
-DB = DatabaseManagement()
 
 
 def index(request):

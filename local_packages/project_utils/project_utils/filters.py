@@ -1,10 +1,9 @@
-from scripts.database import DatabaseManagement
+from scripts.database import DB
 
 from config.config import ALL_METRICS
 
 from .general import General
 
-DB = DatabaseManagement()
 GENERAL = General()
 
 

@@ -5,7 +5,7 @@ from django.db.models import F
 from django.shortcuts import redirect, render
 from project_utils.general import General
 from project_utils.item_format import Formatter
-from scripts.database import DatabaseManagement
+from scripts.database import DB
 
 from App.models import Item, Theme, Watchlist
 from config.config import (
@@ -17,7 +17,6 @@ from config.config import (
 
 FORMATTER = Formatter()
 GENERAL = General()
-DB = DatabaseManagement()
 
 
 def item(request, item_id):
