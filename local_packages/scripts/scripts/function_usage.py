@@ -52,7 +52,7 @@ class FunctionUsage():
             with open(file, 'r') as read_file:
                 lines = read_file.readlines()
                 for line in lines:
-                    if 'def ' in line:
+                    if 'DatabaseManagment' in line:
                         function_name = line.rstrip(r'\n')
                         function_name = function_name.split('(')[0]
                         function_name = function_name.replace('def ', '')
@@ -109,7 +109,7 @@ def main():
 
     elif action == 'L':
         function_to_find = input('Function name: ')
-        f = FunctionUsage(parent_folder, skipped_folders=skipped_folders)
+        f = FunctionUsage(parent_folder)
         f.parse_through_folders(parent_folder, os.listdir(parent_folder))
         f.find_function(function_to_find)
 
