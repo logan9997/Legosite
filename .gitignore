@@ -3,3 +3,4 @@ minifigures/
 images/
 static/
 staticfiles/
+.env
