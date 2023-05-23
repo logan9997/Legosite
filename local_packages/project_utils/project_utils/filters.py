@@ -27,7 +27,9 @@ class FilterOut():
         context = {
             'filtered_themes': request.session.get('filtered_themes'),
             'metric_filters': {
-                f'{param}_{limit}': request.session['metric_filters'].get(f'{param}_{limit}')
+                f'{param}_{limit}': request.session.get(
+                    'metric_filters', ProcessFilter().default_metric_filters()
+                ).get(f'{param}_{limit}')
                 for param in ALL_METRICS for limit in ['min', 'max']
             },
             'item_type_filter': request.session.get('item_type_filter'),

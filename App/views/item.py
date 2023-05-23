@@ -119,8 +119,10 @@ def process_recently_viewed_items(request, item_id, user_id):
 
     user_id = str(user_id)
 
-    if user_id not in request.session['recently-viewed']:
-        request.session['recently-viewed'][user_id] = []
+    if 'recently-viewed' not in request.session:
+        request.session['recently-viewed'] = {}
+        if user_id not in request.session['recently-viewed']:
+            request.session['recently-viewed'][user_id] = []
 
     if item_id in request.session['recently-viewed'][user_id]:
         request.session['recently-viewed'][user_id].remove(item_id)
