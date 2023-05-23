@@ -78,10 +78,10 @@ class Formatter():
         for piece in pieces:
             set_dict = {
                 'piece_id': piece[0],
-                'piece_name':piece[1],
+                'piece_name':GENERAL.clean_html_codes(piece[1]),
                 'colour_id' :piece[2],
                 'quantity': piece[3],
-                'img_path': f'App/sets/{piece[0]}.png',
+                'img_path': f'App/pieces/{piece[0]}.png',
             }
             pieces_dicts.append(set_dict)
         return pieces_dicts
