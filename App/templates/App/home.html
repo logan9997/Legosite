@@ -123,7 +123,7 @@
             {% for item in popular_items %}
             <div class="main-item-container-layer3">
                 <div class="item-panel-container">
-                    {% include 'App/template_blocks/item_container.html' with show_graph=True %}
+                    {% include 'App/template_blocks/item_container.html' with show_graph=True show_prices=True %}
                 </div>
 
                 <div class="info-container">
@@ -141,7 +141,7 @@
             {% for item in new_items %}
             <div class="main-item-container-layer3">
                 <div class="item-panel-container">
-                    {% include 'App/template_blocks/item_container.html' with show_graph=True %}
+                    {% include 'App/template_blocks/item_container.html' with show_graph=True show_prices=True %}
                 </div>
 
                 <div class="info-container">

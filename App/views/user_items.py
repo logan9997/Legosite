@@ -52,12 +52,11 @@ def user_items(request, view, user_id):
     )
 
     parent_themes = DB.parent_themes(user_id, view, graph_metric)
-    filter_themes = get_sub_themes(
+    themes = get_sub_themes(
         user_id, parent_themes, [], -1, view, graph_metric
     )
 
-    filter_themes = [theme['theme_path'] for theme in filter_themes]
-    print(filter_themes)
+    filter_themes = [theme['theme_path'] for theme in themes]
     filter_results = FILTER_OUT.process_filters(
         request, items, filter_themes
     )
@@ -94,13 +93,15 @@ def user_items(request, view, user_id):
         (current_page - 1) * USER_ITEMS_ITEMS_PER_PAGE: int(current_page) * USER_ITEMS_ITEMS_PER_PAGE
     ]
 
+    print(request.session['themes'])
+
     context = {
         'items': items,
         'num_pages': num_pages,
         'sort_options': sort_options,
         'graph_options': graph_options,
         'filter_themes': filter_themes,
-        'themes': request.session['themes'],
+        'themes': themes,
         'total_unique_items': total_unique_items,
         'metric_total': metric_total,
         'view': view,
@@ -242,12 +243,6 @@ def watchlist(request):
     context = user_items(request, 'watchlist', user_id)
 
     return render(request, 'App/watchlist.html', context=context)
-
-
-
-
-
-
 
 
 def get_sub_themes(

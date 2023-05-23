@@ -181,7 +181,7 @@ function isValidDate(date) {
 }
 
 
-function input_validation(input, type, add_new) {
+function input_validation(input, add_new) {
     var form = input.parentElement.parentElement.parentElement
     var inputs = form.getElementsByTagName('input')
 
@@ -221,6 +221,8 @@ function input_validation(input, type, add_new) {
         }
     }
 
+    console.log('msg', msg)
+
     //update error message
     if (msg != '') {
         error_msg_container.style.display = 'block'
@@ -241,10 +243,17 @@ function input_validation(input, type, add_new) {
         valid = false
     }
 
-    if (! valid) {
-        submit_button.disabled = true
+
+    if (add_new) {
+        if (! valid) {
+            submit_button.disabled = true
+        } else {
+            submit_button.disabled = false
+        }
     } else {
-        submit_button.disabled = false
+        if (valid) {
+            input.addEventListener('blur', function() {form.submit()})
+        }
     }
 }
 

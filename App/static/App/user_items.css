@@ -90,7 +90,7 @@ textarea {
 
 #tool-bar {
     width: 25vw;
-    height: 100rem;
+    min-height: 100rem;
     background-color: whitesmoke;
 }
 
@@ -116,7 +116,7 @@ textarea {
 #items-container {
     background-color: whitesmoke;
     width: 70vw;
-    height: 100rem;
+    min-height: 100rem;
     margin-bottom: 5rem;
 }
 

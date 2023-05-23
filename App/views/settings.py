@@ -67,7 +67,10 @@ def settings(request):
             form = PersonalInfo(request.POST)
             if form.is_valid():
                 username = form.cleaned_data['username']
-                User.objects.filter(user_id=user_id).update(username=username)
+                if len(User.objects.filter(username=username)) == 0:
+                    User.objects.filter(user_id=user_id).update(username=username)
+                else:
+                    context.update({'change_username_error_msg':'Username is taken'})
 
     return render(request, 'App/settings.html', context=context)
 

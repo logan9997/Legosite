@@ -7,17 +7,20 @@ USERNAME_LENGTH = 16
 PASSWORD_LENGTH = 22
 EMAIL_LENGTH = 50
 
-
 RECENTLY_VIEWED_ITEMS_NUM = 6
 PAGE_NUM_LIMIT = 8
+
 SEARCH_ITEMS_PER_PAGE = 50
 USER_ITEMS_ITEMS_PER_PAGE = 10
 MAX_SIMILAR_ITEMS = 12
 TRENDING_ITEMS_PER_PAGE = 20
 MAX_SEARCH_SUGGESTIONS = 16
+
 MAX_GRAPH_POINTS = 12
 MAX_GRAPH_POINTS_ITEM_VIEW = 40
+
 MAX_LOGIN_ATTEMPTS = 5
+
 ALL_METRICS = ['avg_price', 'min_price', 'max_price', 'total_quantity']
 ALL_ITEM_FIELDS = [
     'item__item_id', 'item__item_name', 'item__year_released', 'item__item_type',

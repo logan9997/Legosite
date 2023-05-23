@@ -25,7 +25,7 @@
     <h2>Trending</h2>
 
     <section id="filters-container">
-        <button id="collapse-filters-button">Show Filters</button>
+        <button id="collapse-filters-button" onclick="hide_unhide('filters')">Show Filters</button>
         {% include 'App/template_blocks/filters.html' with action_view='trending' sub_view="" show_winners_or_losers=True  %}
     </section>
 
@@ -50,7 +50,7 @@
     {% for item in items %}
         <div class="main-item-container">
             <div class="template-container">
-                {% include 'App/template_blocks/item_container.html' %}
+                {% include 'App/template_blocks/item_container.html' with show_prices=True %}
             </div>
             <div class="metric-changes-container">
                 {% for metric, change in item.metric_changes.items %}
@@ -102,11 +102,6 @@
 
     slider_start.onchange = submit_form
     slider_end.onchange = submit_form
-
-    // document.addEventListener("DOMContentLoaded", function() {
-    //     display = localStorage.getItem("cached")
-    //     document.getElementById('filters').style.display = display
-    // })
 
     window.onload = maintain_scroll_pos("theme-filters-form-container")
     

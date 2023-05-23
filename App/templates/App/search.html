@@ -72,7 +72,7 @@
         <div id="theme-items">
         {% for item in theme_items %}
             <div class="main-item-container">
-            {% include 'App/template_blocks/item_container.html' %}
+            {% include 'App/template_blocks/item_container.html' with show_prices=True %}
             </div>
         {% endfor %}
         </div>

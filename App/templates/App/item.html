@@ -173,7 +173,7 @@
         <h3>Minifigures</h3>
         <div class="sub-super-set-container">
         {% for figure in figures %}
-            {% include 'App/template_blocks/item_container.html' with item=figure quantity=figure.quantity show_year_released=True %}
+            {% include 'App/template_blocks/item_container.html' with item=figure quantity=figure.quantity %}
         {% endfor %}
         </div>
     </section>
