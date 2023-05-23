@@ -36,7 +36,9 @@ def search(request, theme_path='all'):
 
     graph_metric = request.session.get('graph-metric', 'avg_price')
     sort_field = request.session.get('sort-field', 'avg_price-desc')
-    current_page = int(request.session.get('page', 1))
+    current_page = request.session.get('page', 1)
+
+    current_page = GENERAL.check_if_page_not_int(current_page)
 
     request.session['theme_path'] = theme_path
     filter_themes = []

@@ -329,21 +329,24 @@
     width: 30%;
 }
 
-.piece-container {
-    width: 26%;
-    height: 9rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 6;
-    -webkit-box-orient: vertical;
-    text-overflow: ellipsis;
-    margin: 1rem;
-    text-align: center;
-    border: 0.1rem rgb(228, 220, 220) solid;
-    border-radius: 1rem;
-    padding: 0.2rem;
+.piece-table {
+    width: 96%;
+    margin: 0 auto 0;
 }
 
-.piece-container img {
+.piece-table tr:nth-child(odd) {
+    background-color: gainsboro;
+}
+
+.piece-table tr td {
+    text-align: center;
+}
+
+.piece-table .piece-name {
+    width: 55%;
+}
+
+.piece-table img {
     width: 4rem;
     height: 4rem;
     box-shadow: 0 0 0.4rem 0.4rem rgb(225,225,225); 

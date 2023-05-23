@@ -43,7 +43,10 @@
             <p>Sets : {{super_sets|length}}</p>
             {% else %}
             <h3>Minifigures and Pieces</h3>
-            <p>Pieces : {{sub_sets|length}}</p>
+            <p>Total Pieces : {{sub_sets|quantity_times_length}}</p>
+            <p>Total Figures : {{figures|quantity_times_length}}</p>
+            <br>
+            <p>Unique Pieces : {{sub_sets|length}}</p>
             <p>Unique Figures : {{figures|length}}</p>
             {% endif %}
         </div>
@@ -147,49 +150,68 @@
 
 <section id="layer3" class="layers">
     {% if item.item_type == "M" %}
-    <section id="super-sets-container">
-        <h3>Sets</h3>
-        <div class="sub-super-set-container">
-        {% for set in super_sets %}
-            <div class="set-container">
-                <div class="set-img-container">
-                    <img loading="lazy" src="{% static set.img_path %}" alt="{{set.img_path}}">
-                </div>
+        {% if super_sets|length != 0 %}
+        <section id="super-sets-container">
+            <h3>Sets</h3>
+            <div class="sub-super-set-container">
+            {% for set in super_sets %}
+                <div class="set-container">
+                    <div class="set-img-container">
+                        <img loading="lazy" src="{% static set.img_path %}" alt="{{set.img_path}}">
+                    </div>
 
-                <div class="set-info-container">
-                    <a href="{% url 'item' set.set_id %}">{{set.set_id}}</a>
-                    <p>{{set.set_name}}</p>
-                    <p>Year Released : {{set.year_released}}</p>
-                    <p>Quantity : {{set.quantity}}</p>
+                    <div class="set-info-container">
+                        <a href="{% url 'item' set.set_id %}">{{set.set_id}}</a>
+                        <p>{{set.set_name}}</p>
+                        <p>Year Released : {{set.year_released}}</p>
+                        <p>Quantity : {{set.quantity}}</p>
+                    </div>
                 </div>
+            {% endfor %}
             </div>
-        {% endfor %}
-        </div>
-    </section>
+        </section>
+        {% endif %}
 
     {% else %}
 
-    <section id="figures-container">
-        <h3>Minifigures</h3>
+        {% if figures|length != 0%}
+        <section id="figures-container">
+            <h3>Minifigures</h3>
+            <div class="sub-super-set-container">
+            {% for figure in figures %}
+                {% include 'App/template_blocks/item_container.html' with item=figure quantity=figure.quantity %}
+            {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    {% endif %}
+
+    {% if sub_sets|length != 0 %}
+    <section id="sub-sets-container">
+        <h3>Pieces</h3>        
         <div class="sub-super-set-container">
-        {% for figure in figures %}
-            {% include 'App/template_blocks/item_container.html' with item=figure quantity=figure.quantity %}
+        
+        <table class="piece-table">
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>ID</th>
+            <th>Quantity</th>
+            <th>Colour ID</th>
+        </tr>
+        {% for piece in sub_sets %} 
+            <tr>
+                <td><img loading="lazy" src="{% static piece.img_path %}" alt=""></td>
+                <td class="piece-name">{{piece.piece_name}}</td>
+                <td>{{piece.piece_id}}</td>
+                <td>{{piece.quantity}}</td>
+                <td>{{piece.colour_id}}</td>
+            </tr>
         {% endfor %}
+        </table>
         </div>
     </section>
     {% endif %}
-
-    <section id="sub-sets-container">
-        <h3>Pieces</h3>
-        <div class="sub-super-set-container">
-        {% for piece in sub_sets %}
-            <div class="piece-container">
-                <p>{{piece.piece_id}} * {{piece.quantity}}</p>
-                <img src="{% static piece.img_path %}" alt="img">
-            </div>
-        {% endfor %}
-        </div>
-    </section>
 </section>
 
 {% if similar_items|length > 0 %}

@@ -62,6 +62,14 @@ class General():
             if k in string:
                 string = string.replace(k, v)
         return string
+    
+    def check_if_page_not_int(current_page):
+        try:
+            current_page = int(current_page)
+        except:
+            current_page = 1
+        print(f'\n\n{current_page}\n\n')
+        return current_page
 
     def split_capitalize(self, string: str, split_value: str):
         return ' '.join(

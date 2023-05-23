@@ -64,8 +64,9 @@ def item(request, item_id):
             'portfolio', item_id
         ),
         'graph_checkboxes': get_graph_checkboxes(),
-        'sub_sets': DB.get_item_subsets(item_id),
-
+        'sub_sets': FORMATTER.format_sub_sets(
+            DB.get_item_subsets(item_id)
+        ),
         'metric_changes': FORMATTER.format_metric_changes(
             [
                 DB.get_item_metric_changes(item_id, metric) for metric in ALL_METRICS
@@ -121,8 +122,9 @@ def process_recently_viewed_items(request, item_id, user_id):
 
     if 'recently-viewed' not in request.session:
         request.session['recently-viewed'] = {}
-        if user_id not in request.session['recently-viewed']:
-            request.session['recently-viewed'][user_id] = []
+
+    if user_id not in request.session['recently-viewed']:
+        request.session['recently-viewed'][user_id] = []
 
     if item_id in request.session['recently-viewed'][user_id]:
         request.session['recently-viewed'][user_id].remove(item_id)
@@ -131,8 +133,6 @@ def process_recently_viewed_items(request, item_id, user_id):
 
     if len(request.session['recently-viewed'][user_id]) > RECENTLY_VIEWED_ITEMS_NUM:
         request.session['recently-viewed'][user_id].pop()
-
-    print(request.session['recently-viewed'])
 
     request.session.modified = True
     return request

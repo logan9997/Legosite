@@ -72,6 +72,19 @@ class Formatter():
             }
             set_dicts.append(set_dict)
         return set_dicts
+    
+    def format_sub_sets(self, pieces):
+        pieces_dicts = []
+        for piece in pieces:
+            set_dict = {
+                'piece_id': piece[0],
+                'piece_name':GENERAL.clean_html_codes(piece[1]),
+                'colour_id' :piece[2],
+                'quantity': piece[3],
+                'img_path': f'App/pieces/{piece[0]}.png',
+            }
+            pieces_dicts.append(set_dict)
+        return pieces_dicts
 
     def format_biggest_theme_trends(self, themes):
         themes_formated = [

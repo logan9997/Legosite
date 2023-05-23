@@ -69,10 +69,10 @@ def update_year_released():
 
 @check_http_response
 def sub_sets():
-    sw_ids = DB.get_all_itemIDs()
+    sw_ids = DB.get_theme_sets('Star_Wars')
 
-    for _item in sw_ids[::-1]:
-        parts = RESP.get_response_data(f'items/MINIFIG/{_item}/subsets')
+    for _item in sw_ids:
+        parts = RESP.get_response_data(f'items/SET/{_item}/subsets')
         for part in parts:
             for entry in part['entries']:
                 info = {

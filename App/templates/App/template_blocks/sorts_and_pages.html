@@ -1,28 +1,32 @@
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'App/item_filters_and_sorts.css' %}">
+<link rel="stylesheet" href="{% static 'App/sorts_and_pages.css' %}">
 
 <section id="main-forms-container">
-
-    
-    {% if sub_view != "" %}
-    <form action="{% url action_view sub_view %}" method="GET">
-    {% else %}
-    <form action="{% url action_view %}" method="GET">
-    {% endif %}
-    
-    {% for page_button in num_pages %}
-        {% if page_button == current_page %}
-            <input style="background-color: green;" name="page" type="submit" value="{{page_button}}">
+    {% if num_pages|length != 0 %}
+        {% if sub_view != "" %}
+        <form class="sorts-and-pages-form" action="{% url action_view sub_view %}" method="GET">
         {% else %}
-            <input name="page" type="submit" value="{{page_button}}">
+        <form class="sorts-and-pages-form" action="{% url action_view %}" method="GET">
         {% endif %}
-    {% endfor %}
-</form>
+        
+        {% for page_button in num_pages %}
+            {% if page_button == current_page %}
+                <input class="page-button" style="background-color: green;" name="page" type="submit" value="{{page_button}}">
+            {% else %}
+                <input class="page-button" name="page" type="submit" value="{{page_button}}">
+            {% endif %}
+        {% endfor %}
+        </form>
+    {% endif %}
 
-{% if not hide_sort_options %}
-<div id="sort-forms">
-        <form action="{% url action_view %}?{{qs}}" method="GET">            
+    {% if not hide_sort_options %}
+    <div id="sort-forms">
+        {% if sub_view != "" %}
+        <form class="sorts-and-pages-form" action="{% url action_view sub_view %}" method="GET">
+        {% else %}
+        <form class="sorts-and-pages-form" action="{% url action_view %}" method="GET">            
+        {% endif %}            
             <div class="input-label-container">
                 {% if request.path == "/trending/" %}
                 <label for="sort-field">Metric : </label>
@@ -37,27 +41,27 @@
             </div>
         </form>
     </div>
-{% endif %}
-
-{% if not hide_graph_metric_options %}
-<div>
-    {% if sub_view != "" %}
-        {% if item_id == None or item_id == "" %}
-            <form action="{% url action_view sub_view %}?{{qs}}" method="GET">
-        {% else %}
-            <form action="{% url action_view sub_view %}?item={{item_id}}" method="get">
-        {% endif %}
-    {% else %}
-        <form action="{% url action_view %}?{{qs}}" method="get">
     {% endif %}
-        <label for="graph-data-form">Graph Data : </label>
-        <select onchange="this.form.submit()" name="graph-metric">
-            {% for graph_option in graph_options %}
-                <option value="{{graph_option.value}}">{{graph_option.text}}</option>
-            {% endfor %}
-        </select>
-    </form>
-</div>
-{% endif %}
+
+    {% if not hide_graph_metric_options %}
+    <div>
+        {% if sub_view != "" %}
+            {% if item_id == None or item_id == "" %}
+                <form class="sorts-and-pages-form" action="{% url action_view sub_view %}?{{qs}}" method="GET">
+            {% else %}
+                <form class="sorts-and-pages-form" action="{% url action_view sub_view %}?item={{item_id}}" method="get">
+            {% endif %}
+        {% else %}
+            <form class="sorts-and-pages-form" action="{% url action_view %}?{{qs}}" method="get">
+        {% endif %}
+            <label for="graph-data-form">Graph Data : </label>
+            <select onchange="this.form.submit()" name="graph-metric">
+                {% for graph_option in graph_options %}
+                    <option value="{{graph_option.value}}">{{graph_option.text}}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    {% endif %}
 
 </section>

@@ -75,3 +75,7 @@ class Response():
             return self.response['data']
         else:
             return {'ERROR': self.response}
+
+
+r = Response()
+print(r.get_response_data('items/SET/75351-1/subsets'))

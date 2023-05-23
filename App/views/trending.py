@@ -36,7 +36,9 @@ def trending(request):
 
     trending_order: str = request.session.get('sort-field', 'avg_price-desc')
     trending_metric = trending_order.split('-')[0]
-    current_page = int(request.session.get('page', 1))
+    current_page = request.session.get('page', 1)
+
+    current_page = GENERAL.check_if_page_not_int(current_page)
 
     graph_options = GENERAL.sort_dropdown_options(
         get_graph_options(), trending_metric

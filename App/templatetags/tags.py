@@ -62,6 +62,10 @@ def iterable_index(list: list, i: int):
         return list[i-1]
     return list[i]
 
+@register.filter()
+def quantity_times_length(items:list[dict]):
+    return sum([int(item['quantity']) for item in items])
+
 
 @register.filter
 def shorten_large_num(number):

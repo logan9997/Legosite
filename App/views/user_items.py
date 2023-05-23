@@ -42,8 +42,10 @@ def user_items(request, view, user_id):
         Watchlist.objects.filter(user_id=user_id, item_id=item_id).delete()
 
     graph_metric = request.session.get('graph-metric', 'avg_price')
-    current_page = int(request.session.get('page', 1))
+    current_page = request.session.get('page', 1)
     sort_field = request.session.get('sort-field', 'avg_price-desc')
+
+    current_page = GENERAL.check_if_page_not_int(current_page)
 
     items = DB.get_user_items(user_id, view)
     items = FORMATTER.format_item_info(
