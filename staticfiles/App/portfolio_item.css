@@ -10,9 +10,10 @@ h1 {
     margin-top: 4rem;
     width: 90%;
     margin-left: 5%;
-} 
+}
 
-h1:before, h1:after {
+h1:before,
+h1:after {
     position: absolute;
     top: 12.5%;
     overflow: hidden;
@@ -55,30 +56,26 @@ textarea {
     flex-direction: row;
 }
 
-#tool-bar-header {
-    width: 25vw;
-}
-
 .sub-theme-container {
     display: none;
 }
 
-#items-header {
+#item-header {
     width: 70vw;
     display: inline-block;
     align-items: center;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    
+
 }
 
-#items-header input {
+#item-header input {
     background-color: white;
     border: none;
 }
 
-#items-header input:hover {
+#item-header input:hover {
     background-color: whitesmoke;
 }
 
@@ -90,12 +87,22 @@ textarea {
 
 #tool-bar {
     width: 25vw;
-    min-height: 100rem;
+    height: 100rem;
     background-color: whitesmoke;
 }
 
 #tool-bar h3 {
-    padding: 1rem 0.5rem 0;
+    text-align: center;
+    background-color: white;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 1rem;
+    padding: 0.4rem 0 0.4rem;
+}
+
+#tool-bar-header {
+    width: 25vw;
 }
 
 #tool-bar p {
@@ -103,7 +110,7 @@ textarea {
 }
 
 .tool-bar-div {
-    margin:0 1rem 0;
+    margin: 0 1rem 0;
     background-color: white;
     border-radius: 0.7rem;
 }
@@ -113,63 +120,15 @@ textarea {
     font-style: italic;
 }
 
-#items-container {
+#item-container {
     background-color: whitesmoke;
     width: 70vw;
-    min-height: 100rem;
+    height: 100rem;
     margin-bottom: 5rem;
 }
 
-#items {
-    padding-top: 1rem;
-    display: flex;
-    flex-direction:row ;
-    flex-wrap: wrap;
-    justify-content: space-around;
-}
 
-.item-and-side-bar-container {
-    width: 24rem;
-    margin: 1rem;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-}
-
-.items-options {
-    background-color: white;
-    font-size: 1rem;
-    height: 4rem;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 0.5rem;    
-    padding: 0.5rem;
-    width: 2.2rem;
-}
-
-.watchlist-options {
-    height: 2rem ;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-}
-
-.watchlist-options button {
-    background-color: red;
-}
-
-.add-item {
-    background-color: green;
-}
-
-.remove-item {
-    background-color: red;
-}
-
-
-.items-options input[type=number] {
+.item-options input[type=number] {
     width: 2.5rem;
     margin-bottom: 1rem;
 }
@@ -214,7 +173,7 @@ textarea {
 }
 
 .item-img-and-title h3 {
-    font-size:0.85rem;
+    font-size: 0.85rem;
     padding: 0.4rem 0 0;
     margin: 0;
     height: 2.2rem;
@@ -226,7 +185,7 @@ textarea {
 }
 
 .item-img-and-title h4 {
-    font-size:0.7rem;
+    font-size: 0.7rem;
     padding: 0.2rem 0 0.4rem;
     margin: 0;
     font-style: italic;
@@ -247,20 +206,20 @@ textarea {
 
 .price-trend {
     z-index: 3;
-    width: 17rem !important;
-    height: 12rem;
+    width: 24rem !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 100%;
+    height: 19rem !important;
 }
+
 .price-info table {
     border-collapse: collapse;
     background-color: white;
     z-index: 2;
 }
 
-.price-info table tr:last-of-type{
+.price-info table tr:last-of-type {
     border-top: 0.12rem gainsboro solid;
 }
 
@@ -271,8 +230,7 @@ textarea {
 }
 
 .item_canvas {
-    width: 10rem;
-    height: 10rem;
+    margin: 1rem 0.5rem 0 !important;
 }
 
 #trends-canvas {
@@ -311,13 +269,14 @@ textarea {
     padding-bottom: 1rem;
     text-align: center;
     height: 16rem;
-    border-radius: 1rem ;
+    border-radius: 1rem;
 }
 
 #header-and-graph-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    width: 24rem !important;
 }
 
 #header-and-graph-container h3 {
@@ -325,8 +284,8 @@ textarea {
 }
 
 #chart-container .item_canvas {
-    width: 40rem !important;
-    margin: 2rem 0 0;
+    width: 22rem !important;
+    height: 14rem !important;
 }
 
 #metric-change-container {
@@ -334,7 +293,7 @@ textarea {
     width: 15rem;
     margin-top: 1rem;
     height: 16rem;
-    border-radius: 1rem ;
+    border-radius: 1rem;
     padding-bottom: 1rem;
     text-align: center;
 }
@@ -353,7 +312,7 @@ textarea {
     padding: 0.3rem 0.2rem 2rem;
 }
 
-#entries-items-container {
+#entries-item-container {
     margin-top: 6rem;
     background-color: white;
     width: 90%;
@@ -361,18 +320,18 @@ textarea {
     border-radius: 1rem;
 }
 
-#entries-items-container h3 {
+#entries-item-container h3 {
     text-align: center;
     padding-top: 1rem;
     font-size: 1.5rem;
 }
 
-#entries-items-loop-container {
+#entries-item-loop-container {
     overflow-y: scroll;
     height: 56rem;
 }
 
-#entries-items-loop-container::-webkit-scrollbar {
+#entries-item-loop-container::-webkit-scrollbar {
     display: none;
 }
 

@@ -1,0 +1,55 @@
+#main-forms-container {
+    display: flex;
+    margin-bottom: 0.5rem;
+    justify-content: space-evenly;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.sorts-and-pages-form {
+    width: 20rem;
+    margin: 0.5rem;
+    background-color: orangered;
+    display: flex;
+    justify-content: center;
+    padding: 0.4rem;
+    border-radius: 1rem;
+}
+
+#main-forms-container label {
+    padding-right: 1rem;
+}
+
+#page-buttons-form {
+    margin-left: 3rem;
+}
+
+#page-buttons-form  {
+    display: flex;
+}
+
+.page-button {
+    margin: 0.1rem;
+    text-align: center;
+    border-radius: 0.4rem;
+    background-color: none;
+}
+
+#dropdown-forms {
+    display: flex;
+    padding-left: 10rem;
+}
+
+form label {
+    font-style: italic;
+}
+
+select {
+    border-radius: 0.7rem;
+    height: 1.3rem;
+}
+
+#sort-form {
+    width: 14rem;
+    margin-right: 1rem;
+}
