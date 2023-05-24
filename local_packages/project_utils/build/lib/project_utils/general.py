@@ -172,7 +172,7 @@ class General():
         if current_url != previous_url:
             request = self.clear_get_params(request, params)
         request = self.save_get_params(request, params)
-
+        request.session.modified = True
         return request
 
     def large_number_commas(self, number: float):
