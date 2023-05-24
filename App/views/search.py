@@ -32,6 +32,7 @@ def search(request, theme_path='all'):
     print(current_url, previous_url)
 
     if request.POST.get('clear-form') != None or current_url != previous_url:
+        print('\n\nCLEARING\n\n')
         request = CLEAR_FILTER.clear_filters(request)
 
     if 'all' in request.path:
