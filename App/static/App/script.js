@@ -221,8 +221,6 @@ function input_validation(input, add_new) {
         }
     }
 
-    console.log('msg', msg)
-
     //update error message
     if (msg != '') {
         error_msg_container.style.display = 'block'

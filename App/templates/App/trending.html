@@ -19,6 +19,22 @@
 <script>
     var onload_slider_value_start = JSON.parse(document.getElementById("slider_start_value").textContent) -1
     var onload_slider_value_end = JSON.parse(document.getElementById("slider_end_value").textContent) 
+
+    window.onload = function() {
+        var display = localStorage.getItem('filters-display')
+        console.log(display)
+        document.getElementById('filters').style.display = display
+
+        if (display == 'block') {
+            document.getElementById('collapse-filters-button').innerHTML = 'Hide Filters'
+        } else {
+            document.getElementById('collapse-filters-button').innerHTML = 'Show Filters'
+        }
+    }
+
+    window.onbeforeunload = function() {
+        localStorage.setItem('filters-display', document.getElementById('filters').style.display);
+    }
 </script>
 
 <section id="main-container">
@@ -88,8 +104,6 @@
 
         var string_spaces = '\xa0'.repeat(6)
 
-        console.log("dates", dates)
-
         slider_output.textContent = `${dates[slider_start_value]}${string_spaces}Range${string_spaces}${dates[slider_end_value]}`
     }
 
@@ -102,8 +116,6 @@
 
     slider_start.onchange = submit_form
     slider_end.onchange = submit_form
-
-    window.onload = maintain_scroll_pos("theme-filters-form-container")
     
 </script>
 

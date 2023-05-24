@@ -21,7 +21,7 @@ class DatabaseManagement():
         if kwargs.get('flat'):
             return [result[0] for result in self.cursor.fetchall()]
         return self.cursor.fetchall()
-
+    
     def add_pieces(self, info):
         sql = f'''
             INSERT INTO "App_piece"("piece_name", "piece_id", "type") 
@@ -40,6 +40,13 @@ class DatabaseManagement():
     def get_piece_participations(self):
         sql = '''
             SELECT piece_id, item_id
+            FROM "App_pieceparticipation"
+        '''
+        return self.SELECT(sql)
+
+    def get_piece_id_and_colour(self):
+        sql = f'''
+            SELECT piece_id, colour_id
             FROM "App_pieceparticipation"
         '''
         return self.SELECT(sql)

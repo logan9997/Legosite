@@ -81,7 +81,7 @@ class Formatter():
                 'piece_name':GENERAL.clean_html_codes(piece[1]),
                 'colour_id' :piece[2],
                 'quantity': piece[3],
-                'img_path': f'App/pieces/{piece[0]}.png',
+                'img_path': f'https://img.bricklink.com/ItemImage/PN/{piece[2]}/{piece[0]}.png',
             }
             pieces_dicts.append(set_dict)
         return pieces_dicts

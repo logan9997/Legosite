@@ -190,6 +190,8 @@ def get_similar_items(item_name: str, item_type: str, item_id: str) -> list:
         if len(word) > 3 and word.translate(''.join(REMOVE_CHARS)) not in remove_words
     ]
 
+    print(single_words)
+
     items = []
 
     combinations = len(single_words)
