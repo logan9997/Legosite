@@ -160,7 +160,7 @@ class General():
     def clear_get_params(self, request, params: list[str]):
         for param in params:
             if param in request.session:
-                print(f'clear_get_params {param} {request.session.get(param)}')
+                print(f'clear_get_params {param} {request.session.get(param)} ')
                 del request.session[param]
         request.session.modified = True
         return request
