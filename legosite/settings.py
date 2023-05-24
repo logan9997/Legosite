@@ -35,7 +35,7 @@ PYTHONUNBUFFERED = ''
 
 #stops error - 'database is locked' / 'The request's session was deleted before the request completed'
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_ENGINE = "django.contrib.sessions.backends.file"
 #####################################-ADDED-############################################
 
 ALLOWED_HOSTS = ['*', 'https://legosite.herokuapp.com/']
@@ -131,9 +131,9 @@ STATIC_URL = '/App/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 django_heroku.settings(locals())
+DATABASES['default']['CONN_MAX_AGE'] = 60 * 60 * 24
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-SESSION_COOKIE_AGE = 60 * 60 * 24
