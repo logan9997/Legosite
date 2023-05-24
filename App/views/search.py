@@ -25,11 +25,8 @@ def search(request, theme_path='all'):
     request = GENERAL.process_sorts_and_pages(request, get_params)
     request = PROCESS_FILTER.save_filters(request)
 
-    previous_url:str = request.META.get('HTTP_REFERER', '').replace(r'://', '')
-    previous_url = previous_url[previous_url.index('/'):].split('?')[0]
+    previous_url = GENERAL.get_previous_url(request)
     current_url = request.path
-
-    print(current_url, previous_url)
 
     if request.POST.get('clear-form') != None or current_url != previous_url:
         print('\n\nCLEARING\n\n')

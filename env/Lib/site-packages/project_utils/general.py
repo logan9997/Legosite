@@ -25,13 +25,9 @@ class General():
     def get_base_url(self, request) -> str:
         return request.get_host().strip(' ')
 
-    def get_previous_url(self, request, **kwargs) -> str:
-        previous_url: str = request.META.get('HTTP_REFERER', '').replace(
-            f'http://{self.get_base_url(request)}', ''
-        )
-
-        if not kwargs.get('get_params'):
-            previous_url = previous_url.split('?')[0]
+    def get_previous_url(self, request) -> str:
+        previous_url:str = request.META.get('HTTP_REFERER', '').replace(r'://', '')
+        previous_url = previous_url[previous_url.index('/'):].split('?')[0]
         return previous_url
 
     def check_slider_range(self, value: int, _list: list):
@@ -160,16 +156,14 @@ class General():
     def clear_get_params(self, request, params: list[str]):
         for param in params:
             if param in request.session:
-                print(f'clear_get_params {param} {request.session.get(param)}')
+                print(f'clear_get_params {param} {request.session.get(param)} ')
                 del request.session[param]
         request.session.modified = True
         return request
 
     def process_sorts_and_pages(self, request, params: list[str]):
         current_url = request.path
-        previous_url = request.META.get('HTTP_REFERER', '').replace(
-            f'http://{self.get_base_url(request)}', ''
-        ).split('?')[0]
+        previous_url = self.get_previous_url(request)
 
         if current_url != previous_url:
             request = self.clear_get_params(request, params)
