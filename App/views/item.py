@@ -1,5 +1,4 @@
 import itertools
-from datetime import datetime as dt
 
 from django.db.models import F
 from django.shortcuts import redirect, render
@@ -7,7 +6,7 @@ from project_utils.general import General
 from project_utils.item_format import Formatter
 from scripts.database import DB
 
-from App.models import Item, Theme, Watchlist
+from App.models import Item, Theme
 from config.config import (
     ALL_METRICS, COLOURS, EXTRA_WORDS,
     MAX_SIMILAR_ITEMS, RECENTLY_VIEWED_ITEMS_NUM,
