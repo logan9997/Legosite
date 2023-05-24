@@ -153,12 +153,14 @@ class General():
         for param in params:
             if request.GET.get(param) != None:
                 request.session[param] = request.GET.get(param)
+                print(f'save_get_params {param} {request.GET.get(param)}')
         request.session.modified = True
         return request
 
     def clear_get_params(self, request, params: list[str]):
         for param in params:
             if param in request.session:
+                print(f'clear_get_params {param} {request.session.get(param)}')
                 del request.session[param]
         request.session.modified = True
         return request
@@ -173,6 +175,7 @@ class General():
             request = self.clear_get_params(request, params)
         request = self.save_get_params(request, params)
         request.session.modified = True
+        print(request.session.items())
         return request
 
     def large_number_commas(self, number: float):
