@@ -35,7 +35,7 @@ PYTHONUNBUFFERED = ''
 
 #stops error - 'database is locked' / 'The request's session was deleted before the request completed'
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 #####################################-ADDED-############################################
 
 ALLOWED_HOSTS = ['*', 'https://legosite.herokuapp.com/']
