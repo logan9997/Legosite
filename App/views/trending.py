@@ -26,7 +26,10 @@ def trending(request):
     request = GENERAL.process_sorts_and_pages(request, get_params)
     request = PROCESS_FILTER.save_filters(request)
 
-    if request.POST.get('clear-form') != None:
+    previous_url = GENERAL.get_previous_url(request)
+    current_url = request.path
+
+    if request.POST.get('clear-form') != None or current_url != previous_url:
         request = CLEAR_FILTER.clear_filters(request)
 
     # query_string = '&'.join([
