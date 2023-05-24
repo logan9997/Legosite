@@ -32,6 +32,7 @@ def user_items(request, view, user_id):
     current_url = request.path
 
     if request.POST.get('clear-form') != None or current_url != previous_url:
+        print('clearing filters, user items')
         request = CLEAR_FILTER.clear_filters(request)
 
     graph_options = get_graph_options()
