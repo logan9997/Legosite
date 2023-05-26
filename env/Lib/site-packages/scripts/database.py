@@ -7,7 +7,6 @@ from project_utils.environment_manager import Manager
 class DatabaseManagement():
 
     def __init__(self) -> None:
-        print('INITIALISING DATABASE MANAGMENT ')
         credentials = Manager().get_database_credentials('postgres')
         self.con = psycopg2.connect(**credentials)
         self.cursor = self.con.cursor()
@@ -21,6 +20,7 @@ class DatabaseManagement():
         if kwargs.get('flat'):
             return [result[0] for result in self.cursor.fetchall()]
         return self.cursor.fetchall()
+    
     
     def add_pieces(self, info):
         sql = f'''
@@ -525,7 +525,6 @@ class DatabaseManagement():
             SET {update_field} = '{new_value}'
             WHERE {condition_field} = '{field_value}'
         '''
-        print(sql)
         self.cursor.execute(sql)
         self.con.commit()
 

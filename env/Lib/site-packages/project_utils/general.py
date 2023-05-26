@@ -24,7 +24,10 @@ class General():
         return request.get_host().strip(' ')
 
     def get_previous_url(self, request) -> str:
-        previous_url:str = request.META.get('HTTP_REFERER', '').split('://')[1]
+        previous_url:str = request.META.get('HTTP_REFERER', '')
+        if '://' in previous_url:
+            previous_url = previous_url.split('://')[1]
+
         previous_url = previous_url[previous_url.index('/'):]
 
         if previous_url == '':

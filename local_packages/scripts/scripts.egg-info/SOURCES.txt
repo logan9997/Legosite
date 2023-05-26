@@ -1,5 +1,6 @@
 setup.py
 scripts/__init__.py
+scripts/data_transfer.py
 scripts/database.py
 scripts/function_usage.py
 scripts/item_scraper.py
