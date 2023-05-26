@@ -129,9 +129,9 @@ def portfolio(request):
 
     context['total_items'] = Portfolio.objects.filter(user_id=user_id).count()
 
-    context['total_bought_price'] = Portfolio.objects.filter(user_id=user_id
+    context['total_bought_price'] = round(Portfolio.objects.filter(user_id=user_id
         ).aggregate(total_bought_for=Sum('bought_for', default=0)
-    )['total_bought_for']
+    )['total_bought_for'], 2)
 
     context['total_sold_price'] = Portfolio.objects.filter(user_id=user_id
         ).aggregate(total_sold_for=Sum('sold_for', default=0)
@@ -220,16 +220,16 @@ def portfolio_item(request, item_id: str):
         ).count()
     )
 
-    context['total_market_value'] = round(item_current_price * item_count, 3)
+    context['total_market_value'] = round(item_current_price * item_count, 2)
 
     if len(Portfolio.objects.filter(item_id=item_id, user_id=user_id)) > 0:
-        context['total_bought_price'] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(
+        context['total_bought_price'] = round(Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(
             total_bought_for=Sum('bought_for', default=0)
-        )['total_bought_for']
+        )['total_bought_for'], 2)
 
-        context['total_sold_price'] = Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(
+        context['total_sold_price'] = round(Portfolio.objects.filter(item_id=item_id, user_id=user_id).aggregate(
             total_sold_for=Sum('sold_for', default=0)
-        )['total_sold_for']
+        )['total_sold_for'], 2)
 
     return render(request, 'App/portfolio_item.html', context=context)
 

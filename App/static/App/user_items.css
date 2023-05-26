@@ -376,7 +376,11 @@ textarea {
     display: none;
 }
 
-
 #item-type-filter {
     width: 90%;
+}
+
+#no-results {
+    text-align: center;
+    font-size: large;
 }

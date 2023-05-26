@@ -88,6 +88,7 @@
             {% endif %}
     </section>
         <section id="items-container">
+            {% if items|length != 0 %}
             <div id="items">
             {% for item in items %}
 
@@ -121,7 +122,10 @@
                 {% include 'App/template_blocks/item_container.html' with show_prices=True %}
                 </div>
                 {% endfor %}
-            </div>  
+            </div> 
+            {% else %}
+            <p id="no-results">No Results</p>
+            {% endif %}
         </section>
 </section>
 
