@@ -69,7 +69,8 @@ class FilterOut():
 
         if item_type_filter not in ['All', None]:
             items = list(
-                filter(lambda x: x[item_type_key] == item_type_filter, items))
+                filter(lambda x: x[item_type_key] == item_type_filter, items)
+            )
 
         return request, items
 
@@ -185,12 +186,15 @@ class ProcessFilter():
 
         elif request.GET.get('form-type') == 'item_type_filter':
             request.session['item_type_filter'] = request.GET.get(
-                'item_type_filter')
+                'item_type_filter', 'All'
+            )
 
         elif request.GET.get('form-type') == 'winners_or_losers_filter':
             request.session['winners_or_losers_filter'] = request.GET.get(
-                'winners_or_losers_filter')
+                'winners_or_losers_filter', 'All'
+            )
 
+        request.session.modified = True
         return request
 
     def default_metric_filters(self):
@@ -202,8 +206,9 @@ class ProcessFilter():
 class ClearFilter():
 
     def clear_filters(self, request):
-        request.session['metric_filters'] = ProcessFilter(
-        ).default_metric_filters()
+        request.session['metric_filters'] = ProcessFilter().default_metric_filters()
         request.session['filtered_themes'] = []
+        request.session['item_type_filter'] = 'All'
+        request.session['winners_or_losers_filter'] = 'All'
         request.session.modified = True
         return request

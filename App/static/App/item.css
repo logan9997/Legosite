@@ -338,8 +338,13 @@
     background-color: gainsboro;
 }
 
+table, tr, td, th {
+    max-height: 3rem;
+}
+
 .piece-table tr td {
     text-align: center;
+    
 }
 
 .piece-table .piece-name {

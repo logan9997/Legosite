@@ -6,8 +6,6 @@ from config.config import PAGE_NUM_LIMIT
 
 
 def timer(func):
-    print('TIMER!')
-
     def inner(*args, **kwargs):
         start = time.time()
         result = func(*args, **kwargs)
@@ -26,8 +24,13 @@ class General():
         return request.get_host().strip(' ')
 
     def get_previous_url(self, request) -> str:
-        previous_url:str = request.META.get('HTTP_REFERER', '').replace(r'://', '')
-        previous_url = previous_url[previous_url.index('/'):].split('?')[0]
+        previous_url:str = request.META.get('HTTP_REFERER', '').split('://')[1]
+        previous_url = previous_url[previous_url.index('/'):]
+
+        if previous_url == '':
+            return previous_url
+        if '?' in previous_url:
+            return previous_url.split('?')[0]
         return previous_url
 
     def check_slider_range(self, value: int, _list: list):
@@ -51,7 +54,7 @@ class General():
         codes = {
             '&#41;': ')',
             '&#40;': '(',
-            '&#39;': ''''''
+            '&#39;': "'"
         }
 
         for k, v in codes.items():
@@ -149,14 +152,12 @@ class General():
         for param in params:
             if request.GET.get(param) != None:
                 request.session[param] = request.GET.get(param)
-                print(f'save_get_params {param} {request.GET.get(param)}')
         request.session.modified = True
         return request
 
     def clear_get_params(self, request, params: list[str]):
         for param in params:
             if param in request.session:
-                print(f'clear_get_params {param} {request.session.get(param)} ')
                 del request.session[param]
         request.session.modified = True
         return request
@@ -169,7 +170,6 @@ class General():
             request = self.clear_get_params(request, params)
         request = self.save_get_params(request, params)
         request.session.modified = True
-        print(request.session.items())
         return request
 
     def large_number_commas(self, number: float):
@@ -204,7 +204,6 @@ class General():
         for error in errors:
             field = error.replace('<ul class="errorlist">', '')
             field = field.split('<li>')[1]
-            print('field - ',field)
             if 'Enter a valid email address' in error:
                 error_msg = 'Invalid Email'
                 break

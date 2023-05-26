@@ -32,7 +32,6 @@ def user_items(request, view, user_id):
     current_url = request.path
 
     if request.POST.get('clear-form') != None or current_url != previous_url:
-        print('clearing filters, user items')
         request = CLEAR_FILTER.clear_filters(request)
 
     graph_options = get_graph_options()
@@ -49,6 +48,7 @@ def user_items(request, view, user_id):
     current_page = GENERAL.check_if_page_not_int(current_page)
 
     items = DB.get_user_items(user_id, view)
+    print(items)
     items = FORMATTER.format_item_info(
         items, owned_quantity_new=8, owned_quantity_used=9, 
         graph_data=[graph_metric], user_id=user_id
@@ -95,8 +95,6 @@ def user_items(request, view, user_id):
     items = items[
         (current_page - 1) * USER_ITEMS_ITEMS_PER_PAGE: int(current_page) * USER_ITEMS_ITEMS_PER_PAGE
     ]
-
-    print(request.session['themes'])
 
     context = {
         'items': items,
