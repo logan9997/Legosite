@@ -48,11 +48,12 @@ def user_items(request, view, user_id):
     current_page = GENERAL.check_if_page_not_int(current_page)
 
     items = DB.get_user_items(user_id, view)
-    print(items)
     items = FORMATTER.format_item_info(
         items, owned_quantity_new=8, owned_quantity_used=9, 
         graph_data=[graph_metric], user_id=user_id
     )
+
+    [print(item['item_id'], item['owned_quantity_new'], item['owned_quantity_used']) for item in items]
 
     parent_themes = DB.parent_themes(user_id, view, graph_metric)
     themes = get_sub_themes(
