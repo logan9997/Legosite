@@ -29,7 +29,7 @@ def trending(request):
     previous_url = GENERAL.get_previous_url(request)
     current_url = request.path
 
-    if request.POST.get('clear-form') != None or current_url != previous_url:
+    if request.POST.get('clear-form') != None or current_url != previous_url: 
         request = CLEAR_FILTER.clear_filters(request)
 
     # query_string = '&'.join([

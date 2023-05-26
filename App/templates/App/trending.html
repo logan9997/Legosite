@@ -21,8 +21,10 @@
     var onload_slider_value_end = JSON.parse(document.getElementById("slider_end_value").textContent) 
 
     window.onload = function() {
+        //scroll to top of page
+        window.scrollTo(0, 0);
+
         var display = localStorage.getItem('filters-display')
-        console.log(display)
         document.getElementById('filters').style.display = display
 
         if (display == 'block') {

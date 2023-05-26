@@ -69,7 +69,7 @@ def update_year_released():
 
 @check_http_response
 def sub_sets():
-    sw_ids = DB.get_theme_sets('Star_Wars')
+    sw_ids = DB.get_unrecorded_pieces_for_set()
 
     for _item in sw_ids:
         parts = RESP.get_response_data(f'items/SET/{_item}/subsets')

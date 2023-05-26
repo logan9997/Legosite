@@ -126,10 +126,7 @@
                     {% include 'App/template_blocks/item_container.html' with show_graph=True show_prices=True %}
                 </div>
 
-                <div class="info-container">
-                    <p class="view-count">Weekly Views<br>{{item.weekly_views}}</p>
-                    <p class="weeks-price-trend">{{metric|capitalise_split_words}} Change since {{last_week}} : <br>{% if metric != "total_quantity" %}(£){% endif %} {{item.change|postivie_or_negative_sign}}</p>
-                </div>
+
             </div>
             {% endfor %}
         </div>
@@ -142,10 +139,6 @@
             <div class="main-item-container-layer3">
                 <div class="item-panel-container">
                     {% include 'App/template_blocks/item_container.html' with show_graph=True show_prices=True %}
-                </div>
-
-                <div class="info-container">
-                    <p>Info</p>
                 </div>
             </div>
             {% endfor %}

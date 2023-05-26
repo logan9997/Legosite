@@ -16,11 +16,15 @@ class Manager():
         env_variables = {arg: os.getenv(arg) for arg in args}
         return env_variables
 
-    def get_database_credentials(self, authenticator: str):
+    def get_database_credentials(self, authenticator: str, **kwargs):
         '''
-        authenticator : str - ('settings' OR 'postgres')
+        authenticator : str - ('settings' OR 'postgres' OR 'local')
         '''
         development = os.getenv('DEVELOPMENT')
+
+        if 'development' in kwargs:
+            development = kwargs.get('development')
+
         print('development -',development)
         if development == 'True':
             credentials = {
@@ -30,7 +34,7 @@ class Manager():
                 'port': os.getenv('DEVELOPMENT_PORT'),
                 'password': os.getenv('DEVELOPMENT_PASSWORD'),
             }
-        else:
+        elif development == 'False':
             credentials = {
                 'host': os.getenv('HEROKU_HOST'),
                 'dbname': os.getenv('HEROKU_DBNAME'),

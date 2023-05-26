@@ -241,24 +241,10 @@ h2 {
 .item-panel-container {
     width: 76%;
     background-color: white;
+    /* border-top: 0.1rem orangered solid; */
+    /* border-left: 0.1rem orangered solid; */
     border-radius: 1rem;
-    border-top: 0.1rem orangered solid;
-    border-left: 0.1rem orangered solid;
-    border-top-right-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-.info-container {
-    padding-top: 1rem;
-    margin-left: 1rem;
-    background-color: white;
-    border-radius: 1rem;
-    width: 22%;
-    text-align: center;
-    border-bottom: 0.1rem orangered solid;
-    border-right: 0.1rem orangered solid;
-    border-top-right-radius: 0;
-    border-bottom-left-radius: 0;
+    margin: auto;
 }
 
 .view-count {

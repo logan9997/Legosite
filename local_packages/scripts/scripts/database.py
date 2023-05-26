@@ -7,7 +7,6 @@ from project_utils.environment_manager import Manager
 class DatabaseManagement():
 
     def __init__(self) -> None:
-        print('INITIALISING DATABASE MANAGMENT ')
         credentials = Manager().get_database_credentials('postgres')
         self.con = psycopg2.connect(**credentials)
         self.cursor = self.con.cursor()
@@ -22,6 +21,7 @@ class DatabaseManagement():
             return [result[0] for result in self.cursor.fetchall()]
         return self.cursor.fetchall()
     
+    
     def add_pieces(self, info):
         sql = f'''
             INSERT INTO "App_piece"("piece_name", "piece_id", "type") 
@@ -29,6 +29,20 @@ class DatabaseManagement():
         '''
         self.cursor.execute(sql)
         self.con.commit()
+
+    def get_unrecorded_pieces_for_set(self):
+        sql = '''
+            SELECT I.item_id 
+            FROM "App_item" I, "App_theme" TH 
+            WHERE I.item_id = TH.item_id
+                AND item_type = 'S'
+                AND theme_path like 'Star_Wars%'
+                AND I.item_id NOT IN (
+                    SELECT DISTINCT ON (item_id) item_id
+                    FROM "App_pieceparticipation"
+                )
+        '''
+        return self.SELECT(sql, flat=True)
 
     def get_pieces(self):
         sql = '''
@@ -221,7 +235,6 @@ class DatabaseManagement():
         return self.SELECT(sql)
 
     def filter_items_by_theme(self, themes):
-        print(themes)
         if themes != []:
             sql = f'''
                 SELECT DISTINCT ON (I.item_id) I.item_id, item_name, theme_path
@@ -512,7 +525,6 @@ class DatabaseManagement():
             SET {update_field} = '{new_value}'
             WHERE {condition_field} = '{field_value}'
         '''
-        print(sql)
         self.cursor.execute(sql)
         self.con.commit()
 

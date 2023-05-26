@@ -37,7 +37,7 @@ def index(request):
 
     popular_items = DB.get_popular_items()[:10]
     popular_items = FORMATTER.format_item_info(
-        popular_items, weekly_views=8, 
+        popular_items, lifetime_views=8, 
         item_group='_popular_items', graph_data=[graph_metric]
     )
 
@@ -49,12 +49,12 @@ def index(request):
     last_week = dt.today() - timedelta(days=7)
     last_week = last_week.strftime('%Y-%m-%d')
 
-    for popular_item in popular_items:
-        popular_item['change'] = round(
-            DB.get_weekly_item_metric_change(
-                popular_item['item_id'], last_week, graph_metric
-            ), 2
-        )
+    # for popular_item in popular_items:
+    #     popular_item['change'] = round(
+    #         DB.get_weekly_item_metric_change(
+    #             popular_item['item_id'], last_week, graph_metric
+    #         ), 2
+    #     )
 
     context = {
         'username': User.objects.filter(user_id=user_id).values_list(
