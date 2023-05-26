@@ -382,8 +382,8 @@ class DatabaseManagement():
         sql_select = 'SELECT DISTINCT ON (I.item_id) _view1.item_id, item_name, year_released, item_type,avg_price, min_price, max_price, total_quantity'
         if view == 'portfolio':
             sql_select += f''',
-                (SELECT COUNT(*) FROM "App_portfolio" P2 WHERE user_id = 1 AND condition = 'N' AND _view1.item_id = P2.item_id GROUP BY P2.item_id),
-                (SELECT COUNT(*) FROM "App_portfolio" P2 WHERE user_id = 1 AND condition = 'U' AND _view1.item_id = P2.item_id GROUP BY P2.item_id)
+                (SELECT COUNT(*) FROM "App_portfolio" P2 WHERE user_id = {user_id} AND condition = 'N' AND _view1.item_id = P2.item_id GROUP BY P2.item_id),
+                (SELECT COUNT(*) FROM "App_portfolio" P2 WHERE user_id = {user_id} AND condition = 'U' AND _view1.item_id = P2.item_id GROUP BY P2.item_id)
             '''
 
         sql = f'''

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/bin/sh
 
 # Copyright (C) 1999-2015, Raffaele Salmaso <raffaele@salmaso.org>
 #
@@ -20,11 +20,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-from stua.version import get_version, HG
-
-VERSION = (2, 0, 0, "final", 0)
-
-__author__ = "Raffaele Salmaso"
-__author_email__ = "raffaele@salmaso.org"
-__version__ = get_version(VERSION, HG, __file__)
+dig +short myip.opendns.com @resolver1.opendns.com

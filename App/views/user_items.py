@@ -53,8 +53,6 @@ def user_items(request, view, user_id):
         graph_data=[graph_metric], user_id=user_id
     )
 
-    [print(item['item_id'], item['owned_quantity_new'], item['owned_quantity_used']) for item in items]
-
     parent_themes = DB.parent_themes(user_id, view, graph_metric)
     themes = get_sub_themes(
         user_id, parent_themes, [], -1, view, graph_metric
