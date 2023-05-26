@@ -9,7 +9,7 @@
 <section id="main-container">
 
     <section id="personal-details" class="profile-change-section">
-        <h2>Personal Details</h2>
+        <h2>Change Username <span class="max-chars">* Max chars ({{username_max_chars}})</h2>
         <form action="{% url 'settings' %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="form-type" value="personal-details-form">
@@ -26,24 +26,24 @@
     </section>
 
     <section id="change-password" class="profile-change-section">
-        <h2>Change Password</h2>
+        <h2>Change Password <span class="max-chars">* Max chars ({{password_max_chars}})</span></h2>
         <form action="{% url 'settings' %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="form-type" value="change-password-form">
 
             <div class="input-label-container">
                 <label for="old_password">Old Password:</label>
-                <input type="text" name="old_password">
+                <input type="password" name="old_password">
             </div>
 
             <div class="input-label-container">
                 <label for="new_password">New Password:</label>
-                <input type="text" name="new_password">
+                <input type="password" name="new_password">
             </div>
 
             <div class="input-label-container">
                 <label for="confirm_password">Confirm Password:</label>
-                <input type="text" name="confirm_password">
+                <input type="password" name="confirm_password">
             </div>
             <input type="submit" value="Update!">
         </form>

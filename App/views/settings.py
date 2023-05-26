@@ -3,6 +3,8 @@ from django.shortcuts import redirect, render
 from App.forms import ChangePassword, EmailPreferences, PersonalInfo
 from App.models import User
 
+from config.config import PASSWORD_LENGTH, USERNAME_LENGTH
+
 
 def settings(request):
 
@@ -17,6 +19,8 @@ def settings(request):
         'email': (User.objects.filter(user_id=user_id
             ).values_list('email', flat=True)[0]
         ),
+        'password_max_chars':PASSWORD_LENGTH,
+        'username_max_chars':USERNAME_LENGTH,
     }
 
     # SETTINGS

@@ -122,6 +122,7 @@ def search(request, theme_path='all'):
         'themes': request.session['themes']
     }
 
+
     if theme_items != []:
         context.update(filter_results['context'])
 

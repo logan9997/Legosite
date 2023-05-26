@@ -46,3 +46,8 @@ input[type=radio] {
 #change-password-error-message {
     color: red;
 }
+
+.max-chars {
+    font-size: 0.85rem;
+    color: gray;
+}
