@@ -27,8 +27,6 @@ class General():
         previous_url:str = request.META.get('HTTP_REFERER', '')
         if '://' in previous_url:
             previous_url = previous_url.split('://')[1]
-        if '.com' in previous_url:
-            previous_url= previous_url.split('.com')[1]
 
         previous_url = previous_url[previous_url.index('/'):]
 
