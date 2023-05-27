@@ -4,6 +4,7 @@
     justify-content: space-evenly;
     flex-direction: row;
     overflow: hidden;
+    flex-wrap: wrap;
 }
 
 .sorts-and-pages-form {

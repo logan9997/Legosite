@@ -92,8 +92,8 @@ nav ul li:hover .dropdown-content {
 #search-logout-suggestions-container {
     height: 3rem;
     width: 16rem;
-    left: calc(100% - 16rem - 6rem);
-    position: relative;
+    margin-left: calc(100% -16rem);
+    position: fixed;
 }
 
 #search-logout-container {
@@ -116,7 +116,7 @@ nav ul li:hover .dropdown-content {
 
 #logout img {
     margin-top: 0.6rem;
-    margin-left: 2rem;
+    margin-left: 1rem;
     width: 2rem;
     height: 2rem;
 }
@@ -247,4 +247,3 @@ footer #smaller-text {
     border-style: solid;
     border-color: orangered transparent transparent transparent;
   }
-

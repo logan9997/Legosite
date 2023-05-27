@@ -48,10 +48,6 @@
     border-bottom: 0.1rem black solid;
 }
 
-#metric-filters table tr th {
-    text-align: center;
-}
-
 #metric-filters .row-header {
     background-color: gainsboro;
 }
@@ -60,15 +56,16 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 #metric-filters .min-max-container td {
     margin: 0 1rem 0;
     padding: 0.35rem;
+    width: 3rem;
 }
 
 #metric-filters label {
-    width: 6rem;  
     font-style: italic;
 }
 

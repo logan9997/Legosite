@@ -32,16 +32,16 @@ textarea {
 }
 
 #header {
-    height: 30rem;
     display: flex;
     justify-content: space-evenly;
     flex-direction: row;
-    height: 2.6rem;
+    min-height: 2.6rem;
     text-align: center;
 }
 
 .headers {
-    background-color: orangered;
+    background-color: white;
+    border: 0.1rem orangered solid;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -51,26 +51,29 @@ textarea {
 
 #main-container {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
     flex-direction: row;
 }
 
 #tool-bar-header {
     width: 25vw;
+    background-color: orangered;
 }
 
 .sub-theme-container {
     display: none;
 }
 
+
 #items-header {
-    width: 70vw;
-    display: inline-block;
-    align-items: center;
+    width: 70vw;    
+}
+
+#main-forms-container {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
-    
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 #items-header input {
@@ -383,4 +386,18 @@ textarea {
 #no-results {
     text-align: center;
     font-size: large;
+}
+
+@media only screen and (max-width: 1400px) {
+
+    .price-trend,
+    .item_canvas,
+    .chartjs-render-monitor {
+        display: none !important;
+    }
+
+    .item-container {
+        justify-content: center;
+    }
+
 }

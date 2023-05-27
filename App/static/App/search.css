@@ -221,3 +221,17 @@ a {
     text-align: center;
     padding-left: 1rem;
 }
+
+@media only screen and (max-width: 1400px) {
+
+    .price-trend,
+    .item_canvas,
+    .chartjs-render-monitor {
+        display: none !important;
+    }
+
+    .item-container {
+        justify-content: center;
+    }
+
+}

@@ -251,3 +251,16 @@ h2 {
     width: 10rem;
 }
 
+@media only screen and (max-width: 1400px) {
+
+    .price-trend,
+    .item_canvas,
+    .chartjs-render-monitor {
+        display: none !important;
+    }
+
+    .item-container {
+        justify-content: center;
+    }
+
+}
