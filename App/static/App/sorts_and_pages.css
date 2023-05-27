@@ -43,14 +43,47 @@
 
 form label {
     font-style: italic;
+    text-align: center  ;
 }
 
 select {
     border-radius: 0.7rem;
     height: 1.3rem;
+    width: 10rem;
 }
 
 #sort-form {
     width: 14rem;
     margin-right: 1rem;
+}
+
+@media only screen and (max-width: 500px) {
+
+    .sorts-and-pages-form {
+        width: 80%;
+        flex-wrap: wrap;
+        text-align: center;
+    }
+
+    .input-label-container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+@media only screen and (max-width: 762px) {
+    .main-item-container {
+        width: 86%;
+        margin: auto;
+        overflow: hidden;
+    }
+}
+
+@media only screen and (max-width: 285px) {
+    .price-info {
+        display: none;
+    }
 }

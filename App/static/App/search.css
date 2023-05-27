@@ -46,8 +46,8 @@ a {
     flex-direction: column-reverse;
     overflow: scroll;
     height: 14rem;
-    width: 98%;
-    margin-left: 1%;
+    width: 95%;
+    margin: auto;
     margin-bottom: 2rem;
     overflow-y:hidden;
     border-left: 0.1rem orangered solid;
@@ -57,7 +57,7 @@ a {
 
 .theme-container {
     background-color: white;
-    width: 12%;
+    width: 11.5rem;
     height: 90%;
     display: inline-block;
     margin: 0.7rem;
@@ -103,6 +103,7 @@ a {
     width: 70%;
     margin-left: 15%;
     margin-bottom: 0 !important;
+    text-align: center;
 }
 
 #filters h3 {
@@ -111,15 +112,13 @@ a {
 
 #filters-flex-container {
     display: flex;
-    justify-content: center;
     flex-direction: row;
-    margin: 1rem 0 1rem;
 }
 
 .filter-container {
     width: 48%;
-    margin: 0 !important;
     min-height: 20rem !important;
+    margin: 0 !important;   
 }
 
 #themes-filter {
@@ -232,6 +231,40 @@ a {
 
     .item-container {
         justify-content: center;
+    }
+
+}
+
+@media only screen and (max-width: 925px) {
+
+    #trending-themes {
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .trending-themes-container {
+        margin: auto;
+        margin-bottom: 2rem;
+        width: 80%;
+        overflow: hidden;
+        height: 14rem;
+    }
+
+
+    .theme-container {
+        width: 8rem;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+ 
+    #filters-flex-container {
+        flex-direction: column;
+    }
+
+    .filter-container {
+        margin: auto !important;
+        width: 80%;
     }
 
 }

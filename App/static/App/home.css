@@ -149,8 +149,10 @@ h2 {
     text-align: center;
     padding-bottom: 1rem;
     background-color: whitesmoke;
-    padding: 0;
     width: 100%;
+    z-index: 2;
+    overflow: scroll;
+    
 }
 
 #recently-viewed h3 {
@@ -161,13 +163,11 @@ h2 {
 
 #recently-viewed-items-container {
     display: flex;
-    overflow: scroll;
-    justify-content: center;
+    justify-content: left;
+    z-index: 3;  
+    width: 100%;
 }
 
-#recently-viewed-items-container::-webkit-scrollbar {
-    display: none;
-}
 
 .main-item-container-recently-viewed {
     margin: 0 1rem 0;
@@ -218,8 +218,8 @@ h2 {
     text-align: center;
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
-
 }
+
 
 .items-container {
     display: flex;
@@ -264,6 +264,10 @@ h2 {
         justify-content: center;
     }
 
+    #graph-options {
+        display: none;
+    }
+
 }
 
 @media only screen and (max-width: 675px) {
@@ -275,9 +279,18 @@ h2 {
         display: none;
     }
 
+    #container-layer3 {
+        flex-direction: column;
+    }
+
     .layer3-containers {
-        width: 80%;
+        border-radius: 1rem;
         margin: auto;
+        width: 80%;
+    }
+
+    #new-items {
+        margin-top: 3rem;
     }
 
     #about-panel {
