@@ -178,6 +178,7 @@ h2 {
     display: flex;
     justify-content: center;
     box-shadow: 0 1rem 1rem 1rem rgb(225,225,225);   
+    border-radius: 1rem;
 }
 
 #graph-options:before, #graph-options:after {
@@ -261,6 +262,39 @@ h2 {
 
     .item-container {
         justify-content: center;
+    }
+
+}
+
+@media only screen and (max-width: 675px) {
+
+    body {
+    }
+
+    .item-img-and-title h3, .price-info {
+        display: none;
+    }
+
+    .layer3-containers {
+        width: 80%;
+        margin: auto;
+    }
+
+    #about-panel {
+        display: none;
+    }
+
+    #container-layer1 {
+        justify-content: space-between;
+    }
+
+    .side-bars {
+        width: 37.5%;
+    }
+
+    .slider {
+        width: 10%;
+        margin: auto;
     }
 
 }
