@@ -44,7 +44,9 @@
         {% for theme in sub_themes %}
         <a class="theme-container" href="{% url 'search' theme_path %}{{theme.sub_theme}}/">
             <h3>{{theme.sub_theme|replace_underscore}}</h3>
+            {% if theme.img_path|static_file_exists %}
             <img src="{% static theme.img_path %}" loading="lazy">
+            {% endif %}
         </a>
         {% endfor %}
     </section>

@@ -26,7 +26,7 @@ def index(request):
 
     recently_viewed_ids = request.session['recently-viewed'].get(
         str(user_id), []
-    )[:RECENTLY_VIEWED_ITEMS_NUM]    
+    )[:RECENTLY_VIEWED_ITEMS_NUM] 
 
     recently_viewed_items = [
         DB.get_item_info(item_id, 'avg_price')[0] for item_id in recently_viewed_ids

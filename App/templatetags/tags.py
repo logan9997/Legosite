@@ -1,4 +1,5 @@
 import json
+import os
 
 from django import template
 from django.utils.safestring import mark_safe
@@ -54,6 +55,13 @@ def item_names():
     ).values_list('item_name', flat=True).distinct('item_id')))
 
     return [''.join([char for char in name if char not in [')', '(', ',', '-', '.']]) for name in names]
+
+
+@register.filter()
+def static_file_exists(file_path:str):
+    file_path = r'App\\static\\' + file_path
+    return os.path.exists(file_path)
+
 
 
 @register.filter
