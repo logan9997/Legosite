@@ -7,7 +7,6 @@ body {
     margin: 0;
     padding: 0;
     padding-top: 6rem;
-    overflow-x: hidden;
 }
 
 nav {
@@ -56,6 +55,7 @@ nav ul li a {
     font-size: medium;
     text-decoration: none;
     color: black;
+    
 }
 
 .dropdown-content {
@@ -92,8 +92,8 @@ nav ul li:hover .dropdown-content {
 #search-logout-suggestions-container {
     height: 3rem;
     width: 16rem;
-    margin-left: calc(100% -16rem);
-    position: fixed;
+    margin-left: auto;
+    margin-right: 5%;
 }
 
 #search-logout-container {
@@ -247,3 +247,43 @@ footer #smaller-text {
     border-style: solid;
     border-color: orangered transparent transparent transparent;
   }
+
+@media only screen and (max-width:900px) {
+    nav {
+        justify-content: center;
+        flex-direction: row;
+    }
+
+    nav ul {
+    flex-direction: column;
+    margin-top: 5rem;
+        justify-content: center !important;
+        width: 100%;
+    }
+
+    nav ul li {
+        padding: 0.3rem;
+        background-color: white;
+    }
+
+    #search-logout-suggestions-container {
+        margin: auto;
+    }
+
+    .dropdown-content {
+        display: block;
+        border: none;
+        
+    }
+
+    .dropdown-content a {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        width: 5rem;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        
+    }
+}

@@ -17,6 +17,7 @@
 #theme-filters-form-container {
     max-height: 15.5rem;
     overflow-y: auto;
+            overflow-x: hidden;
 }
 
 
@@ -127,3 +128,4 @@
 #winners-or-losers-filter {
     margin-top: 3rem;
 }
+

@@ -60,9 +60,14 @@ select {
 @media only screen and (max-width: 500px) {
 
     .sorts-and-pages-form {
-        width: 80%;
+        width: 10rem;
         flex-wrap: wrap;
         text-align: center;
+    }
+
+    select, option {
+        margin: 0 !important;
+        width: 9rem;
     }
 
     .input-label-container {
@@ -71,6 +76,7 @@ select {
         flex-wrap: wrap;
         flex-direction: column;
         justify-content: center;
+        width: 80%;
     }
 }
 
