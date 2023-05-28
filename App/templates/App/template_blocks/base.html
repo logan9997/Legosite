@@ -38,7 +38,12 @@
     
     
     <nav>
-        <ul>
+        <div id="dropdown-links">
+            <button onclick="hide_unhide('nav-ul-links', 'flex')">
+                <img id="dropdown-button-img" src="{% static 'App/styling-images/dropdown-button.png'%}">
+            </button>
+        </div>
+        <ul id="nav-ul-links">
             <li>
                 <button><a href="{% url 'index' %}">Home</a></button>
             </li>

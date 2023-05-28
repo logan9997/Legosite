@@ -11,7 +11,18 @@ function maintain_scroll_pos(elememt_id) {
     };
 }
 
-function hide_unhide(elem_id) {
+function hide_unhide(elem_id, display) {
+    var elem = document.getElementById(elem_id)
+
+    if (elem.style.display == display) {
+        elem.style.display = 'none'
+    } else {
+        elem.style.display = display
+    }
+}
+
+
+function hide_unhide_filters(elem_id) {
     var elem_style = document.getElementById(elem_id).style.display
     var button = document.getElementById('collapse-filters-button')
 

@@ -19,7 +19,7 @@ nav {
     top:0;
     display: flex;
     justify-content: center;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 nav ul {
@@ -49,13 +49,29 @@ nav ul li button {
     font-size: medium;
     text-align: center;
     color:black ;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 nav ul li a {
     font-size: medium;
     text-decoration: none;
-    color: black;
-    
+    color: black;   
+}
+
+#dropdown-links {
+    display: none;
+    height: 2rem;
+    margin: 0.7rem 1rem 0;
+}
+
+#dropdown-links button {
+    background-color: transparent;
+    border: none;
+}
+
+#dropdown-button-img {
+    width: 1.4rem;
+    margin-left: 0.5rem;
 }
 
 .dropdown-content {
@@ -72,6 +88,7 @@ nav ul li a {
 }
 
 a {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     color: blue;
 }
 
@@ -248,22 +265,41 @@ footer #smaller-text {
     border-color: orangered transparent transparent transparent;
   }
 
-@media only screen and (max-width:900px) {
+@media only screen and (max-width:1250px) {
     nav {
-        justify-content: center;
-        flex-direction: row;
+        height: 5.6rem;
     }
 
     nav ul {
-    flex-direction: column;
-    margin-top: 5rem;
-        justify-content: center !important;
-        width: 100%;
+        height: 2.7rem;
+    }
+
+    #search-logout-suggestions-container {
+        margin: 2.5rem 0 0;
+    }
+
+}
+
+@media only screen and (max-width:900px) {
+    nav {
+        justify-content: center;
+        height: 3rem;
+    }
+
+    nav ul {
+        flex-direction: column;
+        justify-content: left !important;
+        width: 6rem;
+        margin-top: 3rem;
+        position: absolute;
+        left: 0%;
+        padding: 0;
     }
 
     nav ul li {
         padding: 0.3rem;
         background-color: white;
+        font-weight: bold;
     }
 
     #search-logout-suggestions-container {
@@ -273,6 +309,8 @@ footer #smaller-text {
     .dropdown-content {
         display: block;
         border: none;
+        margin-top: 2.7rem;
+        font-weight:normal ;
         
     }
 
@@ -283,7 +321,40 @@ footer #smaller-text {
         justify-content: center;
         height: 100%;
         width: 5rem;
-        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-        
+        padding: 0.3rem;
+        position: relative;
+        right: 0.3rem;
+        font-weight: normal;
+    }
+
+    #dropdown-links {
+        margin-top: 0.8rem;
+        display: block;
+    }
+}
+
+@media only screen and (min-width:900px) {
+    #nav-ul-links {
+        display: flex !important;
+    }
+}
+
+@media only screen and (max-width:425px) {
+    #search-logout-suggestions-container {
+        width: 10rem;
+        margin-right: 7rem;
+    }
+
+    #search-logout-suggestions-container form input {
+        width: 10rem;
+    }
+
+    .item-id-img-container {
+        margin: auto;
+        margin-left: calc(50% - 3rem);
+    }
+
+    .item-name-contianer {
+        display: none;
     }
 }

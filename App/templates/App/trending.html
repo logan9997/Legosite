@@ -43,7 +43,7 @@
     <h2>Trending</h2>
 
     <section id="filters-container">
-        <button id="collapse-filters-button" onclick="hide_unhide('filters')">Show Filters</button>
+        <button id="collapse-filters-button" onclick="hide_unhide_filters('filters')">Show Filters</button>
         {% include 'App/template_blocks/filters.html' with action_view='trending' sub_view="" show_winners_or_losers=True  %}
     </section>
 
