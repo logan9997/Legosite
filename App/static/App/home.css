@@ -151,7 +151,6 @@ h2 {
     background-color: whitesmoke;
     width: 100%;
     z-index: 2;
-    overflow: scroll;
     
 }
 
@@ -166,6 +165,7 @@ h2 {
     justify-content: left;
     z-index: 3;  
     width: 100%;
+    overflow: scroll;
 }
 
 
@@ -271,9 +271,6 @@ h2 {
 }
 
 @media only screen and (max-width: 675px) {
-
-    body {
-    }
 
     .item-img-and-title h3, .price-info {
         display: none;

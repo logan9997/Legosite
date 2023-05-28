@@ -294,8 +294,9 @@ footer #smaller-text {
         position: absolute;
         left: 0%;
         padding: 0;
+        display: none;
     }
-
+    
     nav ul li {
         padding: 0.3rem;
         background-color: white;
@@ -335,7 +336,7 @@ footer #smaller-text {
 
 @media only screen and (min-width:900px) {
     #nav-ul-links {
-        display: flex !important;
+        display: flex;
     }
 }
 
