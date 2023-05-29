@@ -2,6 +2,15 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'App/entry_item_form.css'%}">
 
+<section class="main-container">
+{% if not add_new %}
+<div class="entry-counter">
+    <button type="submit" name="remove-entry" value="remove!">Remove</button>
+    <p>No : {{item_entries|index:entry}}</p>
+    <p>Condition : ({{entry.condition}})</p>
+</div>
+{% endif %}
+
 {% if sub_view != "" %}
 <form class="entry-item-container" action="{% url 'entry_item_handler' redirect_view=redirect_view %}" method="post">
 {% else %}
@@ -19,16 +28,6 @@
     {% else %}
     <input type="hidden" name="form-type" value="new-entry">
     <input type="hidden" name="user_id" value="{{user_id}}">
-
-    {% endif %}
-
-    {% if not add_new %}
-
-    <div class="entry-counter">
-        <button type="submit" name="remove-entry" value="remove!">Remove</button>
-        <p>{{item_entries|index:entry}}</p>
-        <p>({{entry.condition}})</p>
-    </div>
 
     {% endif %}
     
@@ -99,5 +98,5 @@
 <div class="error-msg-container">
     <p class="error-msg"></p>
 </div>
-
+</section>
 

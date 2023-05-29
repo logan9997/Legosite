@@ -12,22 +12,6 @@ h1 {
     margin-left: 5%;
 }
 
-h1:before,
-h1:after {
-    position: absolute;
-    top: 12.5%;
-    overflow: hidden;
-    width: 40%;
-    height: 1px;
-    content: '\a0';
-    background-color: rgb(228, 220, 220);
-}
-
-h1:before {
-    margin-left: -40%;
-    text-align: right;
-}
-
 textarea {
     resize: none;
 }
@@ -48,12 +32,6 @@ textarea {
     justify-content: center;
     border-top-right-radius: 1rem;
     border-top-left-radius: 1rem;
-}
-
-#main-container {
-    display: flex;
-    justify-content: space-evenly;
-    flex-direction: row;
 }
 
 .sub-theme-container {
@@ -83,6 +61,7 @@ textarea {
     display: flex;
     justify-content: space-evenly;
     flex-direction: row;
+    margin-bottom: 3rem;
 }
 
 #tool-bar {
@@ -125,6 +104,7 @@ textarea {
     width: 70vw;
     height: 100rem;
     margin-bottom: 5rem;
+    overflow: hidden;
 }
 
 
@@ -328,7 +308,7 @@ textarea {
 
 #entries-item-loop-container {
     overflow-y: scroll;
-    height: 56rem;
+    max-height: 40rem;
 }
 
 #entries-item-loop-container::-webkit-scrollbar {
@@ -338,4 +318,61 @@ textarea {
 
 #item-type-filter {
     width: 90%;
+}
+
+@media only screen and (max-width:1340px) {
+    #metric-change-container {
+        display: none;
+    }
+}
+
+@media only screen and (max-width:950px) {
+
+    #tool-bar-header {
+        display: none;
+    }
+
+    #tool-bar h3 {
+        width: 96%;
+    }
+
+    #tool-bar {
+        height: 0 !important;
+        min-height:22rem ;
+    }
+
+    #main-container {
+        flex-direction: column;
+    }
+
+    #tool-bar, #item-container, #item-header {
+        width: 80%;
+        margin: auto;
+    }
+}
+
+@media only screen and (max-width:820px) {
+    #header-and-graph-container,
+    #chart-container,
+    .price-trend,
+    .item_canvas,
+    .chartjs-render-monitor {
+        display: none !important;
+    }
+}
+
+@media only screen and (max-width:520px) {
+    #header {
+        height: 5rem;
+    }
+
+    .sorts-and-pages-form {
+        display: flex;
+        justify-content: center;
+    }
+
+    .sorts-and-pages-form label, .sorts-and-pages-form select {
+        width: 9rem ;
+        margin: auto !important;
+    }
 }

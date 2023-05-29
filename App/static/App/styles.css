@@ -9,6 +9,11 @@ body {
     padding-top: 6rem;
 }
 
+select, option {
+    text-align: center;
+}
+
+
 nav {
     border-bottom: 0.1rem rgb(228, 220, 220) solid;
     position:fixed;
@@ -25,13 +30,13 @@ nav {
 nav ul {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: center;
     align-items: flex-start;
     width: 50%;
-    left: 25%;
-    position: absolute;
+    position: relative;
     height: 100%;
     margin: 0;
+    margin-left: 25%;
 }
 
 nav ul li {
@@ -108,9 +113,7 @@ nav ul li:hover .dropdown-content {
 
 #search-logout-suggestions-container {
     height: 3rem;
-    width: 16rem;
-    margin-left: auto;
-    margin-right: 5%;
+    margin: auto;
 }
 
 #search-logout-container {
@@ -144,6 +147,7 @@ nav ul li:hover .dropdown-content {
 
 #search-suggestions {
     display: flex;
+    width: 15.5rem;
     flex-direction: column;
     margin-top: 0.35rem;
     overflow-y: scroll;
@@ -217,6 +221,7 @@ footer {
     border-top: 0.1rem rgb(228, 220, 220) solid;
     text-align: center;
     padding-bottom: 1rem;
+    z-index: 1000;
 }
 
 footer #smaller-text {
@@ -265,19 +270,19 @@ footer #smaller-text {
     border-color: orangered transparent transparent transparent;
   }
 
-@media only screen and (max-width:1250px) {
-    nav {
-        height: 5.6rem;
+@media only screen and (max-width:1355px) {
+    .about-box h3 {
+        height: 2.5rem;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
     }
+}
 
-    nav ul {
-        height: 2.7rem;
+@media only screen and (max-width:792px) {
+    .about-box h3 {
+        height: 3.8rem;
     }
-
-    #search-logout-suggestions-container {
-        margin: 2.5rem 0 0;
-    }
-
 }
 
 @media only screen and (max-width:900px) {
@@ -290,11 +295,11 @@ footer #smaller-text {
         flex-direction: column;
         justify-content: left !important;
         width: 6rem;
-        margin-top: 3rem;
         position: absolute;
         left: 0%;
         padding: 0;
         display: none;
+        margin: 3rem 0 0 ;
     }
     
     nav ul li {
@@ -305,6 +310,9 @@ footer #smaller-text {
 
     #search-logout-suggestions-container {
         margin: auto;
+        position: absolute;
+        padding: 0;       
+        top: 0; 
     }
 
     .dropdown-content {
@@ -331,6 +339,8 @@ footer #smaller-text {
     #dropdown-links {
         margin-top: 0.8rem;
         display: block;
+        position: relative;
+        right: 48%;
     }
 }
 

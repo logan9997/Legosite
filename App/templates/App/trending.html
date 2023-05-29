@@ -57,9 +57,9 @@
                 <input type="range" id="slider_end" min="{{slider_end_min_value}}" max="{{slider_end_max_value}}" name="slider_end_value" value="{{slider_end_value}}">
             </form>
             <p id="slider-value">
-                {{dates|iterable_index:slider_start_value}}
-                {% for i in "01234"|make_list %}&nbsp;{% endfor %}Range{% for i in "01234"|make_list %}&nbsp;{% endfor %}
-                {{dates|iterable_index:slider_end_value}}
+                <span>{{dates|iterable_index:slider_start_value}}</span>
+                <span>{% for i in "01234"|make_list %}&nbsp;{% endfor %}Range{% for i in "01234"|make_list %}&nbsp;{% endfor %}</span>
+                <span>{{dates|iterable_index:slider_end_value}}</span>
             </p>
         </div>
     </div>
@@ -104,9 +104,12 @@
         var slider_end = document.getElementById("slider_end") 
         var slider_end_value = parseInt(slider_end.value) 
 
-        var string_spaces = '\xa0'.repeat(6)
+        console.log(slider_start_value, slider_start_value)
 
-        slider_output.textContent = `${dates[slider_start_value]}${string_spaces}Range${string_spaces}${dates[slider_end_value]}`
+        var spans = slider_output.getElementsByTagName('span')
+
+        spans[0].innerHTML = dates[slider_start_value]
+        spans[2].innerHTML = dates[slider_end_value]
     }
 
     submit_form = function() {
