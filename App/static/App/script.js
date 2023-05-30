@@ -55,7 +55,7 @@ function search_suggestions(input) {
 
     var input = document.getElementById("item-id-input").value.toLowerCase();
     const max_search_suggestions = JSON.parse(document.getElementById("max_search_suggestions").textContent)
-    const main_container = document.getElementById("search-logout-suggestions-container")
+    const main_container = document.getElementById("search-suggestions-container")
     
     var suggestion_boxes = document.getElementsByClassName("search-suggestion");
 

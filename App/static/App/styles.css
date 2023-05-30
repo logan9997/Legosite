@@ -32,11 +32,9 @@ nav ul {
     flex-direction: row;
     justify-content: center;
     align-items: flex-start;
-    width: 50%;
-    position: relative;
+    position: absolute;
     height: 100%;
     margin: 0;
-    margin-left: 25%;
 }
 
 nav ul li {
@@ -66,7 +64,7 @@ nav ul li a {
 #dropdown-links {
     display: none;
     height: 2rem;
-    margin: 0.7rem 1rem 0;
+    margin: 0.7rem 2rem 0;
 }
 
 #dropdown-links button {
@@ -111,27 +109,29 @@ nav ul li:hover .dropdown-content {
 }
 
 
-#search-logout-suggestions-container {
+#search-suggestions-container {
     height: 3rem;
-    margin: auto;
+    position: absolute;
+    right: 5%;
 }
 
-#search-logout-container {
-    display: flex;
-}
-
-#search-logout-suggestions-container form {
+#search-suggestions-container form {
     height: 2rem;
     margin-top: 0.4rem;
     
 }
 
-#search-logout-suggestions-container form input {
+#search-suggestions-container form input {
     height: 2rem;
     text-align: center;
     width: 15.5rem;
     border-radius: 0;
     outline: none;
+}
+
+#logout {
+    position: absolute;
+    right: 1%;
 }
 
 #logout img {
@@ -141,9 +141,7 @@ nav ul li:hover .dropdown-content {
     height: 2rem;
 }
 
-#search-suggestions-container {
-    background-color: red;
-}
+
 
 #search-suggestions {
     display: flex;
@@ -287,8 +285,8 @@ footer #smaller-text {
 
 @media only screen and (max-width:900px) {
     nav {
-        justify-content: center;
         height: 3rem;
+        display:flex;
     }
 
     nav ul {
@@ -308,11 +306,16 @@ footer #smaller-text {
         font-weight: bold;
     }
 
-    #search-logout-suggestions-container {
-        margin: auto;
-        position: absolute;
+    #dropdown-links {
+        display: flex;
+        justify-content: center;
+        flex-direction: row;
+    }
+
+    #search-suggestions-container {
         padding: 0;       
         top: 0; 
+        right: unset;
     }
 
     .dropdown-content {
@@ -351,12 +354,9 @@ footer #smaller-text {
 }
 
 @media only screen and (max-width:425px) {
-    #search-logout-suggestions-container {
-        width: 10rem;
-        margin-right: 7rem;
-    }
 
-    #search-logout-suggestions-container form input {
+
+    #search-suggestions-container form input {
         width: 10rem;
     }
 

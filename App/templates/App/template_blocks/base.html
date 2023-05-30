@@ -68,7 +68,6 @@
             </li>
 
             {% else %}
-
             <li>
                 <button><a href="{% url 'login' %}">Login</a></button>
             </li>
@@ -76,25 +75,24 @@
             <li>
                 <button><a href="{% url 'join' %}">Join</a></button>
             </li>
-
             {% endif %}
         </ul>
 
-        <div id="search-logout-suggestions-container">
-            <div id="search-logout-container">
+        <div id="search-suggestions-container">
                 <form id="search-form" action="{% url 'search_item' request.path_info %}" method="post">
                     {% csrf_token %}
                         <input id="item-id-input" oninput="search_suggestions(this)" placeholder="Enter item ID / item Name" type="text" name="item_id">
                 </form>
 
-                {% if logged_in %}
-                <a id="logout" href="{% url 'logout' %}"><img onclick="logout_popup(event)" src="{% static 'App/styling-images/logout_button.png' %}" alt="logout"></a>
-                {% endif %}
-            </div>
-
             {% max_search_suggestions as max_search_suggestions %}
             {{ max_search_suggestions|json_script:"max_search_suggestions" }}
         </div>
+
+        {% if logged_in %}
+        <div>
+        <a id="logout" href="{% url 'logout' %}"><img onclick="logout_popup(event)" src="{% static 'App/styling-images/logout_button.png' %}" alt="logout"></a>
+        </div>
+        {% endif %}
     </nav>
 
         {% block content%}
