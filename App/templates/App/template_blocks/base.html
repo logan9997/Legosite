@@ -87,7 +87,7 @@
         <div id="search-suggestions-container">
                 <form id="search-form" action="{% url 'search_item' request.path_info %}" method="post">
                     {% csrf_token %}
-                        <input id="item-id-input" oninput="search_suggestions(this)" placeholder="Enter item ID / item Name" type="text" name="item_id">
+                        <input id="item-id-input" oninput="search_suggestions(this)" placeholder="Enter item ID / item Name" type="text" name="item_id_or_name">
                 </form>
 
             {% max_search_suggestions as max_search_suggestions %}

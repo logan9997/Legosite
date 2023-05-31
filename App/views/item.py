@@ -189,8 +189,10 @@ def get_similar_items(item_name: str, item_type: str, item_id: str) -> list:
     remove_words.extend(list(map(str.capitalize, remove_words)))
 
     single_words = [
-        word.translate(''.join(REMOVE_CHARS)) for word in item_name.split(' ')
-        if len(word) > 3 and word.translate(''.join(REMOVE_CHARS)) not in remove_words
+        ''.join([char for char in word if char not in REMOVE_CHARS])
+        for word in item_name.split(' ') if len(word) > 3 and 
+        ''.join([char for char in word if char not in REMOVE_CHARS]) not in
+        remove_words
     ]
 
     print(single_words)

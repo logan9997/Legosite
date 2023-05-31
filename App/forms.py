@@ -4,7 +4,7 @@ from config.config import EMAIL_LENGTH, PASSWORD_LENGTH, USERNAME_LENGTH
 
 
 class ItemSelect(forms.Form):
-    item_id = forms.CharField(max_length=20)
+    item_id_or_name = forms.CharField(max_length=100)
 
 
 class AddItemToPortfolio(forms.Form):

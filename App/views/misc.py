@@ -6,7 +6,7 @@ from project_utils.general import General
 from scripts.database import DB
 
 from App.models import Item, Watchlist, Portfolio
-from App.forms import AddItemToPortfolio
+from App.forms import ItemSelect
 
 GENERAL = General()
 PROCESS_FILTER = ProcessFilter()
@@ -17,7 +17,11 @@ def search_item(request, current_view):
     item_ids = Item.objects.all().values_list('item_id', flat=True)
 
     # get item from the search bar, if it exists redirect to that items info page
-    selected_item = request.POST.get('item_id')
+    selected_item = ''
+    if request.method == 'POST':
+        form = ItemSelect(request.POST)
+        if form.is_valid():
+            selected_item = form.cleaned_data['item_id_or_name']
 
     if selected_item in item_ids:
         return redirect(f'http://{GENERAL.get_base_url(request)}/item/{selected_item}')
