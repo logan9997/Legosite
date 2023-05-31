@@ -268,7 +268,7 @@ function input_validation(input, add_new) {
 
 
 function condence_list(_list) {
-    const max_graph_points = JSON.parse(document.getElementById("max_graph_points").textContent);
+    const max_graph_points = parseInt(document.getElementById("max_graph_points").textContent);
     if (_list.length > max_graph_points) {
         var first = _list[0]; 
         var last = _list[_list.length-1]
@@ -287,4 +287,27 @@ function condence_list(_list) {
     }
     return _list
     
+}
+
+function get_list_slice_start(list, value, dates) {
+    var slice_start = 0
+    for (let j = 0; j < list.length; j ++) {
+        if (list[j] >= dates[value]) {
+            slice_start = j
+            break
+        }
+    }
+    return slice_start
+}
+
+function get_list_slice_end(list, value, dates) {
+    var slice_end = 0
+    for (let j = list.length-1; j >= 0; j --) {
+        console.log(list[j], dates[value])
+        if (list[j] <= dates[value]) {
+            slice_end = j+1
+            break
+        }
+    }
+    return slice_end
 }

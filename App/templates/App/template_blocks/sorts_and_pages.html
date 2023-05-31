@@ -44,7 +44,7 @@
     {% endif %}
 
     {% if not hide_graph_metric_options %}
-    <div>
+    <div id="graph-option">
         {% if sub_view != "" %}
             {% if item_id == None or item_id == "" %}
                 <form class="sorts-and-pages-form" action="{% url action_view sub_view %}?{{qs}}" method="GET">

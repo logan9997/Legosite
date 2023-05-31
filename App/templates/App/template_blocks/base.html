@@ -17,7 +17,13 @@
         var charts = [];
 
         window.onload = function() {
-            window.scrollTo(0,0)
+            var scroll_pos = localStorage.getItem('document-scroll-pos')
+            window.scrollTo(0,scroll_pos)
+        }
+
+        window.onbeforeunload = function() {
+            var scroll_pos = window.scrollY
+            localStorage.setItem('document-scroll-pos', scroll_pos)
         }
     </script>
 

@@ -381,7 +381,8 @@ textarea {
 
     .price-trend,
     .item_canvas,
-    .chartjs-render-monitor {
+    .chartjs-render-monitor
+    #graph-option {
         display: none !important;
     }
 

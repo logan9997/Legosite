@@ -6,7 +6,7 @@ from project_utils.general import General
 from project_utils.item_format import Formatter
 from scripts.database import DB
 
-from App.models import Item, Theme
+from App.models import Item, Theme, Price
 from config.config import (
     ALL_METRICS, COLOURS, EXTRA_WORDS,
     MAX_SIMILAR_ITEMS, RECENTLY_VIEWED_ITEMS_NUM,
@@ -80,6 +80,10 @@ def item(request, item_id):
                 item_info['item_name'], item_info['item_type'], item_info['item_id']
             )
         ),
+        'dates' :[
+            date.strftime('%Y-%m-%d') for date in 
+            list(Price.objects.filter(item_id=item_id).distinct('date').values_list('date', flat=True))
+        ]
     }
 
     # items to add to context based on item type

@@ -64,21 +64,8 @@
             if (metric_data[i].id != '') {
                 if (window.location.href.includes("trending")) {
 
-                    var slice_start = 0
-                    for (let j = 0; j < item_dates.length; j ++) {
-                        if (item_dates[j] >= all_dates[onload_slider_value_start+1]) {
-                            slice_start = j
-                            break
-                        }
-                    }
-
-                    var slice_end = 0
-                    for (let j = item_dates.length-1; j >= 0; j --) {
-                        if (item_dates[j] <= all_dates[onload_slider_value_end]) {
-                            slice_end = j+1
-                            break
-                        }
-                    }
+                    slice_start = get_list_slice_start(item_dates, onload_slider_value_start, all_dates)
+                    slice_end = get_list_slice_end(item_dates, onload_slider_value_end, all_dates)
 
                     metric_data[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(slice_start, slice_end))
                 } else {
@@ -124,6 +111,8 @@
                 }
             }
         };
+
+
 
         var mychart = new Chart(`{{item.chart_id}}`, {
             type: 'line',

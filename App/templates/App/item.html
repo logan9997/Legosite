@@ -3,6 +3,7 @@
 {% load tags %}
 
 {% block content %}
+{{dates|json_script:"all_dates"}}
 <link rel="stylesheet" href="{% static 'App/item.css' %}">
 
 <section id="layer1" class="layers">
@@ -81,7 +82,11 @@
         <div id="chart-options">
             <p style="display: none;" id="slider-index">{{item.dates|length}}</p>
             <div id="slider-output-container">
-                <p id="slider-output">Range : {{item.dates.0}} - {% with item.dates|last as last %}{{last}}{% endwith %}</p>
+                <p id="slider-output">
+                    <span>{{item.dates.0}}</span>
+                    <span>- Range - </span>
+                    <span>{% with item.dates|last as last %}{{last}}{% endwith %}</span>
+                </p>
             </div>
 
             <div id="slider-container">
@@ -264,7 +269,49 @@
     }
     mychart.options.scales.yAxes[0].ticks.maxTicksLimit = 16
     mychart.options.scales.xAxes[0].ticks.maxTicksLimit = 16
-    mychart.update()    
+    mychart.update()  
+    
+    //update chart based on window resize
+    window.onload = function() {
+        localStorage.setItem('default-max-graph-points', document.getElementById('max_graph_points').textContent)
+    }
+
+    const ALL_DATES = JSON.parse(document.getElementById('all_dates').textContent)
+    const MAX_POINTS = 6
+    chart_scaling = function () {
+        if (window.innerWidth  < 500) {
+            mychart.options.scales.yAxes[0].ticks.maxTicksLimit = MAX_POINTS
+            mychart.options.scales.xAxes[0].ticks.maxTicksLimit = MAX_POINTS
+
+            document.getElementById('max_graph_points').textContent = MAX_POINTS
+            mychart.data.labels = condence_list(mychart.data.labels)
+        } else {
+            //reset max graph points
+            document.getElementById('max_graph_points').textContent = localStorage.getItem('default-max-graph-points')
+            var dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
+            console.log(dates)
+            var slice_end = get_list_slice_end(dates, slider.value-1, ALL_DATES)
+            console.log(slice_end, slider.value)
+            dates = dates.slice(0, slice_end)
+
+            var new_data = []
+            for (let i = 0; i < metric_data.length; i++) {
+                if (metric_data[i].id != '') {
+                    metric_data[i].data = condence_list(JSON.parse(document.getElementById(metric_data[i].id).textContent).slice(0, slice_end))        
+                    new_data.push(metric_data[i])
+                }
+            }
+            dates = condence_list(dates.slice(0, slice_end))
+            mychart.data.datasets = new_data
+            mychart.data.labels = dates 
+
+            console.log(dates)
+        }
+        mychart.update()
+    }
+    window.onload = chart_scaling
+    window.onresize = chart_scaling
+
 </script>
 
 {% endblock %}

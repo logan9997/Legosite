@@ -26,19 +26,21 @@
 
         <div class="tool-bar-div" id="stats">
             <h3>Stats</h3>
-            <p>Total Market Value : £{{total_market_value|two_decimals}}</p>
-            <p>Total bought for price : £{{total_bought_price|two_decimals}}</p>
-            <p>Total sold for price : £{{total_sold_price|none_to_hyphens}}</p>
+            <div id="stats-p-container">
+                <p>Total Market Value : £{{total_market_value|two_decimals}}</p>
+                <p>Total bought for price : £{{total_bought_price|two_decimals}}</p>
+                <p>Total sold for price : £{{total_sold_price|none_to_hyphens}}</p>
 
-            {% if total_profit < 0 %}
-                <p>Total Loss £{{total_profit|times_negative_one|shorten_large_num|two_decimals}}</p>
-            {% else %}
-                <p>Total Profit : £{{total_profit|two_decimals|shorten_large_num}}</p>
-            {% endif %}
-            <br>
-            <p>Total Owners : {{total_owners|shorten_large_num}}</p>
-            <p>Total Watchers : {{total_watchers|shorten_large_num}}</p>
-            <br>
+                {% if total_profit < 0 %}
+                    <p>Total Loss £{{total_profit|times_negative_one|shorten_large_num|two_decimals}}</p>
+                {% else %}
+                    <p>Total Profit : £{{total_profit|two_decimals|shorten_large_num}}</p>
+                {% endif %}
+                <br>
+                <p>Total Owners : {{total_owners|shorten_large_num}}</p>
+                <p>Total Watchers : {{total_watchers|shorten_large_num}}</p>
+                <br>
+            </div>
         </div>
     </section>
     
