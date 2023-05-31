@@ -16,11 +16,17 @@
 }
 
 .item-container {
-    height: 18rem;
+    height: 18.6rem;
     margin: 1rem;
 }
 
+#layer3 .item-container {
+    overflow: hidden;
+}
 
+#layer3 .item-img-and-title {
+    margin: auto;
+}
 
 .item-container h3 {
     border-top: 0.1rem orangered solid;
@@ -438,6 +444,17 @@ table, tr, td, th {
     }
 }
 
+@media only screen and (max-width:1000px) {
+    #super-sets-container, #sub-sets-container, #figures-container {
+        width: 90%;
+    }
+
+        #super-sets-container, #figures-container, .sub-super-set-container {
+        width: 100%;
+        margin: 0 0 2rem;
+    }
+}
+
 @media only screen and (max-width:900px) {
     #chart-background {
         width: 100%;
@@ -488,5 +505,29 @@ table, tr, td, th {
         flex-direction: column;
                 text-align: center;
     }
-
 } 
+
+@media only screen and (max-width:600px) {
+    .piece-table tr td:nth-child(3),
+    .piece-table tr th:nth-child(3),
+    .piece-table tr td:nth-child(5),
+    .piece-table tr th:nth-child(5) {
+        display: none;
+    }
+
+    .set-container {
+        flex-direction: column;
+        height: unset;
+        justify-content: center;
+        margin: 0;
+    }
+
+    .set-img-container, .set-info-container {
+        margin: 0;
+        align-self: center;
+    }
+
+    .set-img-container img {
+        margin: 0;
+    }
+}

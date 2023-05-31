@@ -74,7 +74,7 @@ nav ul li a {
 
 #dropdown-button-img {
     width: 1.4rem;
-    margin-left: 0.5rem;
+    margin-left: 2.5rem;
 }
 
 .dropdown-content {
@@ -145,12 +145,11 @@ nav ul li:hover .dropdown-content {
 
 #search-suggestions {
     display: flex;
-    width: 15.5rem;
+    width: 16rem;
     flex-direction: column;
     margin-top: 0.35rem;
     overflow-y: scroll;
-    height: calc(6.1rem * 6);
-    background-color: yellow;
+    max-height: 80vh;
 }
 
 #search-suggestions::-webkit-scrollbar {

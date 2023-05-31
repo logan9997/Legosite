@@ -1,13 +1,8 @@
 setup.py
 scripts/__init__.py
-scripts/data_transfer.py
 scripts/database.py
-scripts/function_usage.py
-scripts/item_scraper.py
 scripts/key_updater.py
-scripts/main.py
 scripts/responses.py
-scripts/update_item_images.py
 scripts.egg-info/PKG-INFO
 scripts.egg-info/SOURCES.txt
 scripts.egg-info/dependency_links.txt
