@@ -24,8 +24,8 @@ def search_item(request, current_view):
             selected_item = form.cleaned_data['item_id_or_name']
 
     if selected_item in item_ids:
-        return redirect(f'http://{GENERAL.get_base_url(request)}/item/{selected_item}')
-    return redirect(f'{current_view}')
+        return redirect(f'item/{selected_item}')
+    return redirect(current_view)
 
 
 def update_filters_in_session(request, view):
