@@ -1,0 +1,1 @@
+COPY auth_user TO STDOUT WITH CSV legosite_DB

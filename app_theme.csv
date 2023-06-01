@@ -1,0 +1,1 @@
+COPY app_theme TO STDOUT WITH CSV legosite_DB

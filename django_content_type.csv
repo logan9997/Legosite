@@ -1,0 +1,1 @@
+COPY django_content_type TO STDOUT WITH CSV legosite_DB

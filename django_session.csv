@@ -1,0 +1,1 @@
+COPY django_session TO STDOUT WITH CSV legosite_DB

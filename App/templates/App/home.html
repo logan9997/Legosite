@@ -116,8 +116,7 @@
 </section>
 
 <section id="graph-options" class="layers">
-    <form action="{% url 'index'  %}" method="POST">
-        {% csrf_token %}
+    <form action="{% url 'index' %}" method="GET">
         <label for="graph-data-form">Graph Data</label>
         <select onchange="this.form.submit()" name="graph-metric">
             {% for graph_option in graph_options %}

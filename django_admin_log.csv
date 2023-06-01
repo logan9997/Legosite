@@ -1,0 +1,1 @@
+COPY django_admin_log TO STDOUT WITH CSV legosite_DB

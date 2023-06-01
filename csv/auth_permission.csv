@@ -1,0 +1,69 @@
+id,name,content_type_id,codename
+1,Can add log entry,1,add_logentry
+2,Can change log entry,1,change_logentry
+3,Can delete log entry,1,delete_logentry
+4,Can view log entry,1,view_logentry
+5,Can add permission,2,add_permission
+6,Can change permission,2,change_permission
+7,Can delete permission,2,delete_permission
+8,Can view permission,2,view_permission
+9,Can add user,3,add_user
+10,Can change user,3,change_user
+11,Can delete user,3,delete_user
+12,Can view user,3,view_user
+13,Can add group,4,add_group
+14,Can change group,4,change_group
+15,Can delete group,4,delete_group
+16,Can view group,4,view_group
+17,Can add content type,5,add_contenttype
+18,Can change content type,5,change_contenttype
+19,Can delete content type,5,delete_contenttype
+20,Can view content type,5,view_contenttype
+21,Can add session,6,add_session
+22,Can change session,6,change_session
+23,Can delete session,6,delete_session
+24,Can view session,6,view_session
+25,Can add to do list,8,add_todolist
+26,Can change to do list,8,change_todolist
+27,Can delete to do list,8,delete_todolist
+28,Can view to do list,8,view_todolist
+29,Can add item,7,add_item
+30,Can change item,7,change_item
+31,Can delete item,7,delete_item
+32,Can view item,7,view_item
+33,Can add item,9,add_item
+34,Can change item,9,change_item
+35,Can delete item,9,delete_item
+36,Can view item,9,view_item
+37,Can add user,10,add_user
+38,Can change user,10,change_user
+39,Can delete user,10,delete_user
+40,Can view user,10,view_user
+41,Can add theme,11,add_theme
+42,Can change theme,11,change_theme
+43,Can delete theme,11,delete_theme
+44,Can view theme,11,view_theme
+45,Can add price,12,add_price
+46,Can change price,12,change_price
+47,Can delete price,12,delete_price
+48,Can view price,12,view_price
+49,Can add portfolio,13,add_portfolio
+50,Can change portfolio,13,change_portfolio
+51,Can delete portfolio,13,delete_portfolio
+52,Can view portfolio,13,view_portfolio
+53,Can add watchlist,14,add_watchlist
+54,Can change watchlist,14,change_watchlist
+55,Can delete watchlist,14,delete_watchlist
+56,Can view watchlist,14,view_watchlist
+57,Can add piece participation,15,add_pieceparticipation
+58,Can change piece participation,15,change_pieceparticipation
+59,Can delete piece participation,15,delete_pieceparticipation
+60,Can view piece participation,15,view_pieceparticipation
+61,Can add piece,16,add_piece
+62,Can change piece,16,change_piece
+63,Can delete piece,16,delete_piece
+64,Can view piece,16,view_piece
+65,Can add set participation,17,add_setparticipation
+66,Can change set participation,17,change_setparticipation
+67,Can delete set participation,17,delete_setparticipation
+68,Can view set participation,17,view_setparticipation

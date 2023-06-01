@@ -1,0 +1,1 @@
+COPY app_price TO STDOUT WITH CSV legosite_DB

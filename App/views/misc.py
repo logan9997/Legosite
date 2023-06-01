@@ -1,5 +1,4 @@
 from django.shortcuts import redirect
-from django.db.models import Count
 from datetime import datetime as dt
 from project_utils.filters import ProcessFilter
 from project_utils.general import General
@@ -24,7 +23,7 @@ def search_item(request, current_view):
             selected_item = form.cleaned_data['item_id_or_name']
 
     if selected_item in item_ids:
-        return redirect(f'item/{selected_item}')
+        return redirect(f'item', selected_item)
     return redirect(current_view)
 
 

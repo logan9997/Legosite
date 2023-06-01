@@ -17,7 +17,7 @@ def index(request):
 
     user_id = request.session.get('user_id', -1)
 
-    graph_metric = request.POST.get('graph-metric', 'avg_price')
+    graph_metric = request.GET.get('graph-metric', 'avg_price')
     graph_options = GENERAL.sort_dropdown_options(get_graph_options(), graph_metric)
 
     if 'recently-viewed' not in request.session:

@@ -1,0 +1,1 @@
+COPY app_pieceparticipation TO STDOUT WITH CSV legosite_DB

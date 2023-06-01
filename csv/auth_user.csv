@@ -1,0 +1,2 @@
+id,password,last_login,is_superuser,username,first_name,last_name,email,is_staff,is_active,date_joined
+1,pbkdf2_sha256$320000$QCRBMaQXjonrGqmTCxzwjL$J3El+w7REWoO++pQcsMX+tzbk0ZKTOGiNbZeO2Ne3Xw=,2022-05-20 15:54:47.302+01,t,logan,"","",loganbax101@gmail.com,t,t,2022-05-20 15:52:57.245+01

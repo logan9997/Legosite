@@ -1,44 +1,46 @@
 import psycopg2 as pc
 from project_utils.environment_manager import Manager
 
-def get_data():
-    credentials = Manager().get_database_credentials('local', development='True')
-    con = pc.connect(**credentials)
-    cursor = con.cursor()
+DEV_credentials = Manager().get_database_credentials('local', development='True')
+DEV_con = pc.connect(**DEV_credentials)
+DEV_cursor = DEV_con.cursor()
+
+HER_credentials = Manager().get_database_credentials('postgres', development='False')
+HER_con = pc.connect(**DEV_credentials)
+HER_cursor = HER_con.cursor()
+
+def get_tables():
+
 
     sql = '''
-        select PR.*
-        from "App_item" I, "App_price" PR
-        where I.item_id = PR.item_id
-            and I.item_id like 'sw%'
-            and item_type = 'M'
-            and (date='2023-01-24' or date='2023-05-26')
-        
+        select tablename 
+        from pg_tables 
+        where schemaname='public' 
     '''
-    cursor.execute(sql)
-    missing_items = cursor.fetchall()
 
-    return missing_items
+    DEV_cursor.execute(sql)
+    tables = DEV_cursor.fetchall()
+    return [t[0] for t in tables]
 
-def insert_items(items):
-    credentials = Manager().get_database_credentials('postgres', development='False')
-    print(credentials)
-    con = pc.connect(**credentials)
-    cursor = con.cursor()
+def extract_table_data(table):
+    sql = f'''
+        select *
+        from "{table}"
+    '''
+    DEV_cursor.execute(sql)
+    return DEV_cursor.fetchall()
 
-    for item in items[::-1]:
-        item = list(item)
-        item[1] = str(item[1])
+
+def insert_table_data(table, data):
+    for row in data[:1]:
         sql = f'''
-            insert into "App_price"
-            values {tuple(item)}
+            insert into "{table}" values {row}
         '''
-        print(sql)
-        try:
-            cursor.execute(sql)
-            con.commit()
-        except:
-            print(item[0], 'skipped')
+        HER_cursor.execute(sql)
 
-missing_items = get_data()
-insert_items(missing_items)
+
+tables = get_tables()
+
+for table in tables[:2]:
+    data = extract_table_data(table)
+    insert_table_data(table, data)
