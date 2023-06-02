@@ -21,7 +21,7 @@
 
             <input type="submit" value="Update!">
             
-            <!-- Country, region -->
+            <p class="error-msg">{{change_username_error_msg}}</p>
         </form>
     </section>
 
@@ -48,11 +48,11 @@
             <input type="submit" value="Update!">
         </form>
 
-        <p id="change-password-error-message">{{ change_password_error_message }}</p>
+        <p class="error-msg">{{ change_password_error_message }}</p>
 
     </section>
 
-    <section id="email-preferences" class="profile-change-section">
+    <!-- <section id="email-preferences" class="profile-change-section">
         <h2>Email Preferences - (cosmetic)</h2>
         <form action="{% url 'settings' %}" method="POST">
             {% csrf_token %}
@@ -86,7 +86,7 @@
 
             <input type="submit" value="Update!">
         </form>
-    </section>
+    </section> -->
 
     <section id="member-since-panel">
         <p>Member since 2023</p>

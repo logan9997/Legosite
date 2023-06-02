@@ -92,6 +92,11 @@ def shorten_large_num(number):
     if len(number) >= 6 and '.' in number:
         number = number.split('.')[0]
 
+    if '.' in number:
+        decimal_places = len(number.split('.')[1])
+        if decimal_places == 1:
+            number += '0'
+
     return number
 
 
@@ -102,7 +107,8 @@ def add_username_email_to_context(context, request):
         if user_id != -1:
             user_details = User.objects.filter(user_id=user_id)
             context['username'] = user_details.values_list(
-                'username', flat=True)[0]
+                'username', flat=True
+            )[0]
             context['email'] = user_details.values_list('email', flat=True)[0]
     except KeyError:
         return ''

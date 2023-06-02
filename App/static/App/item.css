@@ -377,6 +377,7 @@ table, tr, td, th {
 .entry-item-container {
     flex-wrap: wrap;
     background-color: whitesmoke !important;
+    border: none !important;
 }
 
 #condition-container-and-submit {

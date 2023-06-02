@@ -344,6 +344,7 @@ class DatabaseManagement():
             
         '''
         result = self.SELECT(sql)
+        print(result)
         return result
 
     def get_sub_themes(self, parent_theme):

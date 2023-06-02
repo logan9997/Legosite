@@ -1,10 +1,14 @@
 #important-info {
     text-align: center;
     font-size: 1.3rem;
+    border: 0.2rem orangered dotted;
+    width: 60%;
+    margin: 0 auto 1rem;
+    padding: 1rem;
 }
 
 #important-info a {
-    text-decoration: none;
+    text-decoration: underline;
 }
 
 #theme-path-container {
@@ -46,7 +50,8 @@ a {
     flex-direction: column-reverse;
     height: 14rem;
     width: 90%;
-    overflow-x: scroll;
+    overflow-x: auto;
+    overflow-y: hidden;
     padding-bottom: 1rem;
     border-left: 0.1rem orangered solid;
     border-top: 0.1rem orangered solid;
@@ -55,7 +60,8 @@ a {
     margin-bottom: 5rem;
 }
 
-#all-themes-container::-webkit-scrollbar {
+.item-img-and-title img {
+    max-width: 8rem;
 }
 
 .theme-container {

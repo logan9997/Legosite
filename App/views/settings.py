@@ -57,16 +57,6 @@ def settings(request):
                     # pass an error message to context, based on what condition was not satisfied
                     context['change_password_error_message'] = get_change_password_error_message(rules)
 
-        elif request.POST.get('form-type') == 'email-preference-form':
-            form = EmailPreferences(request.POST)
-            if form.is_valid():
-                email = form.cleaned_data['email']
-                preference = form.cleaned_data['preference'][0]
-                
-                User.objects.filter(user_id=user_id, email=email).update(
-                    email_preference=preference
-                )
-
         elif request.POST.get('form-type') == 'personal-details-form':
             form = PersonalInfo(request.POST)
             if form.is_valid():
@@ -75,6 +65,8 @@ def settings(request):
                     User.objects.filter(user_id=user_id).update(username=username)
                 else:
                     context.update({'change_username_error_msg':'Username is taken'})
+            else:
+                context.update({'change_username_error_msg':f'Username is too long, (Max {USERNAME_LENGTH}) Characters'})
 
     return render(request, 'App/settings.html', context=context)
 

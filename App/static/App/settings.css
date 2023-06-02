@@ -5,8 +5,7 @@
 }
 
 .profile-change-section {
-    
-    width: 70%;
+    width: 40%;
     margin: auto;
     min-height: 30vh;
     margin: 1rem;
@@ -44,8 +43,9 @@ input[type=radio] {
     width: auto;
 }
 
-#change-password-error-message {
+.error-msg {
     color: red;
+    font-size: 0.9rem;
 }
 
 .max-chars {

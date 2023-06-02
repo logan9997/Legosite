@@ -177,7 +177,7 @@ class General():
         request.session.modified = True
         return request
 
-    def large_number_commas(self, number: float):
+    def large_number_commas(self, number: float) -> str:
         number = str(number)
         if '.' in number:
             num_int = number.split('.')[0]

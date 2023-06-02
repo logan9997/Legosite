@@ -27,7 +27,9 @@
 
     {% load tags %}
 
-    <p id="important-info">Only theme with data <a href="{% url 'search' %}Star_Wars">Star Wars</a></p>
+    {% if '/search/Star_Wars/' not in request.path or '/search/Star_Wars/' != request.path %}
+        <p id="important-info">Only theme with data<a href="{% url 'search' %}Star_Wars">Star Wars</a></p>
+    {% endif %}
 
     <div id="theme-path-container">
         {% for theme in theme_paths %}

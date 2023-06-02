@@ -6,7 +6,7 @@ from project_utils.general import General
 from project_utils.item_format import Formatter
 from scripts.database import DB
 
-from App.models import User
+from App.models import User, Item
 from config.config import RECENTLY_VIEWED_ITEMS_NUM, get_graph_options
 
 FORMATTER = Formatter()
@@ -28,12 +28,22 @@ def index(request):
         str(user_id), []
     )[:RECENTLY_VIEWED_ITEMS_NUM] 
 
+    #remove any ids which are no longer available
+    recently_viewed_ids = [
+        _id for _id in recently_viewed_ids if _id in
+        list(Item.objects.filter(theme__theme_path__startswith='Star_Wars',).values_list('item_id', flat=True).distinct('item_id')
+        )
+    ]
+
     recently_viewed_items = [
         DB.get_item_info(item_id, 'avg_price')[0] for item_id in recently_viewed_ids
     ]
+
     recently_viewed_items = FORMATTER.format_item_info(
         recently_viewed_items, graph_data=[graph_metric], user_id=user_id
     )
+
+    recently_viewed_items = []
 
     popular_items = DB.get_popular_items()[:10]
     popular_items = FORMATTER.format_item_info(
