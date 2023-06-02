@@ -61,7 +61,7 @@
     </section>
     {% endif %}
 
-    {% if theme_items|length > 0 and request.get_full_path|count:"/" != 2 %}
+    {% if request.get_full_path|count:"/" != 2 %}
 
     <section id="theme-items-container">
         <!-- item sorting, graph data, page buttons -->
@@ -70,6 +70,10 @@
         </div>
 
         <div id="theme-items">
+        {% if theme_items|length == 0 %}
+            <p id="no-items-message">No items for specified filters</p>
+        {% endif %}
+
         {% for item in theme_items %}
             <div class="main-item-container">
             {% include 'App/template_blocks/item_container.html' with show_prices=True %}

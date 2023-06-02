@@ -277,7 +277,7 @@
     }
 
     const ALL_DATES = JSON.parse(document.getElementById('all_dates').textContent)
-    const MAX_POINTS = 6
+    const MAX_POINTS = 8
     chart_scaling = function () {
         if (window.innerWidth  < 500) {
             mychart.options.scales.yAxes[0].ticks.maxTicksLimit = MAX_POINTS
@@ -289,9 +289,7 @@
             //reset max graph points
             document.getElementById('max_graph_points').textContent = localStorage.getItem('default-max-graph-points')
             var dates = JSON.parse(document.getElementById('{{item.dates_id}}').textContent)
-            console.log(dates)
             var slice_end = get_list_slice_end(dates, slider.value-1, ALL_DATES)
-            console.log(slice_end, slider.value)
             dates = dates.slice(0, slice_end)
 
             var new_data = []

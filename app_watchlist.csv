@@ -1,1 +1,0 @@
-COPY app_watchlist TO STDOUT WITH CSV legosite_DB

@@ -1,1 +1,0 @@
-COPY app_item TO STDOUT WITH CSV legosite_DB

@@ -4,11 +4,14 @@ import os
 from django import template
 from django.utils.safestring import mark_safe
 
-from config.config import (ITEM_TYPE_CONVERT, MAX_GRAPH_POINTS,
-                           MAX_GRAPH_POINTS_ITEM_VIEW, MAX_SEARCH_SUGGESTIONS)
+from config.config import (
+    ITEM_TYPE_CONVERT, MAX_GRAPH_POINTS,
+    MAX_GRAPH_POINTS_ITEM_VIEW, MAX_SEARCH_SUGGESTIONS,
+    REMOVE_CHARS
+)
 from project_utils.general import General
 
-from ..models import Item, Theme, User
+from ..models import Item, User
 
 
 register = template.Library()
@@ -42,19 +45,27 @@ def max_search_suggestions():
 @register.simple_tag
 def item_details_search_suggestions():
     details = list(Item.objects.filter(
-        theme__theme_path__contains='Star_Wars',
+        theme__theme_path__startswith='Star_Wars',
     ).values_list('item_id', 'item_name', 'item_type').distinct('item_id'))
 
-    return [{'item_id': detail[0].lower(), 'item_name':detail[1].lower(), 'item_type':ITEM_TYPE_CONVERT[detail[2]]} for detail in details]
+    return [{
+        'item_id': detail[0].lower(), 
+        'item_name':detail[1].lower(), 
+        'item_type':ITEM_TYPE_CONVERT[detail[2]]
+        } for detail in details
+    ]
 
 
 @register.simple_tag
 def item_names():
     names = list(map(str.lower, Item.objects.filter(
-        theme__theme_path__contains='Star_Wars',
+        theme__theme_path__startswith='Star_Wars',
     ).values_list('item_name', flat=True).distinct('item_id')))
 
-    return [''.join([char for char in name if char not in [')', '(', ',', '-', '.']]) for name in names]
+    return [
+        ''.join([char for char in name if char not in REMOVE_CHARS])
+        for name in names
+    ]
 
 
 @register.filter()

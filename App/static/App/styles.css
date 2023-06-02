@@ -141,8 +141,6 @@ nav ul li:hover .dropdown-content {
     height: 2rem;
 }
 
-
-
 #search-suggestions {
     display: flex;
     width: 16rem;
@@ -208,6 +206,9 @@ nav ul li:hover .dropdown-content {
     margin-top: 1rem;
 }
 
+#no-items-message {
+    text-align: center;
+}
 
 footer {
     min-height: 10rem;

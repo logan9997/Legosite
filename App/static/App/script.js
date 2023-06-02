@@ -237,13 +237,14 @@ function input_validation(input, add_new) {
         error_msg_container.style.display = 'block'
         error_msg.innerHTML = msg
         if (! window.location.href.includes('portfolio')) {
-            document.getElementById('add-to-watchlist').style.marginTop = '1.5rem'
+            console.log('GIT', document.getElementById('add-to-watchlist').style.margin)
+            document.getElementById('add-to-watchlist').style.marginTop = '2rem'
         }
     } else {
         error_msg_container.style.display = 'none'
         error_msg.innerHTML = ''
         if (! window.location.href.includes('portfolio')) {
-            document.getElementById('add-to-watchlist').style.marginTop = '14.5rem'
+            document.getElementById('add-to-watchlist').style.marginTop = '5rem'
         }
     }
 
@@ -251,7 +252,6 @@ function input_validation(input, add_new) {
     if (msg != '') {
         valid = false
     }
-
 
     if (add_new) {
         if (! valid) {
@@ -303,7 +303,6 @@ function get_list_slice_start(list, value, dates) {
 function get_list_slice_end(list, value, dates) {
     var slice_end = 0
     for (let j = list.length-1; j >= 0; j --) {
-        console.log(list[j], dates[value])
         if (list[j] <= dates[value]) {
             slice_end = j+1
             break

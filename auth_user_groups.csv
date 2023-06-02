@@ -1,1 +1,0 @@
-COPY auth_user_groups TO STDOUT WITH CSV legosite_DB

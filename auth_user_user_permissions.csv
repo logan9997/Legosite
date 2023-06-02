@@ -1,1 +1,0 @@
-COPY auth_user_user_permissions TO STDOUT WITH CSV legosite_DB
