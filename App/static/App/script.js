@@ -293,7 +293,7 @@ function get_list_slice_start(list, value, dates) {
     var slice_start = 0
     for (let j = 0; j < list.length; j ++) {
         if (list[j] >= dates[value]) {
-            slice_start = j
+            slice_start = j+1
             break
         }
     }
